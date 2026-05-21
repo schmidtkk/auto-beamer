@@ -1,0 +1,37 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% Test fixture: minimal smoke test for font-config.sty
+\usetheme[progressbar=frametitle,block=fill,numbering=fraction]{metropolis}
+\usepackage{appendixnumberbeamer}
+
+\usepackage{unicode-math}
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmathfont{Latin Modern Math}
+\usepackage{amsmath,amssymb}
+
+% ── CJK Font (cross-platform) ────────────────────────────────────────────────
+\input{../../template-lib/font-config.sty}
+
+\usepackage{booktabs,tabularx,multirow,array,microtype,colortbl}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{adjustbox}
+\usepackage{pifont}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+
+\graphicspath{{../../slides_assets/}}
+
+\title{Test Deck}
+\subtitle{Smoke Test}
+\author{Test Author}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}{Test Slide}
+  This is a test slide.
+\end{frame}
+
+\end{document}

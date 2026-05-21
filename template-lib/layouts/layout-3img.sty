@@ -1,0 +1,71 @@
+% ============================================================================
+% layout-3img.sty — Three Image Grid Layouts
+% ============================================================================
+% 3×1 horizontal grid or 2+1 asymmetric.
+% Usage: \TLthreeimg{img1}{cap1}{img2}{cap2}{img3}{cap3}
+% ============================================================================
+
+% ── Three Images in a Row (equal width) ─────────────────────────────────────
+\providecommand{\TLthreeimg}[7][0.31]{%
+  % #1 = image width (default 0.31)
+  % #2-7 = image1, cap1, image2, cap2, image3, cap3
+  \begin{columns}[T]
+    \begin{column}{#1\textwidth}
+      \centering
+      \adjincludegraphics[max width=\linewidth,max height=0.38\textheight]{#2}
+      \\[3pt]
+      \footnotesize\color{TLinkSoft} #3
+    \end{column}
+    \begin{column}{#1\textwidth}
+      \centering
+      \adjincludegraphics[max width=\linewidth,max height=0.38\textheight]{#4}
+      \\[3pt]
+      \footnotesize\color{TLinkSoft} #5
+    \end{column}
+    \begin{column}{#1\textwidth}
+      \centering
+      \adjincludegraphics[max width=\linewidth,max height=0.38\textheight]{#6}
+      \\[3pt]
+      \footnotesize\color{TLinkSoft} #7
+    \end{column}
+  \end{columns}
+}
+
+% ── Three Images + Bottom Text ──────────────────────────────────────────────
+\providecommand{\TLthreeimgbottom}[8][0.31]{%
+  \TLthreeimg[#1]{#2}{#3}{#4}{#5}{#6}{#7}
+  \vspace{0.5em}
+  \begin{minipage}{\textwidth}
+    #8
+  \end{minipage}
+}
+
+% ── 2+1 Asymmetric (two small left, one large right) ────────────────────────
+\providecommand{\TLthreeimgasym}[6]{%
+  % #1 = top-left image
+  % #2 = bottom-left image
+  % #3 = left captions
+  % #4 = right image
+  % #5 = right caption
+  % #6 = bottom text
+  \begin{columns}[T]
+    \begin{column}{0.38\textwidth}
+      \centering
+      \adjincludegraphics[max width=\linewidth,max height=0.30\textheight]{#1}
+      \\[2pt]
+      \adjincludegraphics[max width=\linewidth,max height=0.30\textheight]{#2}
+      \\[2pt]
+      \footnotesize\color{TLinkSoft} #3
+    \end{column}
+    \begin{column}{0.58\textwidth}
+      \centering
+      \adjincludegraphics[max width=\linewidth,max height=0.62\textheight]{#4}
+      \\[3pt]
+      \footnotesize\color{TLinkSoft} #5
+    \end{column}
+  \end{columns}
+  \vspace{0.3em}
+  \begin{minipage}{\textwidth}
+    #6
+  \end{minipage}
+}

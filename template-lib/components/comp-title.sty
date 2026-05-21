@@ -1,0 +1,75 @@
+% ============================================================================
+% comp-title.sty — Title Slide Components
+% ============================================================================
+% Reusable title slide layouts.
+% Usage: \TLtitlestandard{title}{subtitle}{author}{institute}{date}
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{comp-title}[2026/05/23 Title Components]
+
+\RequirePackage{tikz}
+\RequirePackage{graphicx}
+
+% ── Standard Title Slide (left text, right image) ───────────────────────────
+\providecommand{\TLtitlestandard}[6][]{%
+  % #1 = optional image file
+  % #2 = title
+  % #3 = subtitle
+  % #4 = author
+  % #5 = institute
+  % #6 = date
+  \TLtitlebg
+  \begin{frame}[plain]
+    \begin{columns}[T]
+      \begin{column}{0.58\textwidth}
+        \vspace{2em}
+        {\color{TLaccent}\rule{0.7\linewidth}{1.5pt}}\\[0.6em]
+        {\Large\bfseries\color{white} #2}\\[0.6em]
+        {\color{TLprimaryLight}\large #3}\\[1em]
+        {\small\color{TLprimaryLight} #4}\\[0.3em]
+        {\footnotesize\color{TLinkSoft} #5}\\[1.5em]
+        {\color{TLaccent}\rule{0.7\linewidth}{0.5pt}}\\[0.6em]
+        {\small\color{TLprimaryLight} #6}
+      \end{column}
+      \begin{column}{0.40\textwidth}
+        \vspace{0.5em}
+        \IfValueTF{#1}{%
+          \includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{#1}%
+        }{}
+      \end{column}
+    \end{columns}
+  \end{frame}
+  \TLresetbg
+}
+
+% ── Centered Title Slide (no image) ─────────────────────────────────────────
+\providecommand{\TLtitlecenter}[4]{%
+  % #1 = title
+  % #2 = subtitle
+  % #3 = author
+  % #4 = date
+  \TLtitlebg
+  \begin{frame}[plain]
+    \vfill
+    \centering
+    {\color{TLaccent}\rule{0.5\linewidth}{1.5pt}}\\[1em]
+    {\Huge\bfseries\color{white} #1}\\[0.8em]
+    {\Large\color{TLprimaryLight} #2}\\[1.5em]
+    {\large\color{white} #3}\\[0.5em]
+    {\color{TLaccent}\rule{0.5\linewidth}{0.5pt}}\\[1em]
+    {\normalsize\color{TLprimaryLight} #4}
+    \vfill
+  \end{frame}
+  \TLresetbg
+}
+
+% ── Simple Section Divider ──────────────────────────────────────────────────
+\providecommand{\TLsection}[1]{%
+  \begin{frame}[plain]
+    \vfill
+    \centering
+    {\Huge\bfseries\color{TLprimary} #1}
+    \vfill
+  \end{frame}
+}

@@ -1,0 +1,60 @@
+% ============================================================================
+% layout-imgtop.sty — Image-Top / Content-Bottom Layout
+% ============================================================================
+% Classic layout: large image/visual on top, text cards at bottom.
+% Auto-calculates remaining height for image.
+% Usage: \TLimgtop{image-file}{caption}{bottom-content}
+% ============================================================================
+
+\makeatletter
+% ── Savebox / Length (guarded) ───────────────────────────────────────────────
+\@ifundefined{@ittbox}{\newsavebox{\@ittbox}}{}
+\@ifundefined{@ittht}{\newlength{\@ittht}}{}
+\@ifundefined{ittAvailHt}{\newlength\ittAvailHt}{}
+
+% ── Image Top with Bottom Content Block ─────────────────────────────────────
+\providecommand{\TLimgtop}[3]{%
+  % #1 = image file or tabular/multiple images
+  % #2 = caption below image
+  % #3 = bottom content block
+  \sbox{\@ittbox}{\begin{minipage}{\textwidth}#3\end{minipage}}%
+  \setlength{\@ittht}{\ht\@ittbox}\addtolength{\@ittht}{\dp\@ittbox}%
+  \setlength\ittAvailHt{\dimexpr\textheight-\@ittht-2.0cm\relax}%
+  \centering
+  \begin{minipage}[c][\ittAvailHt][c]{\textwidth}\centering
+    #1
+  \end{minipage}\\[3pt]%
+  {\footnotesize\color{TLinkSoft}#2}\vspace{0.3em}%
+  \usebox{\@ittbox}%
+}
+
+% ── Convenience: Single Image on Top ────────────────────────────────────────
+\providecommand{\TLimgtopsingle}[3]{%
+  \TLimgtop{%
+    \adjincludegraphics[max width=\textwidth,max height=\ittAvailHt]{#1}%
+  }{#2}{#3}%
+}
+
+% ── Convenience: Two Images on Top ──────────────────────────────────────────
+\providecommand{\TLimgtoptwo}[6][0.48]{%
+  % #1 = image width
+  % #2-5 = img1, cap1, img2, cap2
+  % #6 = bottom content
+  \TLimgtop{%
+    \begin{columns}[c]
+      \begin{column}{#1\textwidth}
+        \centering
+        \adjincludegraphics[max width=\linewidth,max height=\ittAvailHt-1.5em]{#2}
+        \\[2pt]
+        \footnotesize #3
+      \end{column}
+      \begin{column}{#1\textwidth}
+        \centering
+        \adjincludegraphics[max width=\linewidth,max height=\ittAvailHt-1.5em]{#4}
+        \\[2pt]
+        \footnotesize #5
+      \end{column}
+    \end{columns}%
+  }{}{#6}%
+}
+\makeatother

@@ -1,0 +1,301 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% ═════════════════════════════════════════════════════════════════════════════
+%  TEMPLATE LIBRARY DEMO
+%  Showcases all 4 themes × 8 layouts × 3 component categories
+% ═════════════════════════════════════════════════════════════════════════════
+
+\usepackage[academic]{template-lib/template-lib}
+\uselayout{text}
+\uselayout{1img}
+\uselayout{2img}
+\uselayout{eq}
+\uselayout{twocol}
+\uselayout{table}
+\uselayout{3img}
+\uselayout{imgtop}
+
+\TLsetfoot{Template Library Demo · 2026}
+
+\title{Template Library}
+\subtitle{Three-Tier Beamer System}
+\author{Demo Document}
+\institute{Theme + Layout + Component}
+\date{2026年5月23日}
+
+\begin{document}
+
+% ── Title Slide ─────────────────────────────────────────────────────────────
+\TLtitlecenter
+  {Template Library}
+  {Theme · Layout · Component}
+  {Demo Document}
+  {2026年5月23日}
+
+% ── S1: Overview ────────────────────────────────────────────────────────────
+\TLsection{System Overview}
+
+\begin{frame}{Three-Tier Architecture}
+  \begin{TLtext}
+    \textbf{Tier 1 — Themes:} Color palettes + typography\\
+    \quad academic · teal · dark · navygold
+    
+    \vspace{0.8em}
+    \textbf{Tier 2 — Layouts:} Page structure templates\\
+    \quad text · 1img · 2img · 3img · eq · table · imgtop · twocol
+    
+    \vspace{0.8em}
+    \textbf{Tier 3 — Components:} Reusable content blocks\\
+    \quad title · block · fig
+  \end{TLtext}
+  
+  \TLtakeaway{%
+    Mix and match any theme with any layout. Components work everywhere.%
+  }
+\end{frame}
+
+% ── S2: Theme Showcase ──────────────────────────────────────────────────────
+\TLsection{Theme Tier}
+
+\begin{frame}{Theme: Academic (Navy + Brick)}
+  \begin{TLtext}
+    \begin{itemize}
+      \item Primary: \TLterm{Deep Navy} \textcolor{TLprimary}{\rule{1cm}{0.5em}}
+      \item Accent: \TLterm{Brick Red} \textcolor{TLaccent}{\rule{1cm}{0.5em}}
+      \item Best for: General academic presentations
+    \end{itemize}
+  \end{TLtext}
+  
+  \TLinfoblock{Info Block Example}{%
+    This is how an information block looks in the academic theme.
+    It uses the primary color for the border and tint for background.%
+  }
+  
+  \vspace{0.3em}
+  \TLalertblock[Alert]{%
+    This is an alert block using the accent color.%
+  }
+\end{frame}
+
+\begin{frame}{Theme Comparison}
+  \TLtwocol{
+    \textbf{Academic}\\
+    \textcolor{TLprimary}{\rule{1cm}{0.5em}} Navy\\
+    \textcolor{TLaccent}{\rule{1cm}{0.5em}} Brick
+    
+    \vspace{0.5em}
+    \textbf{Teal}\\
+    \textcolor{TLprimary}{\rule{1cm}{0.5em}} Teal\\
+    \textcolor{TLaccent}{\rule{1cm}{0.5em}} Amber
+  }{
+    \textbf{Dark}\\
+    \textcolor{TLprimary}{\rule{1cm}{0.5em}} Soft Blue\\
+    \textcolor{TLaccent}{\rule{1cm}{0.5em}} Gold
+    
+    \vspace{0.5em}
+    \textbf{NavyGold}\\
+    \textcolor{TLprimary}{\rule{1cm}{0.5em}} Navy\\
+    \textcolor{TLaccent}{\rule{1cm}{0.5em}} Gold
+  }
+\end{frame}
+
+% ── S3: Layout Showcase ─────────────────────────────────────────────────────
+\TLsection{Layout Tier}
+
+\begin{frame}{Layout: Text Only}
+  \begin{TLtext}
+    \textbf{Pure text flow with takeaway support}
+    
+    \begin{enumerate}
+      \item First point with \TLterm{highlighted term}
+      \item Second point with \TLyes\ positive marker
+      \item Third point with \TLno\ negative marker
+    \end{enumerate}
+  \end{TLtext}
+  
+  \TLtakeaway{%
+    The \texttt{text} layout is the simplest — just content flowing naturally.%
+  }
+\end{frame}
+
+\begin{frame}{Layout: Single Image}
+  \TLoneimgleft[0.50]{sparse-view-ct-1.jpg}{
+    \textbf{CT Imaging Process}
+    \begin{itemize}
+      \item X-ray projection
+      \item Sinogram recording
+      \item FBP reconstruction
+    \end{itemize}
+    
+    \vspace{0.5em}
+    \TLresultblock{Result}{PSNR +2.3 dB improvement}
+  }
+\end{frame}
+
+\begin{frame}{Layout: Two Images}
+  \TLtwoimg[0.45]
+    {ours_recon_18v.png}{18-view (severe)}
+    {ours_recon_72v.png}{72-view (mild)}
+  
+  \vspace{0.5em}
+  \begin{minipage}{\textwidth}
+    \centering
+    \TLtakeaway{%
+      View count directly affects reconstruction quality.%
+    }
+  \end{minipage}
+\end{frame}
+
+\begin{frame}{Layout: Equation Focus}
+  \TLeqsingle{
+    \mathcal{A}f(\theta,s)=\int_{-\infty}^{+\infty}\!
+    f(s\cos\theta - t\sin\theta,\;
+      s\sin\theta + t\cos\theta)\,dt
+  }{%
+    The Radon transform maps an image to its sinogram representation.
+    Each point $(\theta,s)$ is a line integral along the corresponding ray.%
+  }
+\end{frame}
+
+\begin{frame}{Layout: Two-Column Comparison}
+  \TLtwocol{
+    \textbf{Forward Problem}
+    \begin{itemize}
+      \item Given: Image $f(x,y)$
+      \item Compute: Projections
+      \item Operator: $\mathcal{A}$
+    \end{itemize}
+  }{
+    \textbf{Inverse Problem}
+    \begin{itemize}
+      \item Given: Sinogram
+      \item Compute: Image
+      \item Operator: $\mathcal{A}^\dagger$
+    \end{itemize}
+  }
+  
+  \vspace{0.5em}
+  \TLtwocoldiv{
+    \centering
+    \textbf{Analytical}\\
+    FBP, Filtered Backprojection
+  }{
+    \centering
+    \textbf{Iterative}\\
+    SART, SIRT, CG
+  }
+\end{frame}
+
+% ── S4: Component Showcase ──────────────────────────────────────────────────
+\TLsection{Component Tier}
+
+\begin{frame}{Block Components}
+  \TLinfoblock{Information Block}{%
+    Use for definitions, explanations, or background info.%
+  }
+  
+  \vspace{0.3em}
+  \TLalertblock[Important Note]{%
+    Use for key insights, warnings, or critical takeaways.%
+  }
+  
+  \vspace{0.3em}
+  \TLresultblock{Experimental Result}{%
+    Use for positive results, improvements, or achievements.%
+  }
+  
+  \vspace{0.3em}
+  \TLwarnblock{Limitation}{%
+    Use for known issues, constraints, or future work.%
+  }
+\end{frame}
+
+\begin{frame}{Figure Components}
+  \TLtwocol{
+    \TLautoimg[max height=0.35\textheight]{sparse-view-ct-1.jpg}
+    
+    \vspace{0.3em}
+    \centering
+    \footnotesize Auto-scaled image
+  }{
+    \TLimgcap[max height=0.35\textheight]{sparse-view-ct-2.jpg}{%
+      Image with automatic caption%
+    }
+  }
+  
+  \vspace{0.5em}
+  \TLtakeaway{%
+    \texttt{TLautoimg} fits to column width.
+    \texttt{TLimgcap} adds caption below.%
+  }
+\end{frame}
+
+\begin{frame}{Data Table}
+  \TLtablefull{
+    \begin{tabular}{lccc}
+      \toprule
+      \TLthead Method & 18-view & 36-view & 72-view \\
+      \midrule
+      FBP & 24.5 & 28.3 & 32.1 \\
+      \TLthl U-Net & 31.2 & 34.5 & 36.8 \\
+      Ours & \textbf{35.8} & \textbf{38.2} & \textbf{39.5} \\
+      \bottomrule
+    \end{tabular}
+  }{PSNR (dB) comparison on AAPM-LDCT dataset}
+\end{frame}
+
+% ── S5: Combined Example ────────────────────────────────────────────────────
+\TLsection{Real-World Example}
+
+\begin{frame}{CvG-Diff: Complete Slide}
+  \TLoneimgright[0.42]{
+    \textbf{Cross-view Generalized Diffusion}
+    \begin{itemize}
+      \item Single model for all view counts
+      \item Cold Diffusion framework
+      \item EPCT training strategy
+    \end{itemize}
+    
+    \vspace{0.3em}
+    \TLresultblock{Key Result}{%
+      18-view: \TLdeltaup{4.18 dB} vs baseline%
+    }
+  }{paper_fancy_title.jpg}
+\end{frame}
+
+\begin{frame}{Method Comparison}
+  \TLprocon{
+    \begin{itemize}
+      \item[\TLyes] High quality
+      \item[\TLyes] Cross-view generalization
+      \item[\TLyes] Low NFE (50 steps)
+    \end{itemize}
+  }{
+    \begin{itemize}
+      \item[\TLno] Training time
+      \item[\TLno] Memory intensive
+      \item[\TLno] Hyperparameter tuning
+    \end{itemize}
+  }
+\end{frame}
+
+% ── End ─────────────────────────────────────────────────────────────────────
+\TLsection{Thank You}
+
+\begin{frame}[plain]
+  \vfill
+  \centering
+  {\Huge\bfseries\color{TLprimary} Thank You}
+  
+  \vspace{1em}
+  {\large Questions?}
+  
+  \vspace{2em}
+  {\small\color{TLinkSoft}
+    Template Library — Three-Tier Beamer System\\
+    \texttt{github.com/yourname/template-lib}
+  }
+  \vfill
+\end{frame}
+
+\end{document}

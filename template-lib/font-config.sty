@@ -1,0 +1,112 @@
+% ============================================================================
+% font-config.sty — Cross-Platform CJK Font Configuration
+% ============================================================================
+% Single source of truth for CJK font setup across all platforms.
+%
+% USER OVERRIDE (highest priority):
+%   Before loading this package, define:
+%     \def\CJKFontPath{/path/to/fonts/}
+%     \def\CJKFontName{FontFile.ttf}
+%     \def\CJKFontBold{FontFileBold.ttf}   (optional)
+%
+%   Example for agent chat:
+%     \def\CJKFontPath{/usr/share/fonts/truetype/noto/}
+%     \def\CJKFontName{NotoSansSC-Regular.ttf}
+%     \def\CJKFontBold{NotoSansSC-Bold.ttf}
+%     \input{font-config.sty}
+%
+% AUTO-DETECT priority:
+%   1. User override (\CJKFontPath defined)
+%   2. Windows: Microsoft YaHei (C:/WINDOWS/Fonts/)
+%   3. Linux: Noto Sans CJK (/usr/share/fonts/...)
+%   4. macOS: Noto Sans CJK (~/Library/Fonts/ or /System/Library/Fonts/)
+%   5. Generic: Noto Sans SC in common paths
+%
+% REQUIREMENTS:
+%   - XeLaTeX (fontspec + xeCJK)
+%   - CJK fonts installed by user (we do NOT distribute fonts)
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{font-config}[2026/05/23 Cross-Platform CJK Font Config]
+
+\RequirePackage{fontspec}
+\RequirePackage{xeCJK}
+
+% ── Internal helpers ────────────────────────────────────────────────────────
+\newcommand{\@fc@setfonts}[4][]{%
+  % #1 = optional RawFeature for variable fonts
+  % #2 = font path (with trailing slash)
+  % #3 = main font file
+  % #4 = bold font file (or empty)
+  \def\@fc@arg{#4}%
+  \ifx\@fc@arg\empty
+    % No separate bold font
+    \setCJKmainfont{#3}[Path=#2,#1]%
+    \setCJKsansfont{#3}[Path=#2,#1]%
+    \setCJKmonofont{#3}[Path=#2,#1]%
+    \newfontfamily\notocjk{#3}[Path=#2,#1]%
+  \else
+    \setCJKmainfont{#3}[Path=#2,BoldFont=#4]%
+    \setCJKsansfont{#3}[Path=#2,BoldFont=#4]%
+    \setCJKmonofont{#3}[Path=#2,BoldFont=#4]%
+    \newfontfamily\notocjk{#3}[Path=#2,BoldFont=#4]%
+  \fi
+}
+
+\newcommand{\@fc@warn}[1]{%
+  \PackageWarningNoLine{font-config}{#1}%
+}
+
+% ── Priority 1: User Override ───────────────────────────────────────────────
+\ifx\CJKFontPath\undefined
+  % No user override — proceed to auto-detect
+\else
+  \@fc@warn{Using user-defined CJK font: \CJKFontPath\CJKFontName}
+  \ifx\CJKFontBold\undefined
+    \@fc@setfonts{\CJKFontPath}{\CJKFontName}{}%
+  \else
+    \@fc@setfonts{\CJKFontPath}{\CJKFontName}{\CJKFontBold}%
+  \fi
+  % Skip rest of file
+  \expandafter\endinput
+\fi
+
+% ── Priority 2: Windows — Microsoft YaHei ───────────────────────────────────
+\IfFileExists{C:/WINDOWS/Fonts/msyh.ttc}{%
+  \@fc@warn{Detected Windows — using Microsoft YaHei}
+  \@fc@setfonts{}{C:/WINDOWS/Fonts/}{msyh.ttc}{msyhbd.ttc}%
+}{%
+% ── Priority 3: Linux — Noto Sans CJK (system package) ──────────────────────
+  \IfFileExists{/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc}{%
+    \@fc@warn{Detected Linux — using Noto Sans CJK (opentype)}
+    \@fc@setfonts{}{/usr/share/fonts/opentype/noto/}{NotoSansCJK-Regular.ttc}{NotoSansCJK-Bold.ttc}%
+  }{%
+    \IfFileExists{/usr/share/fonts/truetype/noto/NotoSansSC-Regular.ttf}{%
+      \@fc@warn{Detected Linux — using Noto Sans SC (truetype)}
+      \@fc@setfonts{}{/usr/share/fonts/truetype/noto/}{NotoSansSC-Regular.ttf}{NotoSansSC-Bold.ttf}%
+    }{%
+% ── Priority 4: macOS — Noto Sans CJK or system fonts ───────────────────────
+      \IfFileExists{/System/Library/Fonts/PingFang.ttc}{%
+        \@fc@warn{Detected macOS — using PingFang}
+        \@fc@setfonts{}{/System/Library/Fonts/}{PingFang.ttc}{}%
+      }{%
+        \IfFileExists{~/Library/Fonts/NotoSansSC-Regular.ttf}{%
+          \@fc@warn{Detected macOS — using user-installed Noto Sans SC}
+          \@fc@setfonts{}{~/Library/Fonts/}{NotoSansSC-Regular.ttf}{NotoSansSC-Bold.ttf}%
+        }{%
+% ── Priority 5: Generic fallback — search common paths ──────────────────────
+          \IfFileExists{/usr/local/share/fonts/NotoSansSC-Regular.ttf}{%
+            \@fc@warn{Using generic Noto Sans SC}
+            \@fc@setfonts{}{/usr/local/share/fonts/}{NotoSansSC-Regular.ttf}{NotoSansSC-Bold.ttf}%
+          }{%
+% ── FAILURE: No CJK font found ──────────────────────────────────────────────
+            \@fc@warn{No CJK font found on system. CJK text will not render correctly.}
+            \@fc@warn{Install fonts: sudo apt-get install fonts-noto-cjk  (Linux)}
+            \@fc@warn{Or set manually: \def\CJKFontPath{/path/} \def\CJKFontName{font.ttf}}
+          }%
+        }%
+      }%
+    }%
+  }%
+}

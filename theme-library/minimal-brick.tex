@@ -1,0 +1,771 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% ═════════════════════════════════════════════════════════════════════════════
+%  MINIMAL ACADEMIC BEAMER THEME — CvG-Diff
+%  Philosophy: Content flows naturally; boxes only for key takeaways.
+%  Based on:   Metropolis (structure) + custom lightweight styling
+% ═════════════════════════════════════════════════════════════════════════════
+
+% ─── Core Theme ─────────────────────────────────────────────────────────────
+\usetheme[progressbar=frametitle,block=fill,numbering=fraction]{metropolis}
+\usepackage{appendixnumberbeamer}
+
+% ─── Fonts ──────────────────────────────────────────────────────────────────
+\usepackage{unicode-math}
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmathfont{Latin Modern Math}
+\usepackage{amsmath,amssymb}
+
+% ─── CJK Support (cross-platform) ───────────────────────────────────────────
+\input{../template-lib/font-config.sty}
+
+% ─── Packages ───────────────────────────────────────────────────────────────
+\usepackage{booktabs,tabularx,multirow,array,microtype,colortbl}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{adjustbox}
+\usepackage{pifont}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+
+\graphicspath{{slides_assets/}}
+
+% ═════════════════════════════════════════════════════════════════════════════
+%  COLOR PALETTE — Refined Academic (Navy + Brick Red)
+% ═════════════════════════════════════════════════════════════════════════════
+\definecolor{Navy}{HTML}{1a3a6b}
+\definecolor{NavyDark}{HTML}{0d1f3e}
+\definecolor{NavyLight}{HTML}{c8d8ee}
+\definecolor{NavyTint}{HTML}{e8eff8}
+\definecolor{Brick}{HTML}{b8321a}
+\definecolor{BrickLight}{HTML}{fbe8e3}
+\definecolor{Ink}{HTML}{1a1a2e}
+\definecolor{InkSoft}{HTML}{5a5a7e}
+\definecolor{Surface}{HTML}{f7f8fb}
+\definecolor{PosGreen}{HTML}{2E7D32}
+\definecolor{NegRed}{HTML}{C62828}
+
+% ═════════════════════════════════════════════════════════════════════════════
+%  BEAMER COLOR WIRING
+% ═════════════════════════════════════════════════════════════════════════════
+\setbeamercolor{background canvas}{bg=white}
+\setbeamercolor{normal text}{fg=Ink,bg=white}
+\setbeamercolor{frametitle}{bg=Navy,fg=white}
+\setbeamercolor{frametitle right}{bg=NavyDark}
+\setbeamercolor{title separator}{fg=Brick}
+\setbeamercolor{progress bar}{fg=Brick,bg=NavyLight}
+\setbeamercolor{alerted text}{fg=Brick}
+\setbeamercolor{block title}{bg=NavyTint,fg=Navy}
+\setbeamercolor{block body}{bg=Surface}
+\setbeamercolor{block title alerted}{bg=BrickLight,fg=Brick}
+\setbeamercolor{block body alerted}{bg=white}
+\setbeamercolor{block title example}{bg=NavyLight,fg=NavyDark}
+\setbeamercolor{block body example}{bg=white}
+\setbeamercolor{palette primary}{fg=white,bg=Navy}
+\setbeamercolor{itemize item}{fg=Navy}
+\setbeamercolor{itemize subitem}{fg=Navy}
+\setbeamercolor{enumerate item}{fg=Navy}
+\setbeamercolor{enumerate subitem}{fg=Navy}
+
+% ═════════════════════════════════════════════════════════════════════════════
+%  BEAMER FONT SETTINGS
+% ═════════════════════════════════════════════════════════════════════════════
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\normalsize}
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+\setbeamerfont{block body}{size=\small}
+
+% ═════════════════════════════════════════════════════════════════════════════
+%  NAVIGATION & FOOTLINE
+% ═════════════════════════════════════════════════════════════════════════════
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=0.72\paperwidth,ht=2.5ex,dp=1.25ex,leftskip=8pt]{palette primary}%
+      \usebeamerfont{footline}\tiny CvG-Diff MICCAI 2025%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=0.28\paperwidth,ht=2.5ex,dp=1.25ex,rightskip=8pt]{palette primary}%
+      \hfill\usebeamerfont{footline}\tiny\insertframenumber\,/\,\inserttotalframenumber%
+    \end{beamercolorbox}%
+  }%
+}
+
+% ═════════════════════════════════════════════════════════════════════════════
+%  CUSTOM COMMANDS
+% ═════════════════════════════════════════════════════════════════════════════
+\newcommand{\cmark}{\textcolor{PosGreen}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{NegRed}{\ding{55}}}
+\newcommand{\deltapos}[1]{\textcolor{PosGreen}{\textbf{+#1}}}
+\newcommand{\deltaneg}[1]{\textcolor{NegRed}{\textbf{#1}}}
+\newcommand{\cnum}[1]{{\notocjk#1}}
+\newcommand{\thetaEMA}{\theta^{\mathrm{EMA}}}
+
+% ── Highlight box for key takeaways (lightweight, no heavy borders) ──────────
+\newcommand{\keytakeaway}[1]{%
+  \vspace{0.4em}%
+  \begin{tikzpicture}
+    \node[fill=BrickLight, rounded corners=3pt, inner sep=8pt, text width=\linewidth-16pt, align=justify] {%
+      \small\textcolor{Brick}{\textbf{Key Takeaway.}} #1%
+    };
+  \end{tikzpicture}%
+  \vspace{0.2em}%
+}
+
+% ── Inline highlight for important terms ─────────────────────────────────────
+\newcommand{\hterm}[1]{\textcolor{Brick}{\textbf{#1}}}
+
+% ── Auto image helper ────────────────────────────────────────────────────────
+\newcommand{\autoimg}[2][]{%
+  \centering\adjincludegraphics[max width=\linewidth,max height=0.72\textheight,#1]{#2}%
+}
+
+% ═════════════════════════════════════════════════════════════════════════════
+%  METADATA
+% ═════════════════════════════════════════════════════════════════════════════
+\title{Cross-view Generalized Diffusion Model\\for Sparse-view CT Reconstruction}
+\subtitle{CvG-Diff · MICCAI 2025}
+\author{Jixiang Chen · Yiqun Lin · Yi Qin · Hualiang Wang · Xiaomeng Li}
+\institute{HKUST xmed-lab \quad|\quad 复旦大学 FARM 组}
+\date{2026年5月20日}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\begin{document}
+% ═════════════════════════════════════════════════════════════════════════════
+
+% ── S1: Title ────────────────────────────────────────────────────────────────
+{
+\setbeamercolor{background canvas}{bg=NavyDark}
+\begin{frame}[plain]
+  \begin{columns}[T]
+    \begin{column}{0.58\textwidth}
+      \vspace{2em}
+      {\color{Brick}\rule{0.7\linewidth}{1.5pt}}\\[0.6em]
+      {\Large\bfseries\color{white}
+        Cross-view Generalized Diffusion Model\\[0.2em]
+        for Sparse-view CT Reconstruction}\\[0.6em]
+      {\color{NavyLight}\large CvG-Diff · MICCAI 2025}\\[1em]
+      {\small\color{NavyLight}
+        Jixiang Chen · Yiqun Lin · Yi Qin\\[0.15em]
+        Hualiang Wang · Xiaomeng Li}\\[0.3em]
+      {\footnotesize\color{InkSoft} HKUST xmed-lab}\\[1.5em]
+      {\color{Brick}\rule{0.7\linewidth}{0.5pt}}\\[0.6em]
+      {\small\color{NavyLight} 2026年5月20日}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \vspace{0.5em}
+      \includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{paper_fancy_title.jpg}
+    \end{column}
+  \end{columns}
+\end{frame}
+}
+
+% ── S2: CT Imaging Background ────────────────────────────────────────────────
+\begin{frame}{CT 成像原理}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{三步成像流程}
+      \begin{enumerate}
+        \item \textbf{多角度投影}：X 射线从 $N_v$ 个角度穿过人体
+        \item \textbf{Sinogram}：记录每个角度的衰减投影
+        \item \textbf{滤波反投影（FBP）}：$\mathcal{A}^\dagger$ 将 sinogram 反投影重建 CT 图像
+      \end{enumerate}
+      \vspace{0.5em}
+      \textbf{关键术语}
+      \begin{itemize}
+        \item CT（Computed Tomography）
+        \item NFE（Number of Function Evaluations）
+        \item Radon 变换 $\mathcal{A}$（正向投影）
+        \item FBP 算子 $\mathcal{A}^\dagger$（反投影重建）
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \centering
+      \adjincludegraphics[max width=0.48\textwidth,max height=0.35\textheight]{sparse-view-ct-1.jpg}%
+      \hspace{4pt}%
+      \adjincludegraphics[max width=0.48\textwidth,max height=0.35\textheight]{sparse-view-ct-2.jpg}
+      \\[3pt]
+      \footnotesize\color{InkSoft} CT sinogram 采集与 FBP 重建示意
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── S3: Radon & FBP ──────────────────────────────────────────────────────────
+\begin{frame}{Radon 变换与 FBP：CT 重建的正反算子}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Radon 变换 $\mathcal{A}$（正向）}
+      \[
+        \mathcal{A}f(\theta,s)=\int_{-\infty}^{+\infty}\!
+        f(s\cos\theta - t\sin\theta,\;
+          s\sin\theta + t\cos\theta)\,dt
+      \]
+      \vspace{0.3em}
+      将图像 $f(x,y)$ 映射为 sinogram：$(\theta,s)$ 平面上每点是沿对应直线的线积分。
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{滤波反投影 FBP（$\mathcal{A}^\dagger$）}
+      \[
+        f(x,y)=\int_0^{\pi}\!\bigl[
+          \mathcal{A}f(\theta,s)*h(s)
+        \bigr]_{s=x\cos\theta+y\sin\theta}\,d\theta
+      \]
+      \vspace{0.3em}
+      $h(s)$：Ram-Lak 斜坡滤波器。视图数 $N_v$ 不足时，FBP 产生严重 \hterm{streak 伪影}。
+    \end{column}
+  \end{columns}
+
+  \keytakeaway{%
+    稀疏视图 CT 的核心挑战：如何从角度严重欠采样的 sinogram 重建诊断级图像？%
+  }
+\end{frame}
+
+% ── S4: Sparse-view Problem ──────────────────────────────────────────────────
+\begin{frame}{稀疏视图 CT：少剂量的代价}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+      \centering
+      \begin{tabular}{@{}c@{\hspace{6pt}}c@{\hspace{6pt}}c@{}}
+        \adjincludegraphics[max width=0.30\textwidth,max height=0.38\textheight]{ours_recon_72v.png} &
+        \adjincludegraphics[max width=0.30\textwidth,max height=0.38\textheight]{ours_recon_36v.png} &
+        \adjincludegraphics[max width=0.30\textwidth,max height=0.38\textheight]{ours_recon_18v.png} \\[3pt]
+        \small\textbf{72-view} & \small\textbf{36-view} & \small\textbf{18-view}\\
+        \footnotesize 轻微伪影 & \footnotesize 明显 streak & \footnotesize 严重失真
+      \end{tabular}
+      \\[3pt]
+      \footnotesize\color{InkSoft} FBP 直接重建结果（AAPM-LDCT 数据集）
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \textbf{动机}
+      \begin{itemize}
+        \item View 数 $\downarrow$ $\Rightarrow$ X 射线剂量 $\downarrow$
+        \item 目标：以\hterm{极少投影角度}重建\hterm{诊断级}图像
+      \end{itemize}
+      \vspace{0.5em}
+      \textbf{挑战：FBP streak 伪影}
+      \begin{itemize}
+        \item View 越少 $\Rightarrow$ 欠采样越严重
+        \item 18-view 条件下重建图像伪影严重，难以满足临床诊断要求
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── S5: Existing Methods ─────────────────────────────────────────────────────
+\begin{frame}{现有方法：各有局限}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{\cnum{①} 一步前馈方法（NFE = 1）}
+      \\[2pt]
+      \small\textbf{代表：}FreeSeed · GloReDi · DuDoTrans
+      \begin{itemize}
+        \item[\cmark] 推理效率高，NFE = 1，临床应用潜力
+        \item[\xmark] 需\textbf{分别训练}，跨角度泛化差
+        \item[\xmark] 极稀疏时\textbf{过平滑}，细节丢失
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{\cnum{②} 扩散模型方法}
+      \\[2pt]
+      \small\textbf{代表：}VSS · CoSIGN · DPS
+      \begin{itemize}
+        \item[\cmark] 生成质量高，可跨 view 数泛化
+        \item[\xmark] NFE 高达\textbf{1000}，推理开销极大
+        \item[\xmark] 极稀疏（18-view）时不稳定
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \keytakeaway{%
+    目标：重建质量优 $+$ 低 NFE $+$ 跨视图泛化 $\;\Longrightarrow\;$ \textbf{CvG-Diff}%
+  }
+\end{frame}
+
+% ── S6: Diffusion Primer ─────────────────────────────────────────────────────
+\begin{frame}{预备知识：扩散模型}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \textbf{标准 DDPM（Ho et al.~NeurIPS 2020）}
+      \\[4pt]
+      \textbf{前向加噪：}
+      \[
+        x_t=\sqrt{\bar\alpha_t}\,x_0+\sqrt{1-\bar\alpha_t}\,\varepsilon,
+        \quad\varepsilon\sim\mathcal{N}(0,I)
+      \]
+      \vspace{0.3em}
+      \small\textbf{反向去噪：}$\epsilon_\theta$ 迭代预测噪声
+      \\
+      \small\textbf{采样：}$x_T\!\sim\!\mathcal{N}(0,I)$ 迭代 $T$ 步
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \textbf{Cold Diffusion（Bansal et al.~NeurIPS 2023）}
+      \\[4pt]
+      将加噪推广为\hterm{任意确定性退化算子} $D$：
+      \begin{itemize}
+        \item $D(x_0,0)=x_0$（无退化）
+        \item $D(x_0,T)$：最严重退化
+        \item 退化可以是模糊、掩码、或\textbf{稀疏视图子采样}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \keytakeaway{%
+    CvG-Diff：$D$ 定义为稀疏视图 CT 的角度子采样与 FBP%
+  }
+\end{frame}
+
+% ── S7: Cross-view Observation ───────────────────────────────────────────────
+\begin{frame}{关键观察：跨视图退化相关性}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \centering
+      \begin{tabular}{@{}c@{\hspace{4pt}}c@{\hspace{4pt}}c@{}}
+        \adjincludegraphics[max width=0.30\textwidth,max height=0.35\textheight]{ours_recon_18v.png} &
+        \adjincludegraphics[max width=0.30\textwidth,max height=0.35\textheight]{ours_recon_36v.png} &
+        \adjincludegraphics[max width=0.30\textwidth,max height=0.35\textheight]{ours_recon_72v.png} \\[3pt]
+        \scriptsize\textbf{18-view} & \scriptsize\textbf{36-view} & \scriptsize\textbf{72-view}\\
+        \scriptsize 退化最重 & \scriptsize 中等 & \scriptsize 较轻
+      \end{tabular}
+      \\[3pt]
+      \footnotesize\color{InkSoft} FBP 重建：基础解剖结构相同，退化程度各异
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \textbf{核心洞察}
+      \begin{itemize}
+        \item 18/36/72-view 均来自同一 sinogram 子采样
+        \item View 越少 $\Rightarrow$ 退化越重
+        \item 基础解剖结构\textbf{完全一致}
+      \end{itemize}
+      \vspace{0.5em}
+      同一解剖结构在不同稀疏率下 = 同一图像的\hterm{不同退化级别}
+    \end{column}
+  \end{columns}
+
+  \keytakeaway{%
+    退化是\textbf{确定性的} $\Rightarrow$ Cold Diffusion 框架直接适用 $\Rightarrow$ \textbf{单一模型}即可泛化至所有投影角度数%
+  }
+\end{frame}
+
+% ── S8: Cold Diffusion Framework ─────────────────────────────────────────────
+\begin{frame}{Cold Diffusion 框架（Bansal et al.~NeurIPS 2023）}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \textbf{训练目标}
+      \[
+        \mathcal{L}_{\mathrm{restore}}
+        =\bigl\|R_\theta(D(x_0,t),t)-x_0\bigr\|_2^2
+      \]
+      \vspace{0.3em}
+      \footnotesize 随机取 $t\in\{1,\ldots,T\}$，退化到 level $t$，网络还原
+      \vspace{0.8em}
+
+      \textbf{推理：迭代更新}
+      \begin{align*}
+        \hat{x}_0^{\,t} &= R_\theta(x_t,t)\\
+        x_{t-1} &= x_t - D(\hat{x}_0^{\,t},t)+D(\hat{x}_0^{\,t},t-1)
+      \end{align*}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \textbf{框架性质}
+      \begin{itemize}
+        \item $D$ \textbf{不限于高斯噪声}，任意确定性退化均可
+        \item 边界：$D(x_0,0)=x_0$，$D(x_0,T)$=最严重退化
+        \item 推理链：$x_T\!\to\!x_{T-1}\!\to\!\cdots\!\to\!x_0$
+      \end{itemize}
+      \vspace{0.5em}
+      \textbf{CvG-Diff 适配}
+      \begin{itemize}
+        \item $D$ 定义为 \textbf{稀疏视图子采样 + FBP}
+        \item $x_T$ 含真实测量，残差为数据一致性约束
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── S9: CvG-Diff Framework ───────────────────────────────────────────────────
+\begin{frame}{CvG-Diff 框架}
+  \vspace{0.5em}
+  \centering
+  \adjincludegraphics[max width=0.85\textwidth,max height=0.55\textheight]{paper_fig1_framework.png}
+  \\[0.8em]
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \textbf{退化算子 $D$}
+      \\[2pt]
+      \small $x_T=\mathcal{A}^\dagger P(T)\,\mathcal{A}\,x_0$
+      \quad\footnotesize（$\mathcal{A}$：Radon；$P(T)$：子采样；$\mathcal{A}^\dagger$：FBP）
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \textbf{实验关键级别}
+      \\[2pt]
+      \centering\small Level\,5/7/8 $\;\Leftrightarrow\;$ 72/36/18 view
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── S10: Error Propagation ───────────────────────────────────────────────────
+\begin{frame}{直接应用 Cold Diffusion 的失效模式：误差传播}
+  \vspace{0.5em}
+  \centering
+  \adjincludegraphics[max width=0.90\textwidth,max height=0.48\textheight]{paper_fig2_error_propagation.png}
+  \\[0.8em]
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.55\textwidth}
+      \textbf{误差累积机制}
+      \\[2pt]
+      $\hat{x}_0^{\,t}$ 含还原误差 $\Rightarrow$ 误差注入 $x_{t-1}$ $\Rightarrow$ 后续输入质量持续下降
+      \\[2pt]
+      $\Rightarrow$ \hterm{误差逐步累积，无法逆转}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \textbf{训练-推理分布偏移}
+      \\[2pt]
+      $R_\theta$ 在训练阶段从未接触含误差的中间状态输入
+      \\[2pt]
+      $\Rightarrow$ \hterm{训练-推理分布偏移}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── S11: EPCT ────────────────────────────────────────────────────────────────
+\begin{frame}{对策一（训练侧）：EPCT — 主动模拟误差传播}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \textbf{EPCT 核心思路}
+      \\[3pt]
+      训练阶段\hterm{主动合成}推理过程中将遭遇的含误差中间状态——使网络具备对带传播误差输入的\textbf{鲁棒还原能力}
+      \vspace{0.5em}
+
+      \textbf{Step 1}：维护网络的 EMA 版本 $R_{\thetaEMA}$
+      \[
+        \thetaEMA\;\leftarrow\;
+        \gamma\,\thetaEMA+(1-\gamma)\,\theta
+      \]
+      \vspace{0.2em}
+      \footnotesize $\gamma=0.995$，每 $p=10$ 次 iter 更新一次
+      \vspace{0.5em}
+
+      \textbf{Step 2}：EMA 在最严重退化级别 $T$ 预测
+      \[
+        \hat{x}_0^{\,T}=R_{\thetaEMA}(x_T,\,T)
+      \]
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \textbf{合成带传播误差的 $x_t$}
+      \\[3pt]
+      随机取 $t\in[1,T)$，令
+      \[
+        x_t=x_T-D(\hat{x}_0^{\,T},T)+D(\hat{x}_0^{\,T},t)
+      \]
+      \vspace{0.2em}
+      \footnotesize $x_t$ 模拟推理第 $t$ 步实际遇到的\textbf{带误差输入}
+      \vspace{0.8em}
+
+      \textbf{实现细节}
+      \begin{itemize}
+        \item EMA 提供\textbf{稳定、滞后}的版本，避免 bootstrapping 不稳定
+        \item EPCT 在训练迭代 $>$ 2000 步后启用
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── S12: EPCT Dual Loss ──────────────────────────────────────────────────────
+\begin{frame}{对策一（训练侧）：EPCT — 双 Loss 联合训练}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \textbf{原始 Restore Loss}
+      \[
+        \mathcal{L}_{\mathrm{restore}}
+        =\bigl\|R_\theta(D(x_0,t),t)-x_0\bigr\|_2^2
+      \]
+      \vspace{0.2em}
+      \footnotesize 从\textbf{理想退化图像}还原，维持基础能力
+      \vspace{0.8em}
+
+      \textbf{新增 Compose Loss}
+      \[
+        \mathcal{L}_{\mathrm{compose}}
+        =\bigl\|x_0-R_\theta(x_t,t)\bigr\|_2^2
+      \]
+      \vspace{0.2em}
+      \footnotesize 从\textbf{带传播误差}的 $x_t$ 反演，提升鲁棒性
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \textbf{为什么有效？}
+      \begin{itemize}
+        \item $\mathcal{L}_{\mathrm{restore}}$：从\textbf{理想}退化输入重建（覆盖第一步）
+        \item $\mathcal{L}_{\mathrm{compose}}$：从\textbf{含误差}输入重建（覆盖后续）
+        \item 二者\textbf{互补}，填补训练-推理分布偏移
+      \end{itemize}
+      \vspace{0.5em}
+      \textbf{消融验证}
+      \\[3pt]
+      \centering\small
+      仅 EPCT $\Rightarrow$ 18-view \deltapos{4.18 dB}\\
+      \textbf{（主要贡献模块）}
+    \end{column}
+  \end{columns}
+
+  \keytakeaway{%
+    $\mathcal{L}=\mathcal{L}_{\mathrm{restore}}+\mathcal{L}_{\mathrm{compose}}$%
+  }
+\end{frame}
+
+% ── S13: Sequential Sampling Limitations ─────────────────────────────────────
+\begin{frame}{残留问题：顺序采样的两个局限}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{\cnum{①} 语义错误在稀疏级被锁死}
+      \\[3pt]
+      稀疏 level（大 $t$）产生的\hterm{语义错误}（如解剖结构位置偏差、结构缺失）
+      \\[3pt]
+      固定顺序 $T\!\to\!T\!-\!1\!\to\!\cdots\!\to\!1$：语义错误在后续 dense level 步骤\textbf{无法修复}
+      \vspace{0.8em}
+
+      \textbf{\cnum{②} NFE 分配浪费}
+      \\[3pt]
+      固定顺序调度：每个 level 各消耗 1 NFE
+      \\[2pt]
+      $\Rightarrow$ 某 level 已收敛仍被迫继续
+      \\[2pt]
+      $\Rightarrow$ NFE 未必花在最需要的地方
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \textbf{核心观察}
+      \\[3pt]
+      稀疏级的语义错误 $\neq$ dense 级能修复
+      \\[3pt]
+      必须先在\hterm{语义层面}（稀疏 level）充分校正，再进入高频细化
+      \vspace{1em}
+
+      \begin{alertblock}{SPDPS 动机}
+        $\Rightarrow$ 需要\textbf{自适应、双阶段}的采样策略
+        \\[4pt]
+        这正是 \textbf{SPDPS} 的设计动机。
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── S14: SPDPS ───────────────────────────────────────────────────────────────
+\begin{frame}{对策二（推理侧）：SPDPS — 语义优先双阶段采样}
+  \vspace{0.3em}
+  \centering
+  \adjincludegraphics[max width=0.90\textwidth,max height=0.48\textheight]{paper_fig4_spdps_nocap.png}
+  \\[0.5em]
+  \footnotesize\color{InkSoft} 上行：SPDPS 重采样策略；下行：顺序采样基线
+  \vspace{0.5em}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \textbf{Phase~1：语义校正（$n=6$）}
+      \\[3pt]
+      \centering
+      若 $\mathrm{SSIM}(\hat{x}_0^{\,t},\hat{x}_0^{\,t+1})>\tau=0.97$
+      \\[3pt]
+      \textbf{重置}至 $T_{\max}$，继续语义校正
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Phase~2：高频细化（$m=4$）}
+      \\[3pt]
+      \centering
+      Phase~1 完成后
+      \\[3pt]
+      dense level 顺序 $m$ 步采样
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── S15: Quantitative Results ────────────────────────────────────────────────
+\begin{frame}{定量评估：各视图数均优于最优基线}
+  \vspace{0.5em}
+  {\centering\footnotesize
+  \setlength{\tabcolsep}{5pt}%
+  \begin{tabular}{@{}l r r r r@{}}
+    \toprule
+    & & \multicolumn{3}{c}{\textbf{PSNR\,$\uparrow$\;/\;SSIM\,$\uparrow$\quad（AAPM-LDCT）}} \\[-2pt]
+    \cmidrule(l){3-5}
+    \textbf{方法} & \textbf{NFE} & \textbf{18-view} & \textbf{36-view} & \textbf{72-view} \\
+    \midrule
+    DuDoTrans  & 1    & 34.02\;/\;.901 & 38.24\;/\;.941 & 42.76\;/\;.976 \\
+    FreeSeed   & 1    & 34.31\;/\;.904 & 37.92\;/\;.939 & 42.93\;/\;.975 \\
+    GloReDi    & 1    & 34.75\;/\;.913 & 37.54\;/\;.935 & 41.80\;/\;.963 \\
+    \midrule
+    VSS        & 1000 & 32.34\;/\;.879 & 37.52\;/\;.940 & 41.92\;/\;.971 \\
+    CoSIGN     & 10   & 31.84\;/\;.863 & 34.96\;/\;.897 & 37.87\;/\;.932 \\
+    \midrule
+    \rowcolor{NavyLight}
+    \textbf{CvG-Diff} & \textbf{10} & \textbf{38.34\;/\;.952} & \textbf{41.78\;/\;.971} & \textbf{45.94\;/\;.986} \\
+    \bottomrule
+  \end{tabular}\par}
+
+  \keytakeaway{%
+    18-view 领先最佳一步法 \deltapos{+3.6 dB}，领先 VSS \deltapos{+6.0 dB}；NFE 仅需 \textbf{10}（vs VSS 的 1000）%
+  }
+\end{frame}
+
+% ── S16: Qualitative Results ─────────────────────────────────────────────────
+\begin{frame}{视觉质量：18-view 重建对比}
+  \vspace{0.5em}
+  \centering
+  \adjincludegraphics[max width=0.92\textwidth,max height=0.62\textheight]{paper_fig3_qualitative.png}
+
+  \keytakeaway{%
+    CvG-Diff（最右列）：streak 伪影得到有效消除，高频细节保真度最高；PSNR 领先最优基线 \deltapos{6 dB}%
+  }
+\end{frame}
+
+% ── S17: Ablation ────────────────────────────────────────────────────────────
+\begin{frame}{消融实验：EPCT 为主要贡献模块}
+  \vspace{0.5em}
+  \centering
+  \adjincludegraphics[max width=0.80\textwidth,max height=0.50\textheight]{ablation_bar.png}
+
+  \keytakeaway{%
+    18-view PSNR 消融：仅 SPDPS \deltapos{+1.00 dB} ／ 仅 EPCT \deltapos{+4.18 dB} ／ +SPDPS \deltapos{+0.49 dB}%
+  }
+\end{frame}
+
+% ── S18: Ablation Interpretation ─────────────────────────────────────────────
+\begin{frame}{消融实验：解读}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.40\textwidth}
+      \centering\small
+      \begin{tabular}{lc}
+        \toprule
+        \textbf{变体} & \textbf{增益}\\
+        \midrule
+        仅 SPDPS   & \deltapos{1.00 dB}\\
+        仅 EPCT    & \deltapos{4.18 dB}\\
+        +SPDPS     & \deltapos{0.49 dB}\\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.56\textwidth}
+      \textbf{物理解释}
+      \begin{itemize}
+        \item EPCT：消除\textbf{训练-推理分布偏移}
+        \item SPDPS：解决\textbf{语义错误锁死}问题
+        \item 双模块协同改善同一误差传播瓶颈
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \keytakeaway{%
+    \textbf{关键洞察}：EPCT 核心贡献 \deltapos{+4.18 dB}（训练侧）$+$ SPDPS 推理优化 \deltapos{+0.49 dB}（推理侧）
+    两者互补增益叠加，\textbf{双管齐下}消除误差传播%
+  }
+\end{frame}
+
+% ── S19: Reproduction ────────────────────────────────────────────────────────
+\begin{frame}{复现：数值对比}
+  \vspace{0.3em}
+  \centering\footnotesize
+  \setlength\tabcolsep{4pt}
+  \begin{tabular}{lcccccc}
+    \toprule
+    & \multicolumn{2}{c}{\textbf{18-view}} &
+      \multicolumn{2}{c}{\textbf{36-view}} &
+      \multicolumn{2}{c}{\textbf{72-view}}\\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+    \textbf{方法} & PSNR & SSIM & PSNR & SSIM & PSNR & SSIM\\
+    \midrule
+    Paper Table 1      & 38.34  & 0.9518 & 41.78  & 0.9705 & 45.94  & 0.9863\\
+    HF 官方 ckpt       & 38.335 & 0.9518 & 41.782 & 0.9705 & 45.670 & 0.9854\\
+    \rowcolor{NavyLight}
+    \textbf{本组（从头训）} &
+      \textbf{38.403} & \textbf{0.9539} &
+      \textbf{41.856} & \textbf{0.9722} &
+      \textbf{45.666} & \textbf{0.9863}\\
+    \midrule
+    $\Delta$ 本组 $-$ Paper &
+      \deltapos{0.063} & \deltapos{0.0021} &
+      \deltapos{0.076} & \deltapos{0.0017} &
+      \deltaneg{$-$0.274} & $\pm$0.000\\
+    \bottomrule
+  \end{tabular}
+
+  \keytakeaway{%
+    72-view $-$0.27 dB 与 HF 官方 ckpt 一致 $\Rightarrow$ torch-radon 在 CUDA 12.4 重编的\textbf{数值微差}，非训练问题%
+  }
+\end{frame}
+
+% ── S20: Qualitative Reproduction ────────────────────────────────────────────
+\begin{frame}{复现：定性可视化（18-view，L506 患者）}
+  \vspace{0.3em}
+  \centering
+  \adjincludegraphics[max width=0.92\textwidth,max height=0.55\textheight]{ours_recon_18v.png}
+  \\[0.5em]
+  \footnotesize\color{InkSoft} 列：GT / FBP / HF ckpt / 本组
+  \vspace{0.3em}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \textbf{视觉观察}
+      \\[2pt]
+      \small
+      FBP 列严重 streak 伪影；HF 官方 ckpt 与\textbf{本组结果}视觉差异\textbf{可忽略不计}；Streak 伪影经 SPDPS 有效消除，软组织边界与参考图像高度吻合
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{alertblock}{定性确认}
+        \small 从头训练结果与官方 ckpt \textbf{等价}
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── S21: Closing ─────────────────────────────────────────────────────────────
+{
+\setbeamercolor{background canvas}{bg=NavyDark}
+\begin{frame}[plain]
+  \vfill
+  \centering
+  {\color{white}\fontsize{36}{44}\selectfont 谢谢聆听}\\[0.5em]
+  {\color{Brick}\large Questions Welcome}\\[2em]
+  {\color{NavyLight}\normalsize
+    CvG-Diff · MICCAI 2025 · arXiv 2508.10313}\\[0.3em]
+  {\color{InkSoft}\small
+    Jixiang Chen · Yiqun Lin · Yi Qin · Hualiang Wang · Xiaomeng Li\\[0.2em]
+    HKUST xmed-lab}
+  \vfill
+\end{frame}
+}
+
+% ── Backup Slides ────────────────────────────────────────────────────────────
+\appendix
+
+\begin{frame}{Backup：SPDPS 超参敏感度（Table 3）}
+  \vspace{0.5em}
+  \centering
+  \adjincludegraphics[max width=0.85\textwidth,max height=0.60\textheight]{paper_table3_tau_m.png}
+  \\[0.5em]
+  \small\centering
+  $\tau\in\{0.97,0.98,0.99\}$ 差 $<$0.4 dB；$m\in\{2,3,4\}$ 效果几乎相同。
+\end{frame}
+
+\begin{frame}{Backup：36-view 定性结果}
+  \vspace{0.5em}
+  \centering
+  \adjincludegraphics[max width=0.92\textwidth,max height=0.75\textheight]{ours_recon_36v.png}
+\end{frame}
+
+\begin{frame}{Backup：72-view 定性结果}
+  \vspace{0.5em}
+  \centering
+  \adjincludegraphics[max width=0.92\textwidth,max height=0.75\textheight]{ours_recon_72v.png}
+\end{frame}
+
+\end{document}

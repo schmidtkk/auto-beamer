@@ -1,0 +1,22 @@
+{
+  "name": "beamer-deck-auto",
+  "description": "XeLaTeX Beamer slide automation: three-tier template library, layout optimizer, and design grammar checker for academic presentations",
+  "version": "1.0.0",
+  "author": {
+    "name": "schmidtkk",
+    "email": ""
+  },
+  "homepage": "https://github.com/schmidtkk/beamer-deck-auto",
+  "repository": "https://github.com/schmidtkk/beamer-deck-auto",
+  "license": "MIT",
+  "keywords": [
+    "beamer",
+    "latex",
+    "xelatex",
+    "slides",
+    "presentation",
+    "academic",
+    "layout",
+    "metropolis"
+  ]
+}

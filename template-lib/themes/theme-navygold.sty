@@ -1,0 +1,71 @@
+% ============================================================================
+% theme-navygold.sty — Navy + Gold Theme
+% ============================================================================
+% Classic prestigious palette, reminiscent of Oxford/Cambridge branding.
+% Usage: \usepackage{theme-navygold}
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-navygold}[2026/05/23 Navy Gold Beamer Theme]
+
+\usetheme[progressbar=frametitle,block=fill,numbering=fraction]{metropolis}
+\usepackage{appendixnumberbeamer}
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{1a3a6b}
+\definecolor{TLprimaryDark}{HTML}{0d1f3e}
+\definecolor{TLprimaryLight}{HTML}{c8d8ee}
+\definecolor{TLprimaryTint}{HTML}{e8eff8}
+\definecolor{TLaccent}{HTML}{c9a23a}
+\definecolor{TLaccentLight}{HTML}{fdf5dc}
+\definecolor{TLink}{HTML}{1a1a2e}
+\definecolor{TLinkSoft}{HTML}{5a5a7e}
+\definecolor{TLsurface}{HTML}{f7f8fb}
+\definecolor{TLpos}{HTML}{2E7D32}
+\definecolor{TLneg}{HTML}{C62828}
+
+% ── Beamer Color Wiring ─────────────────────────────────────────────────────
+\setbeamercolor{background canvas}{bg=white}
+\setbeamercolor{normal text}{fg=TLink,bg=white}
+\setbeamercolor{frametitle}{bg=TLprimary,fg=white}
+\setbeamercolor{frametitle right}{bg=TLprimaryDark}
+\setbeamercolor{title separator}{fg=TLaccent}
+\setbeamercolor{progress bar}{fg=TLaccent,bg=TLprimaryLight}
+\setbeamercolor{alerted text}{fg=TLaccent}
+\setbeamercolor{block title}{bg=TLprimaryTint,fg=TLprimary}
+\setbeamercolor{block body}{bg=TLsurface}
+\setbeamercolor{block title alerted}{bg=TLaccentLight,fg=TLaccent}
+\setbeamercolor{block body alerted}{bg=white}
+\setbeamercolor{block title example}{bg=TLprimaryLight,fg=TLprimaryDark}
+\setbeamercolor{block body example}{bg=white}
+\setbeamercolor{palette primary}{fg=white,bg=TLprimary}
+\setbeamercolor{itemize item}{fg=TLprimary}
+\setbeamercolor{itemize subitem}{fg=TLprimary}
+\setbeamercolor{enumerate item}{fg=TLprimary}
+\setbeamercolor{enumerate subitem}{fg=TLprimary}
+
+% ── Fonts ───────────────────────────────────────────────────────────────────
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\normalsize}
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+\setbeamerfont{block body}{size=\small}
+
+% ── Footer ──────────────────────────────────────────────────────────────────
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=0.72\paperwidth,ht=2.5ex,dp=1.25ex,leftskip=8pt]{palette primary}%
+      \usebeamerfont{footline}\tiny \TLfootleft%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=0.28\paperwidth,ht=2.5ex,dp=1.25ex,rightskip=8pt]{palette primary}%
+      \hfill\usebeamerfont{footline}\tiny\insertframenumber\,/\,\inserttotalframenumber%
+    \end{beamercolorbox}%
+  }%
+}
+
+\newcommand{\TLfootleft}{Navy Gold Presentation}
+\newcommand{\TLsetfoot}[1]{\renewcommand{\TLfootleft}{#1}}
+
+\newcommand{\TLtitlebg}{\setbeamercolor{background canvas}{bg=TLprimaryDark}}
+\newcommand{\TLresetbg}{\setbeamercolor{background canvas}{bg=white}}

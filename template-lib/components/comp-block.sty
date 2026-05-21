@@ -1,0 +1,77 @@
+% ============================================================================
+% comp-block.sty — Content Block Components
+% ============================================================================
+% Reusable info/alert/result blocks.
+% Usage: \TLinfoblock{title}{content} or \TLalertblock{content}
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{comp-block}[2026/05/23 Block Components]
+
+\RequirePackage{tikz}
+\RequirePackage{pifont}
+
+% ── Info Block (primary color) ──────────────────────────────────────────────
+\providecommand{\TLinfoblock}[2]{%
+  \begin{tikzpicture}
+    \node[draw=TLprimary, fill=TLprimaryTint, rounded corners=3pt, 
+          inner sep=8pt, text width=\linewidth-16pt, align=justify] {%
+      \small\textbf{\color{TLprimary}#1}\\[0.3em]
+      #2%
+    };
+  \end{tikzpicture}%
+}
+
+% ── Alert Block (accent color) ──────────────────────────────────────────────
+\providecommand{\TLalertblock}[2][]{%
+  \begin{tikzpicture}
+    \node[draw=TLaccent, fill=TLaccentLight, rounded corners=3pt,
+          inner sep=8pt, text width=\linewidth-16pt, align=justify] {%
+      \small\textbf{\color{TLaccent}#1}\\[0.3em]
+      #2%
+    };
+  \end{tikzpicture}%
+}
+
+% ── Result Block (green) ────────────────────────────────────────────────────
+\providecommand{\TLresultblock}[2]{%
+  \begin{tikzpicture}
+    \node[draw=TLpos, fill=TLpos!10, rounded corners=3pt,
+          inner sep=8pt, text width=\linewidth-16pt, align=justify] {%
+      \small\textbf{\color{TLpos}#1}\\[0.3em]
+      #2%
+    };
+  \end{tikzpicture}%
+}
+
+% ── Warning Block (red) ─────────────────────────────────────────────────────
+\providecommand{\TLwarnblock}[2]{%
+  \begin{tikzpicture}
+    \node[draw=TLneg, fill=TLneg!8, rounded corners=3pt,
+          inner sep=8pt, text width=\linewidth-16pt, align=justify] {%
+      \small\textbf{\color{TLneg}#1}\\[0.3em]
+      #2%
+    };
+  \end{tikzpicture}%
+}
+
+% ── Key Takeaway (lightweight inline) ───────────────────────────────────────
+\providecommand{\TLtakeaway}[1]{%
+  \vspace{0.4em}%
+  \begin{tikzpicture}
+    \node[fill=TLaccentLight, rounded corners=3pt, inner sep=8pt,
+          text width=\linewidth-16pt, align=justify] {%
+      \small\textcolor{TLaccent}{\textbf{Key Takeaway.}} #1%
+    };
+  \end{tikzpicture}%
+  \vspace{0.2em}%
+}
+
+% ── Inline Term Highlight ───────────────────────────────────────────────────
+\providecommand{\TLterm}[1]{\textcolor{TLaccent}{\textbf{#1}}}
+
+% ── Check/X marks ───────────────────────────────────────────────────────────
+\providecommand{\TLyes}{\textcolor{TLpos}{\ding{51}}}
+\providecommand{\TLno}{\textcolor{TLneg}{\ding{55}}}
+\providecommand{\TLdeltaup}[1]{\textcolor{TLpos}{\textbf{+#1}}}
+\providecommand{\TLdeltadown}[1]{\textcolor{TLneg}{\textbf{-#1}}}

@@ -1,0 +1,77 @@
+% ============================================================================
+% template-lib.sty — Template Library Master Entry
+% ============================================================================
+% Three-tier system: Theme + Layout + Component
+%
+% USAGE:
+%   \usepackage[<theme>]{template-lib}
+%   Available themes: academic, teal, dark, navygold
+%
+%   Then load layouts as needed:
+%   \uselayout{text}    % or 1img, 2img, 3img, eq, table, imgtop, twocol
+%
+%   Components auto-loaded: title, block, fig
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{template-lib}[2026/05/23 Beamer Template Library]
+
+% ── Required Packages ───────────────────────────────────────────────────────
+\RequirePackage{etoolbox}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\RequirePackage{xcolor}
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{colortbl}
+\RequirePackage{multirow}
+\RequirePackage{adjustbox}
+\RequirePackage{pifont}
+\RequirePackage{tikz}
+\RequirePackage{amsmath,amssymb}
+\usetikzlibrary{positioning,calc}
+
+% ── Path Resolution ─────────────────────────────────────────────────────────
+% Since this .sty is loaded as \usepackage[...]{template-lib/template-lib},
+% all \input paths inside it resolve relative to the main document directory.
+% So we hardcode the prefix to point into the template-lib/ subdirectory.
+\newcommand{\TLlibpath}{template-lib/}
+
+% ── Theme Selection (via package option) ────────────────────────────────────
+\newcommand{\TLthemepath}{theme-academic}
+
+\DeclareOption{academic}{\renewcommand{\TLthemepath}{theme-academic}}
+\DeclareOption{teal}{\renewcommand{\TLthemepath}{theme-teal}}
+\DeclareOption{dark}{\renewcommand{\TLthemepath}{theme-dark}}
+\DeclareOption{navygold}{\renewcommand{\TLthemepath}{theme-navygold}}
+
+\ProcessOptions\relax
+
+% ── Load Selected Theme ─────────────────────────────────────────────────────
+\input{\TLlibpath themes/\TLthemepath.sty}
+
+% ── Component Registration ──────────────────────────────────────────────────
+\input{\TLlibpath components/comp-title.sty}
+\input{\TLlibpath components/comp-block.sty}
+\input{\TLlibpath components/comp-fig.sty}
+
+% ── Layout Registration System ─────────────────────────────────────────────-
+\newcommand{\uselayout}[1]{%
+  \input{\TLlibpath layouts/layout-#1.sty}%
+}
+
+% ── Quick Layout Aliases (use \uselayout{name} instead) ────────────────────
+% Removed: aliases conflicted with command names defined inside layout files.
+% Use \uselayout{text}, \uselayout{1img}, etc. directly.
+
+% ── CJK Support (cross-platform, user-overridable) ──────────────────────────
+\input{\TLlibpath font-config.sty}
+
+% ── Math Fonts ──────────────────────────────────────────────────────────────
+\RequirePackage{unicode-math}
+\setmathfont{Latin Modern Math}
+
+% ── Global Settings ─────────────────────────────────────────────────────────
+\setbeamertemplate{navigation symbols}{}
+\graphicspath{{slides_assets/}}

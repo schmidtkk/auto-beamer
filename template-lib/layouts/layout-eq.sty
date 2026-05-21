@@ -1,0 +1,66 @@
+% ============================================================================
+% layout-eq.sty — Equation-Focused Layouts
+% ============================================================================
+% For slides centered around mathematical derivations.
+% Usage: \TLeqsingle{equation}{explanation} or \TLeqcompare{eq1}{eq2}
+% ============================================================================
+
+% ── Single Centered Equation with Explanation ───────────────────────────────
+\providecommand{\TLeqsingle}[2]{%
+  % #1 = equation (in math mode)
+  % #2 = explanation text below
+  \vspace{0.5em}
+  \begin{center}
+    \begin{adjustbox}{max width=0.95\textwidth}
+      $\displaystyle #1$
+    \end{adjustbox}
+  \end{center}
+  \vspace{0.3em}
+  \begin{minipage}{\textwidth}
+    \small #2
+  \end{minipage}
+}
+
+% ── Two Equations Side by Side ──────────────────────────────────────────────
+\providecommand{\TLeqcompare}[4]{%
+  % #1 = left equation title
+  % #2 = left equation
+  % #3 = right equation title
+  % #4 = right equation
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \centering
+      \textbf{#1}\\[0.5em]
+      \begin{adjustbox}{max width=\linewidth}
+        $\displaystyle #2$
+      \end{adjustbox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \textbf{#3}\\[0.5em]
+      \begin{adjustbox}{max width=\linewidth}
+        $\displaystyle #4$
+      \end{adjustbox}
+    \end{column}
+  \end{columns}
+}
+
+% ── Equation with Step-by-Step Derivation ───────────────────────────────────
+\makeatletter
+\@ifundefined{TLeqderiv}{%
+\newenvironment{TLeqderiv}{%
+  \vspace{0.3em}
+  \begin{center}
+    \begin{minipage}{0.95\textwidth}
+}{%
+    \end{minipage}
+  \end{center}
+  \vspace{0.2em}
+}%
+}{}
+\makeatother
+
+% ── Inline Equation Highlight ───────────────────────────────────────────────
+\providecommand{\TLeqhighlight}[1]{%
+  \colorbox{TLaccentLight}{\textcolor{TLaccent}{$\displaystyle #1$}}%
+}

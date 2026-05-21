@@ -1,0 +1,20 @@
+{
+  "name": "beamer-deck-auto-dev",
+  "description": "Development marketplace for Beamer Deck Auto — XeLaTeX slide automation",
+  "owner": {
+    "name": "schmidtkk",
+    "email": ""
+  },
+  "plugins": [
+    {
+      "name": "beamer-deck-auto",
+      "description": "XeLaTeX Beamer template library with layout optimizer, design grammar checker, and AI-guided slide design pipeline",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "schmidtkk",
+        "email": ""
+      }
+    }
+  ]
+}

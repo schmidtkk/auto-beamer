@@ -1,0 +1,15 @@
+% ============================================================================
+% layout-text.sty — Pure Text Layout
+% ============================================================================
+% Simple text flow with optional key takeaway at bottom.
+% Usage: \begin{frame}{Title} \begin{TLtext}...\end{TLtext} \end{frame}
+% Note: \TLtakeaway, \TLterm, \TLsection are defined in comp-block/comp-title.
+% ============================================================================
+
+% ── Main Layout Environment ─────────────────────────────────────────────────
+\providecommand{\TLtext}{}
+\renewenvironment{TLtext}{%
+  \vspace{0.3em}%
+}{%
+  \vspace{0.2em}%
+}

@@ -1,0 +1,66 @@
+% ============================================================================
+% layout-twocol.sty — Two-Column Text Layouts
+% ============================================================================
+% For comparison, pros/cons, or parallel content.
+% Usage: \TLtwocol{left-content}{right-content}
+% ============================================================================
+
+% ── Equal Two Columns ───────────────────────────────────────────────────────
+\providecommand{\TLtwocol}[3][0.48]{%
+  % #1 = column width (default 0.48)
+  % #2 = left content
+  % #3 = right content
+  \begin{columns}[T]
+    \begin{column}{#1\textwidth}
+      #2
+    \end{column}
+    \begin{column}{\dimexpr\textwidth-#1\textwidth-0.02\textwidth\relax}
+      #3
+    \end{column}
+  \end{columns}
+}
+
+% ── Two Columns with Divider Line ───────────────────────────────────────────
+\providecommand{\TLtwocoldiv}[3][0.48]{%
+  \begin{columns}[T]
+    \begin{column}{#1\textwidth}
+      #2
+    \end{column}
+    \begin{column}{0.01\textwidth}
+      \centering
+      \color{TLprimaryLight}\rule{1pt}{0.6\textheight}
+    \end{column}
+    \begin{column}{#1\textwidth}
+      #3
+    \end{column}
+  \end{columns}
+}
+
+% ── Three Equal Columns ─────────────────────────────────────────────────────
+\providecommand{\TLthreecol}[4][0.32]{%
+  \begin{columns}[T]
+    \begin{column}{#1\textwidth}
+      #2
+    \end{column}
+    \begin{column}{#1\textwidth}
+      #3
+    \end{column}
+    \begin{column}{#1\textwidth}
+      #4
+    \end{column}
+  \end{columns}
+}
+
+% ── Pros/Cons Layout (Green/Red headers) ────────────────────────────────────
+\providecommand{\TLprocon}[2]{%
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{\color{TLpos}Pros}\\[0.3em]
+      #1
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{\color{TLneg}Cons}\\[0.3em]
+      #2
+    \end{column}
+  \end{columns}
+}

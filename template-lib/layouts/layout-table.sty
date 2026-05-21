@@ -1,0 +1,44 @@
+% ============================================================================
+% layout-table.sty — Table-Focused Layouts
+% ============================================================================
+% For data presentation slides.
+% Usage: \TLtablefull{table-content}{caption} or \TLtableside{table}{text}
+% ============================================================================
+
+% ── Full-width Table with Caption ───────────────────────────────────────────
+\providecommand{\TLtablefull}[2]{%
+  % #1 = table content (tabular environment)
+  % #2 = caption
+  \vspace{0.3em}
+  \begin{center}
+    #1
+  \end{center}
+  \vspace{0.3em}
+  \centering\footnotesize\color{TLinkSoft} #2
+}
+
+% ── Table Left, Text Right ──────────────────────────────────────────────────
+\providecommand{\TLtableside}[3][0.55]{%
+  % #1 = table width fraction
+  % #2 = table content
+  % #3 = side text
+  \begin{columns}[T]
+    \begin{column}{#1\textwidth}
+      \centering
+      \small
+      #2
+    \end{column}
+    \begin{column}{\dimexpr\textwidth-#1\textwidth-0.03\textwidth\relax}
+      #3
+    \end{column}
+  \end{columns}
+}
+
+% ── Highlight Row Helper ────────────────────────────────────────────────────
+\providecommand{\TLhlrow}{\rowcolor{TLprimaryTint}}
+
+% ── Styled Table Header ─────────────────────────────────────────────────────
+\providecommand{\TLtableheader}{%
+  \rowcolor{TLprimary}
+  \color{white}
+}

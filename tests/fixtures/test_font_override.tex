@@ -1,0 +1,41 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% Test fixture: font override smoke test
+\usetheme[progressbar=frametitle,block=fill,numbering=fraction]{metropolis}
+\usepackage{appendixnumberbeamer}
+
+\usepackage{unicode-math}
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmathfont{Latin Modern Math}
+\usepackage{amsmath,amssymb}
+
+% ── CJK Font Override (user-defined) ─────────────────────────────────────────
+% This tests that user overrides work correctly
+\def\CJKFontPath{C:/WINDOWS/Fonts/}
+\def\CJKFontName{msyh.ttc}
+\def\CJKFontBold{msyhbd.ttc}
+\input{../../template-lib/font-config.sty}
+
+\usepackage{booktabs,tabularx,multirow,array,microtype,colortbl}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{adjustbox}
+\usepackage{pifont}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+
+\graphicspath{{../../slides_assets/}}
+
+\title{Font Override Test}
+\subtitle{User-defined CJK font}
+\author{Test Author}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}{Font Override Test}
+  Testing user-defined font override.
+\end{frame}
+
+\end{document}

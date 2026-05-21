@@ -1,0 +1,62 @@
+% ============================================================================
+% layout-1img.sty — Single Image Layouts
+% ============================================================================
+% Two variants: image-left (text right) or image-right (text left)
+% Usage: \TLoneimgleft{image}{text} or \TLoneimgright{image}{text}
+% ============================================================================
+
+% ── Image Left, Text Right (55:45) ──────────────────────────────────────────
+\providecommand{\TLoneimgleft}[3][0.52]{%
+  % #1 = image width fraction (default 0.52)
+  % #2 = image file
+  % #3 = text content
+  \begin{columns}[T]
+    \begin{column}{#1\textwidth}
+      \centering
+      \adjincludegraphics[max width=\linewidth,max height=0.72\textheight]{#2}
+    \end{column}
+    \begin{column}{\dimexpr\textwidth-#1\textwidth-0.03\textwidth\relax}
+      #3
+    \end{column}
+  \end{columns}
+}
+
+% ── Text Left, Image Right (45:55) ──────────────────────────────────────────
+\providecommand{\TLoneimgright}[3][0.52]{%
+  % #1 = image width fraction (default 0.52)
+  % #2 = text content
+  % #3 = image file
+  \begin{columns}[T]
+    \begin{column}{\dimexpr\textwidth-#1\textwidth-0.03\textwidth\relax}
+      #2
+    \end{column}
+    \begin{column}{#1\textwidth}
+      \centering
+      \adjincludegraphics[max width=\linewidth,max height=0.72\textheight]{#3}
+    \end{column}
+  \end{columns}
+}
+
+% ── Image Top, Text Bottom ──────────────────────────────────────────────────
+\providecommand{\TLoneimgtop}[2]{%
+  % #1 = image file
+  % #2 = text content
+  \centering
+  \adjincludegraphics[max width=\textwidth,max height=0.55\textheight]{#1}
+  \vspace{0.5em}
+  \begin{minipage}{\textwidth}
+    #2
+  \end{minipage}
+}
+
+% ── Text Top, Image Bottom ──────────────────────────────────────────────────
+\providecommand{\TLoneimgbottom}[2]{%
+  % #1 = text content
+  % #2 = image file
+  \begin{minipage}{\textwidth}
+    #1
+  \end{minipage}
+  \vspace{0.5em}
+  \centering
+  \adjincludegraphics[max width=\textwidth,max height=0.55\textheight]{#2}
+}

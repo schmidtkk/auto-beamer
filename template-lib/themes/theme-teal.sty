@@ -1,0 +1,71 @@
+% ============================================================================
+% theme-teal.sty — Teal + Amber Theme
+% ============================================================================
+% Modern biomedical/medical imaging palette. High contrast, fresh feel.
+% Usage: \usepackage{theme-teal}
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-teal}[2026/05/23 Teal Beamer Theme]
+
+\usetheme[progressbar=frametitle,block=fill,numbering=fraction]{metropolis}
+\usepackage{appendixnumberbeamer}
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{00796b}
+\definecolor{TLprimaryDark}{HTML}{004d40}
+\definecolor{TLprimaryLight}{HTML}{b2dfdb}
+\definecolor{TLprimaryTint}{HTML}{e0f2f1}
+\definecolor{TLaccent}{HTML}{e65100}
+\definecolor{TLaccentLight}{HTML}{fbe9e7}
+\definecolor{TLink}{HTML}{1b2631}
+\definecolor{TLinkSoft}{HTML}{34495e}
+\definecolor{TLsurface}{HTML}{f1f8f7}
+\definecolor{TLpos}{HTML}{2E7D32}
+\definecolor{TLneg}{HTML}{C62828}
+
+% ── Beamer Color Wiring ─────────────────────────────────────────────────────
+\setbeamercolor{background canvas}{bg=white}
+\setbeamercolor{normal text}{fg=TLink,bg=white}
+\setbeamercolor{frametitle}{bg=TLprimary,fg=white}
+\setbeamercolor{frametitle right}{bg=TLprimaryDark}
+\setbeamercolor{title separator}{fg=TLaccent}
+\setbeamercolor{progress bar}{fg=TLaccent,bg=TLprimaryLight}
+\setbeamercolor{alerted text}{fg=TLaccent}
+\setbeamercolor{block title}{bg=TLprimaryTint,fg=TLprimary}
+\setbeamercolor{block body}{bg=TLsurface}
+\setbeamercolor{block title alerted}{bg=TLaccentLight,fg=TLaccent}
+\setbeamercolor{block body alerted}{bg=white}
+\setbeamercolor{block title example}{bg=TLprimaryLight,fg=TLprimaryDark}
+\setbeamercolor{block body example}{bg=white}
+\setbeamercolor{palette primary}{fg=white,bg=TLprimary}
+\setbeamercolor{itemize item}{fg=TLprimary}
+\setbeamercolor{itemize subitem}{fg=TLprimary}
+\setbeamercolor{enumerate item}{fg=TLprimary}
+\setbeamercolor{enumerate subitem}{fg=TLprimary}
+
+% ── Fonts ───────────────────────────────────────────────────────────────────
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\normalsize}
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+\setbeamerfont{block body}{size=\small}
+
+% ── Footer ──────────────────────────────────────────────────────────────────
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=0.72\paperwidth,ht=2.5ex,dp=1.25ex,leftskip=8pt]{palette primary}%
+      \usebeamerfont{footline}\tiny \TLfootleft%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=0.28\paperwidth,ht=2.5ex,dp=1.25ex,rightskip=8pt]{palette primary}%
+      \hfill\usebeamerfont{footline}\tiny\insertframenumber\,/\,\inserttotalframenumber%
+    \end{beamercolorbox}%
+  }%
+}
+
+\newcommand{\TLfootleft}{Teal Presentation}
+\newcommand{\TLsetfoot}[1]{\renewcommand{\TLfootleft}{#1}}
+
+\newcommand{\TLtitlebg}{\setbeamercolor{background canvas}{bg=TLprimaryDark}}
+\newcommand{\TLresetbg}{\setbeamercolor{background canvas}{bg=white}}
