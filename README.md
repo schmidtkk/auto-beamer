@@ -115,20 +115,20 @@ Pre-built skills for **Claude Code** and **Codex CLI** — your agent knows the 
 <img src="assets/teaser/decks/demo-hero.png" width="100%">
 </td>
 <td width="50%">
-<b>Two-Column Layout</b><br>
-<small>Side-by-side content with info cards and structured layout.</small><br>
+<b>Two-Column Comparison</b><br>
+<small>Side-by-side info blocks with contrasting approaches.</small><br>
 <img src="assets/teaser/decks/demo-twocol.png" width="100%">
 </td>
 </tr>
 <tr>
 <td width="50%">
 <b>Equation Slide</b><br>
-<small>Definition box with display math and key equations.</small><br>
+<small>Display math with loss function and definition cards.</small><br>
 <img src="assets/teaser/decks/demo-equation.png" width="100%">
 </td>
 <td width="50%">
-<b>Results Table</b><br>
-<small>Comparison table with highlighted best results.</small><br>
+<b>Key Findings</b><br>
+<small>Highlighted results with conclusion block.</small><br>
 <img src="assets/teaser/decks/demo-results.png" width="100%">
 </td>
 </tr>
