@@ -34,6 +34,9 @@
 \RequirePackage{xeCJK}
 
 % ── Internal helpers ────────────────────────────────────────────────────────
+% Use \makeatletter/\makeatother because this file may be \input'd
+% (not loaded as a proper .sty package), where @ is not a letter.
+\makeatletter
 \newcommand{\@fc@setfonts}[4][]{%
   % #1 = optional RawFeature for variable fonts
   % #2 = font path (with trailing slash)
@@ -73,30 +76,30 @@
 % ── Priority 2: Windows — Microsoft YaHei ───────────────────────────────────
 \IfFileExists{C:/WINDOWS/Fonts/msyh.ttc}{%
   \@fc@warn{Detected Windows — using Microsoft YaHei}
-  \@fc@setfonts{}{C:/WINDOWS/Fonts/}{msyh.ttc}{msyhbd.ttc}%
+  \@fc@setfonts{C:/WINDOWS/Fonts/}{msyh.ttc}{msyhbd.ttc}%
 }{%
 % ── Priority 3: Linux — Noto Sans CJK (system package) ──────────────────────
   \IfFileExists{/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc}{%
     \@fc@warn{Detected Linux — using Noto Sans CJK (opentype)}
-    \@fc@setfonts{}{/usr/share/fonts/opentype/noto/}{NotoSansCJK-Regular.ttc}{NotoSansCJK-Bold.ttc}%
+    \@fc@setfonts{/usr/share/fonts/opentype/noto/}{NotoSansCJK-Regular.ttc}{NotoSansCJK-Bold.ttc}%
   }{%
     \IfFileExists{/usr/share/fonts/truetype/noto/NotoSansSC-Regular.ttf}{%
       \@fc@warn{Detected Linux — using Noto Sans SC (truetype)}
-      \@fc@setfonts{}{/usr/share/fonts/truetype/noto/}{NotoSansSC-Regular.ttf}{NotoSansSC-Bold.ttf}%
+      \@fc@setfonts{/usr/share/fonts/truetype/noto/}{NotoSansSC-Regular.ttf}{NotoSansSC-Bold.ttf}%
     }{%
 % ── Priority 4: macOS — Noto Sans CJK or system fonts ───────────────────────
       \IfFileExists{/System/Library/Fonts/PingFang.ttc}{%
         \@fc@warn{Detected macOS — using PingFang}
-        \@fc@setfonts{}{/System/Library/Fonts/}{PingFang.ttc}{}%
+        \@fc@setfonts{/System/Library/Fonts/}{PingFang.ttc}{}%
       }{%
         \IfFileExists{~/Library/Fonts/NotoSansSC-Regular.ttf}{%
           \@fc@warn{Detected macOS — using user-installed Noto Sans SC}
-          \@fc@setfonts{}{~/Library/Fonts/}{NotoSansSC-Regular.ttf}{NotoSansSC-Bold.ttf}%
+          \@fc@setfonts{~/Library/Fonts/}{NotoSansSC-Regular.ttf}{NotoSansSC-Bold.ttf}%
         }{%
 % ── Priority 5: Generic fallback — search common paths ──────────────────────
           \IfFileExists{/usr/local/share/fonts/NotoSansSC-Regular.ttf}{%
             \@fc@warn{Using generic Noto Sans SC}
-            \@fc@setfonts{}{/usr/local/share/fonts/}{NotoSansSC-Regular.ttf}{NotoSansSC-Bold.ttf}%
+            \@fc@setfonts{/usr/local/share/fonts/}{NotoSansSC-Regular.ttf}{NotoSansSC-Bold.ttf}%
           }{%
 % ── FAILURE: No CJK font found ──────────────────────────────────────────────
             \@fc@warn{No CJK font found on system. CJK text will not render correctly.}
@@ -108,3 +111,4 @@
     }%
   }%
 }
+\makeatother

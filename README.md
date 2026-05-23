@@ -52,12 +52,12 @@ Building academic slides with LaTeX Beamer usually means:
 | **Components** | Reusable content blocks | 12+ | Info card, alert, result, equation box, figure helper |
 
 <p align="center">
-  <img src="assets/teaser/showcase/theme-navy.png" width="380">
+  <img src="assets/teaser/showcase/theme-navygold.png" width="380">
   <img src="assets/teaser/showcase/theme-teal.png" width="380">
 </p>
 <p align="center">
   <img src="assets/teaser/showcase/theme-dark.png" width="380">
-  <img src="assets/teaser/showcase/theme-brick.png" width="380">
+  <img src="assets/teaser/showcase/theme-academic.png" width="380">
 </p>
 
 ### 🧠 Four-Layer Layout Optimizer
@@ -106,28 +106,36 @@ Pre-built skills for **Claude Code** and **Codex CLI** — your agent knows the 
 
 ## Showcase
 
-### Real Academic Decks
+### Demo Deck — Fictional Research
 
 <table>
 <tr>
 <td width="50%">
-<b>Optimal Transport — Chapter 1</b><br>
-<small>Villani's OT adapted for calculus-level readers. 23 slides with inline glosses, concrete examples, and background knowledge patches.</small><br>
-<img src="assets/teaser/decks/ot-ch1-p1.png" width="100%">
+<b>Hero Slide</b><br>
+<small>Title slide with gradient background and institution branding.</small><br>
+<img src="assets/teaser/decks/demo-hero.png" width="100%">
 </td>
 <td width="50%">
-<b>CvG-Diff — MICCAI 2025</b><br>
-<small>20-slide medical imaging deck. Navy+Red academic theme, equation-heavy method section, ablation study tables.</small><br>
-<img src="assets/teaser/decks/cvgdiff-p1.png" width="100%">
+<b>Two-Column Layout</b><br>
+<small>Side-by-side content with info cards and structured layout.</small><br>
+<img src="assets/teaser/decks/demo-twocol.png" width="100%">
+</td>
+</tr>
+<tr>
+<td width="50%">
+<b>Equation Slide</b><br>
+<small>Definition box with display math and key equations.</small><br>
+<img src="assets/teaser/decks/demo-equation.png" width="100%">
+</td>
+<td width="50%">
+<b>Results Table</b><br>
+<small>Comparison table with highlighted best results.</small><br>
+<img src="assets/teaser/decks/demo-results.png" width="100%">
 </td>
 </tr>
 </table>
 
 ### Template Library Demo
-
-<p align="center">
-  <img src="assets/teaser/showcase/template-lib-hero.png" width="700">
-</p>
 
 All 4 themes × 8 layouts × component variations in a single reference deck: `template-lib-demo.tex`
 
