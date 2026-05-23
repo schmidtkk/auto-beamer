@@ -1,108 +1,22 @@
 ---
 name: beamer-layout
-description: "Use when working with XeLaTeX Beamer slides — from initial theme selection and draft content, through layout optimization, to post-hoc density auditing and grammar checking. Triggers on *.tex files with \\documentclass{beamer}, new slide requests, theme questions, Overfull errors, layout questions, or image-scale concerns."
+description: "Use when designing XeLaTeX Beamer slide layouts — choosing templates, placing images, fixing overflows, balancing columns, or auditing slide density. Triggers on layout questions, image-scale concerns, column alignment, layout_optimizer.py usage, or check_layout.py results."
 ---
 
-# Beamer Layout — XeLaTeX Slide Design Pipeline
+# Beamer Layout — Slide Design Pipeline
 
-## Prerequisites
-
-### Required Software
-
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| XeLaTeX | TeX Live ≥ 2022 | Document compiler (required for `fontspec` + `xeCJK`) |
-| Python | 3.8+ | Layout optimizer + grammar checker |
-| pdftoppm | poppler-utils | PNG screenshot generation |
-
-### LaTeX Packages (auto-installed with TeX Live)
-
-All required packages are standard TeX Live packages:
-
-- `beamer` + `metropolis` theme
-- `fontspec`, `unicode-math`, `xeCJK`
-- `tcolorbox` (with `skins`, `breakable` libraries)
-- `graphicx`, `xcolor`, `adjustbox`
-- `booktabs`, `array`, `colortbl`, `multirow`, `tabularx`
-- `pifont`, `tikz` (with `positioning`, `calc`)
-- `amsmath`, `amssymb`, `etoolbox`, `microtype`
-- `appendixnumberbeamer`
-
-### CJK Fonts (User-Managed)
-
-**We do NOT distribute fonts.** The system auto-detects installed fonts:
-
-| Platform | Detected Font | Install Command |
-|----------|--------------|-----------------|
-| Windows | Microsoft YaHei | Built-in |
-| Linux | Noto Sans CJK | `sudo apt-get install fonts-noto-cjk` |
-| macOS | PingFang / Noto Sans SC | Built-in or `brew install font-noto-sans-cjk-sc` |
-
-**Custom font override** (before `\input{config.tex}` or `\usepackage{template-lib}`):
-
-```latex
-\def\CJKFontPath{/usr/share/fonts/truetype/noto/}
-\def\CJKFontName{NotoSansSC-Regular.ttf}
-\def\CJKFontBold{NotoSansSC-Bold.ttf}
-\input{config.tex}
-```
-
-### Installation
-
-**Linux:**
-
-```bash
-chmod +x install-linux.sh
-./install-linux.sh
-```
-
-**Windows:**
-
-Install TeX Live or MiKTeX, then use `build_clean.ps1`.
-
-**macOS:**
-
-Install MacTeX (full) or BasicTeX, then use `build.sh`.
-
-### Build Commands
-
-| Platform | Command |
-|----------|---------|
-| Windows | `.\build_clean.ps1 [deck-name]` |
-| Linux/macOS | `./build.sh [deck-name]` |
-| Manual | `xelatex -output-directory=build -interaction=nonstopmode deck.tex` (×2) |
+> **For compilation and build errors**, see [beamer-build](../beamer-build/SKILL.md).
+> **For theme/layout reference tables**, see [CATALOG.md](../../template-lib/docs/CATALOG.md).
 
 ## Pipeline Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  PHASE 0: THEME & STYLE — Choose visual identity                │
-│  ├─ Step 1: Ask about audience, tone, color preference          │
-│  ├─ Step 2: Pick theme from template-lib/themes/                │
-│  └─ Output: \usetheme + color palette locked                    │
-├─────────────────────────────────────────────────────────────────┤
-│  PHASE 1: DRAFT — Generate raw slide content                    │
-│  ├─ Step 1: User provides paper text / figures / tables         │
-│  ├─ Step 2: Run layout_optimizer.py suggest for each slide      │
-│  ├─ Step 3: Populate skeleton with content (no optimization)    │
-│  └─ Output: Working .tex with all content, possibly rough       │
-├─────────────────────────────────────────────────────────────────┤
-│  PHASE 2: OPTIMIZE — Fix layout, scale, balance                 │
-│  ├─ Step 1: Compile → check for Overfull \vbox                  │
-│  ├─ Step 2: Run check_layout.py --advise                        │
-│  ├─ Step 3: Fix DGV (Layer 4) → Geometry (L2) → Density (L3)   │
-│  ├─ Step 4: Image scale check → auto_crop.py --dryrun           │
-│  └─ Output: Clean .tex with balanced layouts                    │
-├─────────────────────────────────────────────────────────────────┤
-│  PHASE 3: POLISH — Final audit & visual verification            │
-│  ├─ Step 1: Final compile (2 passes)                            │
-│  ├─ Step 2: check_layout.py deck.tex build/deck.log --advise    │
-│  ├─ Step 3: Generate PNG screenshots (pdftoppm)                 │
-│  └─ Output: deck.pdf + per-page PNGs for visual review          │
-└─────────────────────────────────────────────────────────────────┘
+PHASE 0: THEME → Pick visual identity (audience + tone)
+PHASE 1: DRAFT → Generate raw slide content (no optimization)
+PHASE 2: OPTIMIZE → Fix layout, scale, balance (this skill's core)
 ```
 
-**Rule:** Do NOT skip phases. A user asking "fix this slide" still needs Phase 2. A user asking "build a deck" starts at Phase 0.
+**Rule:** Do NOT skip phases. "Fix this slide" → Phase 2. "Build a deck" → Phase 0.
 
 ---
 
@@ -110,14 +24,12 @@ Install MacTeX (full) or BasicTeX, then use `build.sh`.
 
 ### Step 0.1: Ask Clarifying Questions
 
-Before any code, ask ONE question at a time. Also consult user preferences from `../../memories/repo/user-preferences.md` (relative to this skill file).
+Before any code, ask ONE question at a time. Consult user preferences from `../../memories/repo/user-preferences.md`.
 
 1. **Audience:** Academic conference (MICCAI/NeurIPS) or group meeting?
 2. **Tone:** Formal (navy + red) or modern (teal/dark)?
 3. **Language:** English-only or bilingual (CJK)?
 4. **Figures:** Mostly paper screenshots, photos, or diagrams?
-
-**User preference note:** This user prefers modern clean style (Teal) over classic academic, and strongly prefers readability over density.
 
 ### Step 0.2: Pick Theme
 
@@ -135,15 +47,7 @@ Load: `\RequirePackage{template-lib/template-lib}` then `\uselayout{...}`
 - Check `theme-library/` for preview PNGs
 - Confirm `config.tex` has matching box macros (`bluecard`, `goldcall`, `eqbox`)
 - Verify CJK font setup if bilingual
-
-**Font troubleshooting:** If compilation fails with "font not found", check:
-1. CJK fonts installed: `fc-list :lang=zh` (Linux/macOS) or check `C:\WINDOWS\Fonts` (Windows)
-2. Override fonts in `.tex` preamble before `\input{config.tex}`:
-   ```latex
-   \def\CJKFontPath{/your/font/path/}
-   \def\CJKFontName{YourFont.ttf}
-   \def\CJKFontBold{YourFontBold.ttf}
-   ```
+- If "font not found" → see [beamer-build](../beamer-build/SKILL.md) for font troubleshooting
 
 ---
 
@@ -163,7 +67,7 @@ python tools/layout_optimizer.py suggest \
 **Decision tree (Layer 1):**
 
 ```
-n_img = 0      → text-only	n_img ≥ 2      → image-grid
+n_img = 0      → text-only    n_img ≥ 2      → image-grid
 n_img = 1:
   AR > 1.6     → image-top (\budgetwideimg)
   AR 1.4-1.6   → image-top preferred
@@ -174,24 +78,18 @@ n_img = 1:
 ### Step 1.2: Populate Skeleton
 
 Copy the generated LaTeX skeleton from `layout_optimizer.py` and fill in:
-- Slide title
-- Image paths (use `\adjincludegraphics`)
-- Card content (bullet points, equations)
-- Caption text
+- Slide title, image paths (`\adjincludegraphics`), card content, caption text
 
 **Draft rules:**
 - Do NOT optimize yet — get content in first
 - Use placeholder images if final assets not ready
 - Mark TODOs for figures that need `auto_crop.py`
-- **Max 3 blocks per slide** — if layout suggests 4+ blocks, split frame or convert blocks to plain text
+- **Max 3 blocks per slide** — if layout suggests 4+ blocks, split frame or convert to plain text
 
 ### Step 1.3: Draft Compile
 
-```bash
-xelatex -output-directory=build -interaction=nonstopmode deck.tex
-```
-
-Expect errors. Fix only syntax errors (missing `$`, unmatched braces). Ignore layout issues for now.
+Compile to check syntax. See [beamer-build](../beamer-build/SKILL.md) for commands.
+Fix only syntax errors (missing `$`, unmatched braces). Ignore layout issues for now.
 
 ---
 
@@ -199,21 +97,7 @@ Expect errors. Fix only syntax errors (missing `$`, unmatched braces). Ignore la
 
 ### Step 2.1: Compile & Detect Overflows
 
-```bash
-# Clean build (2 passes)
-.\build_clean.ps1 deck
-
-# Check log
-Select-String -Path "build\deck.log" -Pattern "Overfull \\vbox|! |Missing \\$"
-```
-
-**Overfull \vbox fix priority:**
-1. Reduce `max height=N\textheight` by 0.06–0.08
-2. Delete `\vspace` or `\\[Npt]` spacing
-3. `\scriptsize` + `\setlength\tabcolsep{4pt}` for tables
-4. Still overflow → split frame
-
-**Note:** Line number in error is `\end{frame}`. Search backwards for `\begin{frame}`.
+Compile with build script (see [beamer-build](../beamer-build/SKILL.md)), then check log for `Overfull \vbox`.
 
 ### Step 2.2: Run Layout Audit
 
@@ -239,10 +123,7 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 | GV-3 | Multiple `bluecard`s in one column | **Split frame** or convert to plain text (max 3 blocks/slide) |
 | GV-4 | Wide image (AR>1.5) in SIDE layout | Switch to `\budgetwideimg` |
 
-**Block count rule (user preference):**
-- **Maximum 3 blocks per slide** (`bluecard`/`eqbox`/`goldcall` count as blocks)
-- If draft has 4+ blocks: split into 2 frames, or convert non-key blocks to plain text
-- Blocks reserved for: keynote, theorems, properties, key takeaways
+**Block count rule:** Maximum 3 blocks per slide (`bluecard`/`eqbox`/`goldcall`). If 4+: split into 2 frames, or convert non-key blocks to plain text.
 
 **Common syntax fixes:**
 - CJK/ASCII: `\footnotesize\raggedright` inside tcolorbox
@@ -257,38 +138,10 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 
 **Wide image bottom whitespace:**
 - Add `[c]` to frame options: `\begin{frame}[c]{Title}`
-- Vertically centers content block
 
 ### Step 2.5: Fix Density & Scale (Layer 3)
 
-**Image scale check — BEFORE embedding:**
-
-```python
-# fit-to-width  scale = 398 / img_width_pt
-# fit-to-height scale = bbiAvailHt / img_height_pt
-# Rendered scale = min(fit-to-width, fit-to-height)
-```
-
-| Scale | Verdict | Action |
-|-------|---------|--------|
-| ≥ 0.20 | ✓ OK | Text readable |
-| < 0.20, height-binding | ⚠ Too small | Crop margins, remove bottom block, or switch layout |
-| < 0.20, **width-binding** | ✗ Cannot fix | **Typeset as LaTeX `tabular`** |
-
-**Cap-height readability:**
-- ≥ 11 pt: screen-readable
-- ≥ 7 pt: PDF-readable
-- < 7 pt: **too small** — must re-typeset
-
-**Auto-crop workflow:**
-
-```bash
-# Preview scale after crop
-python tools/auto_crop.py input.png --dryrun
-
-# Execute crop
-python tools/auto_crop.py input.png output.png --padding 8
-```
+For image scale thresholds and auto-crop workflow, see [references/scale-tables.md](references/scale-tables.md).
 
 **Typeset as tabular (AR > 2.5):**
 
