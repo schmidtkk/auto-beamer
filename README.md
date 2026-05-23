@@ -142,7 +142,7 @@ All 4 themes × 8 layouts × component variations in a single reference deck: `t
 
 ## Quickstart
 
-### 1. Install Dependencies
+### Install Dependencies
 
 **Windows:**
 1. Install [TeX Live](https://tug.org/texlive/) or [MiKTeX](https://miktex.org/)
@@ -161,32 +161,7 @@ brew install mactex-no-gui
 brew install font-noto-sans-cjk-sc
 ```
 
-### 2. Build Your First Deck
-
-```bash
-# Windows
-.\build_clean.ps1 template-lib-demo
-
-# Linux / macOS
-./build.sh template-lib-demo
-```
-
-Output: `build/template-lib-demo.pdf`
-
-### 3. Design a New Slide
-
-```bash
-# Ask the optimizer what layout to use
-python tools/layout_optimizer.py suggest --img 1200:800 --cards 2
-
-# It outputs a LaTeX skeleton — paste into your .tex and fill content
-```
-
-### 4. Audit Before You Present
-
-```bash
-python tools/check_layout.py your-deck.tex build/your-deck.log --advise
-```
+> After installation, the AI agent handles building, layout selection, and auditing via the `beamer-layout` and `beamer-build` skills.
 
 ---
 
