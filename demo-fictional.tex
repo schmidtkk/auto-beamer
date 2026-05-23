@@ -1,0 +1,134 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% ============================================================================
+%  FICTIONAL DEMO DECK — For Teaser / Promotional Use Only
+%  All content is fabricated. No real people, papers, or institutions.
+% ============================================================================
+
+\usepackage[academic]{template-lib/template-lib}
+\uselayout{text}
+\uselayout{eq}
+\uselayout{twocol}
+\uselayout{1img}
+
+\TLsetfoot{Demo Deck · Beamer Deck Auto}
+
+\title{Sample Research Presentation}
+\subtitle{A Fictional Example for Template Demonstration}
+\author{A. N. Author}
+\institute{Example University\\Department of Demonstrations}
+\date{May 2026}
+
+\begin{document}
+
+% ── Title Slide ─────────────────────────────────────────────────────────────
+\TLtitlecenter
+  {Sample Research Presentation}
+  {Template Demonstration}
+  {A. N. Author}
+  {Example University · May 2026}
+
+% ── S1: Overview ────────────────────────────────────────────────────────────
+\TLsection{Overview}
+
+\begin{frame}{Project Goals}
+  \begin{TLtext}
+    \begin{itemize}
+      \item \textbf{Goal 1:} Demonstrate the three-tier template system
+      \item \textbf{Goal 2:} Show layout flexibility across content types
+      \item \textbf{Goal 3:} Illustrate component reuse with consistent styling
+    \end{itemize}
+  \end{TLtext}
+
+  \vspace{0.5em}
+  \TLtakeaway{%
+    This deck contains no real data, no real people, and no real institutions.%
+  }
+\end{frame}
+
+% ── S2: Method ──────────────────────────────────────────────────────────────
+\TLsection{Method}
+
+\begin{frame}{Mathematical Framework}
+  \TLeqsingle{%
+    \mathcal{L}(\theta) = \sum_{i=1}^{n} \ell\bigl(f_\theta(x_i), y_i\bigr) + \lambda R(\theta)
+  }{%
+    Standard regularized empirical risk minimization.%
+  }
+
+  \vspace{0.5em}
+  \begin{TLtext}
+    \begin{itemize}
+      \item $f_\theta$: parametric model family
+      \item $\ell$: per-sample loss function
+      \item $R(\theta)$: regularizer (e.g., $\|\theta\|_2^2$)
+    \end{itemize}
+  \end{TLtext}
+\end{frame}
+
+\begin{frame}{Two-Column Comparison}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \TLinfoblock{Approach A}{%
+        \begin{itemize}
+          \item Simple implementation
+          \item Fast convergence
+          \item Lower memory
+        \end{itemize}%
+      }
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \TLinfoblock{Approach B}{%
+        \begin{itemize}
+          \item Higher accuracy
+          \item Better generalization
+          \item Scales well
+        \end{itemize}%
+      }
+    \end{column}
+  \end{columns}
+
+  \vspace{0.5em}
+  \TLtakeaway{%
+    Trade-offs depend on dataset size and latency constraints.%
+  }
+\end{frame}
+
+% ── S3: Results ─────────────────────────────────────────────────────────────
+\TLsection{Results}
+
+\begin{frame}{Key Findings}
+  \begin{TLtext}
+    \begin{itemize}
+      \item Method achieves \textbf{94.2\%} accuracy on benchmark
+      \item Training time reduced by \textbf{35\%} vs. baseline
+      \item Model size: \textbf{12M} parameters
+    \end{itemize}
+  \end{TLtext}
+
+  \vspace{0.3em}
+  \TLresultblock{Result}{%
+    The proposed approach outperforms all baselines while maintaining
+    computational efficiency suitable for edge deployment.%
+  }
+\end{frame}
+
+% ── S4: Conclusion ──────────────────────────────────────────────────────────
+\TLsection{Conclusion}
+
+\begin{frame}{Summary}
+  \begin{TLtext}
+    \begin{enumerate}
+      \item Three-tier template system enables rapid deck construction
+      \item Layout optimizer selects appropriate page structure automatically
+      \item Design grammar checker ensures visual quality before presentation
+    \end{enumerate}
+  \end{TLtext}
+
+  \vspace{0.5em}
+  \TLtakeaway{%
+    Beamer Deck Auto: systematic slide design for researchers.%
+  }
+\end{frame}
+
+\end{document}
