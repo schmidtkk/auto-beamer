@@ -13,8 +13,7 @@
   <a href="#quickstart">Quickstart</a> ·
   <a href="#features">Features</a> ·
   <a href="#showcase">Showcase</a> ·
-  <a href="#installation">Install</a> ·
-  <a href="README.zh.md">中文</a>
+  <a href="#requirements">Requirements</a>
 </p>
 
 ---
@@ -223,7 +222,6 @@ python tools/check_layout.py your-deck.tex build/your-deck.log --advise
 ```
 .
 ├── README.md                          # This file
-├── README.zh.md                       # 中文文档
 ├── CLAUDE.md                          # Project context for AI agents
 ├── AGENTS.md                          # Agent guidelines
 ├── skills/
