@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/teaser/showcase/theme-gallery-2x2.png" alt="Beamer Deck Auto Theme Gallery" width="800">
-</p>
-
 <h1 align="center">Beamer Deck Auto</h1>
 
 <p align="center">
@@ -55,7 +51,6 @@ Building academic slides with LaTeX Beamer usually means:
   <img src="assets/teaser/showcase/theme-teal.png" width="380">
 </p>
 <p align="center">
-  <img src="assets/teaser/showcase/theme-dark.png" width="380">
   <img src="assets/teaser/showcase/theme-brick.png" width="380">
 </p>
 
