@@ -7,13 +7,14 @@
     "name": "schmidtkk",
     "email": ""
   },
-  "metadata": {
-    "pluginRoot": "."
-  },
   "plugins": [
     {
       "name": "beamer-deck-auto",
-      "source": ".",
+      "source": {
+        "source": "github",
+        "repo": "schmidtkk/beamer-deck-auto",
+        "ref": "minimal"
+      },
       "description": "AI-powered XeLaTeX Beamer slide system — layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
       "version": "1.0.0",
       "author": {
