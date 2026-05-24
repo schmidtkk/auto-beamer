@@ -24,7 +24,8 @@
 │  ├─ Title slides    (standard, centered, section)           │
 │  ├─ Content blocks  (info, alert, result, warning)          │
 │  ├─ Figure helpers  (auto-img, subfig, caption)             │
-│  └─ Text utilities  (takeaway, term highlight, checkmarks)  │
+│  ├─ Text utilities  (takeaway, term highlight, checkmarks)          │
+│  └─ Semantic inline (TLpos, TLneg, TLhl, TLmuted)                  │  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -102,6 +103,18 @@
 | `\TLwarnblock{Title}{Content}` | Red warning box |
 | `\TLtakeaway{Text}` | Key takeaway banner |
 | `\TLterm{word}` | Inline highlighted term |
+
+### Semantic Inline Commands
+| Command | Description | Example |
+|---------|-------------|---------|
+| `\TLpos{text}` | Positive/emphasized (green, bold) | `\TLpos{+3.2 dB}` |
+| `\TLneg{text}` | Negative/contrast (red, bold) | `\TLneg{-1.5 dB}` |
+| `\TLhl{text}` | Highlighted (accent bg + bold) | `\TLhl{key result}` |
+| `\TLmuted{text}` | Neutral/muted (gray) | `\TLmuted{(optional)}` |
+| `\TLyes` | Green checkmark ✓ | — |
+| `\TLno` | Red cross ✗ | — |
+| `\TLdeltaup{N}` | Green +N delta | `\TLdeltaup{2.1}` |
+| `\TLdeltadown{N}` | Red -N delta | `\TLdeltadown{0.8}` |
 
 ### Figure Components
 | Command | Description |

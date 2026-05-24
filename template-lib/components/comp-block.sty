@@ -70,6 +70,22 @@
 % ── Inline Term Highlight ───────────────────────────────────────────────────
 \providecommand{\TLterm}[1]{\textcolor{TLaccent}{\textbf{#1}}}
 
+% ── Semantic Inline Commands ────────────────────────────────────────────────
+% Inspired by Noi1r/beamer-skill's \pos{}/\con{}/\HL{} pattern.
+% TL-prefixed versions for consistency with our naming convention.
+
+% Positive/emphasized inline text (green)
+\providecommand{\TLpos}[1]{\textcolor{TLpos}{\textbf{#1}}}
+
+% Negative/contrast inline text (red)
+\providecommand{\TLneg}[1]{\textcolor{TLneg}{\textbf{#1}}}
+
+% Highlight inline text (accent color + light background)
+\providecommand{\TLhl}[1]{\colorbox{TLaccentLight}{\textcolor{TLaccent}{\textbf{#1}}}}
+
+% Neutral/muted inline text (secondary gray)
+\providecommand{\TLmuted}[1]{\textcolor{TLinkSoft}{#1}}
+
 % ── Check/X marks ───────────────────────────────────────────────────────────
 \providecommand{\TLyes}{\textcolor{TLpos}{\ding{51}}}
 \providecommand{\TLno}{\textcolor{TLneg}{\ding{55}}}
