@@ -46,7 +46,7 @@ Building academic slides with LaTeX Beamer usually means:
 
 | Tier | What | Count | Example |
 |------|------|-------|---------|
-| **Themes** | Color + typography palettes | 5 | Navy+Red, Teal+Amber, Dark+Gold, Navy+Gold, Minimal |
+| **Themes** | Color + typography palettes | 5 | Academic, Teal, Dark, Navy+Gold, Minimal |
 | **Layouts** | Page structure patterns | 8 | Text, 1-img, 2-img, 3-img, eq, table, img-top, twocol |
 | **Components** | Reusable content blocks | 12+ | Info card, alert, result, equation box, figure helper |
 
@@ -98,8 +98,12 @@ Pre-built skills for **Claude Code** and **Codex CLI** — your agent knows the 
 
 | Skill | Triggers On | What It Does |
 |-------|-------------|--------------|
-| `beamer-layout` | Layout questions, overflow, image scaling | 4-phase design pipeline: theme → draft → optimize → polish |
 | `beamer-build` | Compilation errors, font issues, build failures | XeLaTeX wrapper, auto font config, error recovery |
+| `beamer-create` | Create a new deck from scratch | Material analysis → interview → structure → draft → figures |
+| `beamer-layout` | Layout questions, overflow, image scaling | 4-phase design pipeline: theme → draft → optimize → polish |
+| `beamer-review` | Proofread, audit, pedagogy check | `proofread`, `audit`, `pedagogy`, `excellence`, `devil's-advocate` |
+| `beamer-tikz` | TikZ diagram quality | Accuracy rules, 6 patterns, iterative review |
+| `beamer-validate` | Automated quantitative checks | `validate`, `visual-check`, `check` |
 
 ---
 
@@ -200,8 +204,12 @@ brew install font-noto-sans-cjk-sc
 ├── CLAUDE.md                          # Project context for AI agents
 ├── AGENTS.md                          # Agent guidelines
 ├── skills/
-│   ├── beamer-layout/SKILL.md         # Claude Code: 4-phase pipeline
-│   └── beamer-build/SKILL.md          # Claude Code: compilation skill
+│   ├── beamer-build/SKILL.md          # Compilation & font troubleshooting
+│   ├── beamer-create/SKILL.md         # Full deck creation pipeline
+│   ├── beamer-layout/SKILL.md         # Layout optimization & DGV grammar
+│   ├── beamer-review/SKILL.md         # Content & pedagogy review
+│   ├── beamer-tikz/SKILL.md           # TikZ diagram quality
+│   └── beamer-validate/SKILL.md       # Automated quantitative checks
 ├── template-lib/                      # Three-tier template library
 │   ├── template-lib.sty               # Master entry point
 │   ├── themes/                        # 4 color themes
@@ -229,8 +237,12 @@ brew install font-noto-sans-cjk-sc
 | [`AGENTS.md`](AGENTS.md) | Agent guidelines, tool reference, key constraints |
 | [`template-lib/docs/CATALOG.md`](template-lib/docs/CATALOG.md) | Full theme/layout/component API reference |
 | [`tools/README.md`](tools/README.md) | Tool usage examples and CLI reference |
-| [`skills/beamer-layout/SKILL.md`](skills/beamer-layout/SKILL.md) | AI skill: 4-phase design pipeline |
-| [`skills/beamer-build/SKILL.md`](skills/beamer-build/SKILL.md) | AI skill: compilation automation |
+| [`skills/beamer-build/SKILL.md`](skills/beamer-build/SKILL.md) | AI skill: compilation & font troubleshooting |
+| [`skills/beamer-create/SKILL.md`](skills/beamer-create/SKILL.md) | AI skill: full deck creation pipeline |
+| [`skills/beamer-layout/SKILL.md`](skills/beamer-layout/SKILL.md) | AI skill: layout optimization & DGV grammar |
+| [`skills/beamer-review/SKILL.md`](skills/beamer-review/SKILL.md) | AI skill: content & pedagogy review |
+| [`skills/beamer-tikz/SKILL.md`](skills/beamer-tikz/SKILL.md) | AI skill: TikZ diagram quality |
+| [`skills/beamer-validate/SKILL.md`](skills/beamer-validate/SKILL.md) | AI skill: automated quantitative checks |
 
 ---
 

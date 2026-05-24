@@ -1,5 +1,14 @@
 # User Preferences — Beamer Deck Auto
 
+> **Agent Note**: This file contains CRITICAL preferences that must be respected.
+> Before any design/plan task, search `memories/MEMORY_INDEX.md` for keyword tags,
+> then read the relevant sections below.
+>
+> **Keyword Tags**: `theme`, `box`, `block`, `layout`, `mentor deck`, `self-study`,
+> `exercise`, `example`, `OT`, `optimal transport`, `Villani`, `pushforward`, `measure`
+
+---
+
 ## Theme Preference
 - **Modern clean style** over classic academic
 - Preferred: Teal (`#00796b` + `#e65100`) over Academic (navy + red)
