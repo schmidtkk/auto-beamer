@@ -10,11 +10,84 @@
 </p>
 
 <p align="center">
+  <a href="#install">Install</a> ·
   <a href="#quickstart">Quickstart</a> ·
   <a href="#features">Features</a> ·
   <a href="#showcase">Showcase</a> ·
   <a href="#requirements">Requirements</a>
 </p>
+
+---
+
+## Install
+
+### Claude Code (Plugin)
+
+Install from the community marketplace or directly from this repo:
+
+```bash
+# Add the community marketplace (one-time)
+/plugin marketplace add anthropics/claude-plugins-community
+
+# Install this plugin
+/plugin install beamer-deck-auto
+```
+
+Or install directly from GitHub:
+
+```bash
+/plugin install https://github.com/schmidtkk/beamer-deck-auto
+```
+
+Once installed, the 6 skills are available under the `beamer-deck-auto:` namespace:
+
+| Skill | Command | What it does |
+|-------|---------|--------------|
+| Create | `/beamer-deck-auto:beamer-create` | Full deck creation pipeline |
+| Layout | `/beamer-deck-auto:beamer-layout` | Layout optimization & DGV grammar |
+| Build | `/beamer-deck-auto:beamer-build` | Compilation & font troubleshooting |
+| Review | `/beamer-deck-auto:beamer-review` | Content & pedagogy review |
+| TikZ | `/beamer-deck-auto:beamer-tikz` | TikZ diagram quality |
+| Validate | `/beamer-deck-auto:beamer-validate` | Automated quantitative checks |
+
+### Codex CLI
+
+```bash
+# Install the plugin
+codex plugins install https://github.com/schmidtkk/beamer-deck-auto
+
+# Use a skill
+codex beamer-deck-auto:beamer-create "Create slides for my NeurIPS paper"
+```
+
+### Codex App (VS Code)
+
+1. Open the **Plugins** panel in the Codex sidebar
+2. Click **Add Plugin** → **From GitHub**
+3. Enter: `https://github.com/schmidtkk/beamer-deck-auto`
+4. The skills appear in the command palette under `beamer-deck-auto:`
+
+### Cursor / OpenCode / Other Agents
+
+For agents that support the [Agent Skills](https://agentskills.io/) open standard, copy the `skills/` directory into your project:
+
+```bash
+# Clone just the skills
+git clone --depth 1 https://github.com/schmidtkk/beamer-deck-auto.git /tmp/beamer-skills
+cp -r /tmp/beamer-skills/skills/* ./.claude/skills/   # or your agent's skills dir
+```
+
+### Manual Setup (No AI Agent)
+
+If you only want the LaTeX template library and Python tools:
+
+```bash
+git clone https://github.com/schmidtkk/beamer-deck-auto.git
+cd beamer-deck-auto
+
+# Install TeX dependencies (see Requirements below)
+# Then use the template library directly in your .tex files
+```
 
 ---
 
@@ -94,16 +167,16 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 
 ### 🤖 AI Agent Skills
 
-Pre-built skills for **Claude Code** and **Codex CLI** — your agent knows the pipeline:
+Pre-built skills for **Claude Code**, **Codex CLI**, and any agent supporting the [Agent Skills](https://agentskills.io/) standard — your agent knows the pipeline:
 
-| Skill | Triggers On | What It Does |
-|-------|-------------|--------------|
-| `beamer-build` | Compilation errors, font issues, build failures | XeLaTeX wrapper, auto font config, error recovery |
-| `beamer-create` | Create a new deck from scratch | Material analysis → interview → structure → draft → figures |
-| `beamer-layout` | Layout questions, overflow, image scaling | 4-phase design pipeline: theme → draft → optimize → polish |
-| `beamer-review` | Proofread, audit, pedagogy check | `proofread`, `audit`, `pedagogy`, `excellence`, `devil's-advocate` |
-| `beamer-tikz` | TikZ diagram quality | Accuracy rules, 6 patterns, iterative review |
-| `beamer-validate` | Automated quantitative checks | `validate`, `visual-check`, `check` |
+| Skill | Triggers On | What It Does | Invocation |
+|-------|-------------|--------------|------------|
+| `beamer-build` | Compilation errors, font issues, build failures | XeLaTeX wrapper, auto font config, error recovery | `/beamer-deck-auto:beamer-build` |
+| `beamer-create` | Create a new deck from scratch | Material analysis → interview → structure → draft → figures | `/beamer-deck-auto:beamer-create` |
+| `beamer-layout` | Layout questions, overflow, image scaling | 4-phase design pipeline: theme → draft → optimize → polish | `/beamer-deck-auto:beamer-layout` |
+| `beamer-review` | Proofread, audit, pedagogy check | `proofread`, `audit`, `pedagogy`, `excellence`, `devil's-advocate` | `/beamer-deck-auto:beamer-review` |
+| `beamer-tikz` | TikZ diagram quality | Accuracy rules, 6 patterns, iterative review | `/beamer-deck-auto:beamer-tikz` |
+| `beamer-validate` | Automated quantitative checks | `validate`, `visual-check`, `check` | `/beamer-deck-auto:beamer-validate` |
 
 ---
 
@@ -146,7 +219,25 @@ All 4 themes × 8 layouts × component variations in a single reference deck: `t
 
 ## Quickstart
 
-### Install Dependencies
+### 1. Install the Plugin (choose your agent)
+
+**Claude Code:**
+```bash
+/plugin install https://github.com/schmidtkk/beamer-deck-auto
+```
+
+**Codex CLI:**
+```bash
+codex plugins install https://github.com/schmidtkk/beamer-deck-auto
+```
+
+**Cursor / OpenCode / Generic Agent:**
+```bash
+git clone --depth 1 https://github.com/schmidtkk/beamer-deck-auto.git /tmp/bda
+cp -r /tmp/bda/skills/* ./.claude/skills/
+```
+
+### 2. Install TeX Dependencies
 
 **Windows:**
 1. Install [TeX Live](https://tug.org/texlive/) or [MiKTeX](https://miktex.org/)
@@ -166,6 +257,24 @@ brew install font-noto-sans-cjk-sc
 ```
 
 > After installation, the AI agent handles building, layout selection, and auditing via the `beamer-layout` and `beamer-build` skills.
+
+### 3. Create Your First Deck
+
+**With Claude Code:**
+```bash
+/beamer-deck-auto:beamer-create "Create a 15-slide deck for my NeurIPS paper on diffusion models"
+```
+
+**With Codex CLI:**
+```bash
+codex beamer-deck-auto:beamer-create "Create slides for my group meeting on optimal transport"
+```
+
+The skill will:
+1. Ask clarifying questions (audience, tone, duration)
+2. Generate a structured outline
+3. Draft slides iteratively with compile checks
+4. Run the quality loop (validate → review → fix)
 
 ---
 
