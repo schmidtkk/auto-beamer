@@ -1,42 +1,41 @@
 {
   "name": "beamer-deck-auto",
   "version": "1.0.0",
-  "description": "XeLaTeX Beamer slide automation: three-tier template library, layout optimizer, and design grammar checker for academic presentations.",
+  "description": "AI-powered XeLaTeX Beamer slide system — layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
   "author": {
     "name": "schmidtkk",
     "url": "https://github.com/schmidtkk"
   },
   "homepage": "https://github.com/schmidtkk/beamer-deck-auto",
-  "repository": "https://github.com/schmidtkk/beamer-deck-auto",
+  "repository": "https://github.com/schmidtkk/beamer-deck-auto.git",
   "license": "MIT",
   "keywords": [
     "beamer",
     "latex",
-    "xelatex",
     "slides",
     "presentation",
     "academic",
+    "xelatex",
     "layout",
-    "metropolis"
+    "ai-skills"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Beamer Deck Auto",
-    "shortDescription": "Automated XeLaTeX Beamer slide design with layout optimization",
-    "longDescription": "Three-tier template system (Theme/Layout/Component) for Beamer slides. Includes layout optimizer, design grammar checker, and auto-crop tools. Handles Overfull \\vbox, column balancing, image aspect-ratio decisions, and tabular conversion.",
+    "shortDescription": "AI-powered Beamer slide system with layout optimizer and 6 agent skills",
+    "longDescription": "Beamer Deck Auto replaces guesswork with a systematic pipeline for building academic slides. It includes a three-tier template library (themes, layouts, components), a four-layer layout optimizer, a design grammar checker, and 6 AI agent skills for creation, layout, build, review, TikZ, and validation.",
     "developerName": "schmidtkk",
-    "category": "Coding",
+    "category": "Productivity",
     "capabilities": [
       "Interactive",
       "Read",
       "Write"
     ],
     "defaultPrompt": [
-      "Build a beamer slide deck for my paper",
-      "Fix Overfull \\vbox in my beamer presentation",
-      "Choose layout for wide image in beamer slide"
+      "Create a Beamer slide deck for my research paper",
+      "Help me design the layout for this slide"
     ],
     "websiteURL": "https://github.com/schmidtkk/beamer-deck-auto",
-    "brandColor": "#1e3a5f"
+    "brandColor": "#00796b"
   }
 }

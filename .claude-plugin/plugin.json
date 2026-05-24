@@ -1,22 +1,40 @@
 {
   "name": "beamer-deck-auto",
-  "description": "XeLaTeX Beamer slide automation: three-tier template library, layout optimizer, and design grammar checker for academic presentations",
+  "description": "AI-powered XeLaTeX Beamer slide system — layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
   "version": "1.0.0",
   "author": {
     "name": "schmidtkk",
-    "email": ""
+    "url": "https://github.com/schmidtkk"
   },
   "homepage": "https://github.com/schmidtkk/beamer-deck-auto",
-  "repository": "https://github.com/schmidtkk/beamer-deck-auto",
+  "repository": "https://github.com/schmidtkk/beamer-deck-auto.git",
   "license": "MIT",
   "keywords": [
     "beamer",
     "latex",
-    "xelatex",
     "slides",
     "presentation",
     "academic",
+    "xelatex",
     "layout",
-    "metropolis"
-  ]
+    "ai-skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Beamer Deck Auto",
+    "shortDescription": "AI-powered Beamer slide system with layout optimizer and 6 agent skills",
+    "longDescription": "Beamer Deck Auto replaces guesswork with a systematic pipeline for building academic slides. It includes a three-tier template library (themes, layouts, components), a four-layer layout optimizer, a design grammar checker, and 6 AI agent skills for creation, layout, build, review, TikZ, and validation.",
+    "developerName": "schmidtkk",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Create a Beamer slide deck for my research paper",
+      "Help me design the layout for this slide"
+    ],
+    "websiteURL": "https://github.com/schmidtkk/beamer-deck-auto",
+    "brandColor": "#00796b"
+  }
 }
