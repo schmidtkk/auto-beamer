@@ -1,20 +1,40 @@
 {
-  "name": "beamer-deck-auto-dev",
-  "description": "Development marketplace for Beamer Deck Auto — XeLaTeX slide automation",
+  "$schema": "https://code.claude.com/docs/en/plugin-marketplace-schema.json",
+  "name": "beamer-deck-auto-marketplace",
+  "description": "Marketplace for Beamer Deck Auto — AI-powered XeLaTeX Beamer slide system",
+  "version": "1.0.0",
   "owner": {
     "name": "schmidtkk",
     "email": ""
   },
+  "metadata": {
+    "pluginRoot": "."
+  },
   "plugins": [
     {
       "name": "beamer-deck-auto",
-      "description": "XeLaTeX Beamer template library with layout optimizer, design grammar checker, and AI-guided slide design pipeline",
+      "source": ".",
+      "description": "AI-powered XeLaTeX Beamer slide system — layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
       "version": "1.0.0",
-      "source": "./",
       "author": {
         "name": "schmidtkk",
         "email": ""
-      }
+      },
+      "homepage": "https://github.com/schmidtkk/beamer-deck-auto",
+      "repository": "https://github.com/schmidtkk/beamer-deck-auto.git",
+      "license": "MIT",
+      "keywords": [
+        "beamer",
+        "latex",
+        "slides",
+        "presentation",
+        "academic",
+        "xelatex",
+        "layout",
+        "ai-skills"
+      ],
+      "category": "productivity",
+      "skills": "./skills/"
     }
   ]
 }

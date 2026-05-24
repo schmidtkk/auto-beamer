@@ -23,23 +23,19 @@
 
 ### Claude Code (Plugin)
 
-Install from the community marketplace or directly from this repo:
+**Two-step install** (marketplace → plugin):
 
 ```bash
-# Add the community marketplace (one-time)
-/plugin marketplace add anthropics/claude-plugins-community
+# Step 1: Add this repo as a marketplace (one-time)
+/plugin marketplace add schmidtkk/beamer-deck-auto
 
-# Install this plugin
-/plugin install beamer-deck-auto
+# Step 2: Install the plugin from the marketplace
+/plugin install beamer-deck-auto@beamer-deck-auto-marketplace
 ```
 
-Or install directly from GitHub:
+> **Note:** The `@beamer-deck-auto-marketplace` suffix is the marketplace name from `marketplace.json`. If you add the repo with a different alias, use that alias instead.
 
-```bash
-/plugin install https://github.com/schmidtkk/beamer-deck-auto
-```
-
-Once installed, the 6 skills are available under the `beamer-deck-auto:` namespace:
+Once installed, reload plugins and the 6 skills become available under the `beamer-deck-auto:` namespace:
 
 | Skill | Command | What it does |
 |-------|---------|--------------|
