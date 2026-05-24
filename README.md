@@ -46,7 +46,7 @@ Building academic slides with LaTeX Beamer usually means:
 
 | Tier | What | Count | Example |
 |------|------|-------|---------|
-| **Themes** | Color + typography palettes | 4 | Navy+Red, Teal+Amber, Dark+Gold, Navy+Gold |
+| **Themes** | Color + typography palettes | 5 | Navy+Red, Teal+Amber, Dark+Gold, Navy+Gold, Minimal |
 | **Layouts** | Page structure patterns | 8 | Text, 1-img, 2-img, 3-img, eq, table, img-top, twocol |
 | **Components** | Reusable content blocks | 12+ | Info card, alert, result, equation box, figure helper |
 

@@ -2,14 +2,10 @@
 % theme-dark.sty — Dark Mode Theme (Catppuccin Macchiato-like)
 % ============================================================================
 % Eye-friendly dark theme for low-light presentations.
-% Usage: \usepackage{theme-dark}
 % ============================================================================
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{theme-dark}[2026/05/23 Dark Beamer Theme]
-
-\usetheme[progressbar=frametitle,block=fill,numbering=fraction]{metropolis}
-\usepackage{appendixnumberbeamer}
 
 % ── Color Palette ───────────────────────────────────────────────────────────
 \definecolor{TLprimary}{HTML}{8aadf4}      % Soft blue — primary
@@ -24,48 +20,23 @@
 \definecolor{TLpos}{HTML}{a6da95}          % Soft green
 \definecolor{TLneg}{HTML}{ed8796}          % Soft red
 
-% ── Beamer Color Wiring ─────────────────────────────────────────────────────
-\setbeamercolor{background canvas}{bg=TLsurface}
-\setbeamercolor{normal text}{fg=TLink,bg=TLsurface}
+% ── Semantic Aliases (dark theme: canvas = surface) ────────────────────────
+\definecolor{TLcanvas}{named}{TLsurface}
+\definecolor{TLblockbody}{named}{TLsurface}
+
+% ── Shared Boilerplate (light defaults) ─────────────────────────────────────
+\input{template-lib/themes/theme-base.sty}
+
+% ── Dark-theme Overrides ───────────────────────────────────────────────────
+% theme-base provides light-theme defaults; dark themes override the divergent
+% beamer-color assignments that differ from the light wiring.
 \setbeamercolor{frametitle}{bg=TLprimaryLight,fg=TLprimary}
 \setbeamercolor{frametitle right}{bg=TLprimaryTint}
-\setbeamercolor{title separator}{fg=TLaccent}
-\setbeamercolor{progress bar}{fg=TLaccent,bg=TLprimaryLight}
-\setbeamercolor{alerted text}{fg=TLaccent}
-\setbeamercolor{block title}{bg=TLprimaryTint,fg=TLprimary}
-\setbeamercolor{block body}{bg=TLsurface}
-\setbeamercolor{block title alerted}{bg=TLaccentLight,fg=TLaccent}
-\setbeamercolor{block body alerted}{bg=TLsurface}
-\setbeamercolor{block title example}{bg=TLprimaryLight,fg=TLprimaryDark}
-\setbeamercolor{block body example}{bg=TLsurface}
 \setbeamercolor{palette primary}{fg=TLink,bg=TLprimaryLight}
-\setbeamercolor{itemize item}{fg=TLprimary}
-\setbeamercolor{itemize subitem}{fg=TLprimary}
-\setbeamercolor{enumerate item}{fg=TLprimary}
-\setbeamercolor{enumerate subitem}{fg=TLprimary}
+\setbeamercolor{block body alerted}{bg=TLsurface}
+\setbeamercolor{block body example}{bg=TLsurface}
+\renewcommand{\TLtitlebg}{\setbeamercolor{background canvas}{bg=TLprimaryTint}}
+\renewcommand{\TLresetbg}{\setbeamercolor{background canvas}{bg=TLsurface}}
 
-% ── Fonts ───────────────────────────────────────────────────────────────────
-\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
-\setbeamerfont{framesubtitle}{size=\normalsize}
-\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
-\setbeamerfont{block body}{size=\small}
-
-% ── Footer ──────────────────────────────────────────────────────────────────
-\setbeamertemplate{navigation symbols}{}
-\setbeamertemplate{footline}{%
-  \leavevmode%
-  \hbox{%
-    \begin{beamercolorbox}[wd=0.72\paperwidth,ht=2.5ex,dp=1.25ex,leftskip=8pt]{palette primary}%
-      \usebeamerfont{footline}\tiny \TLfootleft%
-    \end{beamercolorbox}%
-    \begin{beamercolorbox}[wd=0.28\paperwidth,ht=2.5ex,dp=1.25ex,rightskip=8pt]{palette primary}%
-      \hfill\usebeamerfont{footline}\tiny\insertframenumber\,/\,\inserttotalframenumber%
-    \end{beamercolorbox}%
-  }%
-}
-
-\newcommand{\TLfootleft}{Dark Presentation}
-\newcommand{\TLsetfoot}[1]{\renewcommand{\TLfootleft}{#1}}
-
-\newcommand{\TLtitlebg}{\setbeamercolor{background canvas}{bg=TLprimaryTint}}
-\newcommand{\TLresetbg}{\setbeamercolor{background canvas}{bg=TLsurface}}
+% ── Theme-specific Footer ───────────────────────────────────────────────────
+\renewcommand{\TLfootleft}{Dark Presentation}
