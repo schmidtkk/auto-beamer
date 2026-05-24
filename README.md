@@ -255,6 +255,11 @@ brew install font-noto-sans-cjk-sc
 
 ---
 
+## Acknowledgements
+
+- **[Noi1r/beamer-skill](https://github.com/Noi1r/beamer-skill/)** — Skill instruction and semantic inline command patterns that inspired our `\TLpos`/`\TLneg`/`\TLhl`/`\TLmuted` commands.
+- **Open-source Beamer community** — Theme galleries, layout ideas, and best-practice patterns from the broader LaTeX ecosystem.
+
 ## License
 
 MIT License — see [LICENSE](LICENSE) file for details.
