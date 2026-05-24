@@ -6,26 +6,99 @@ This repo contains a **three-tier Beamer template library** and **layout optimiz
 
 ### Before You Start
 
-1. **Check current project state** — read `CLAUDE.md` for project context
-2. **For layout questions** — use `skills/beamer-layout/SKILL.md`
-3. **For new slides** — run `python tools/layout_optimizer.py suggest --img W:H --cards N`
-4. **For overflow issues** — run `python tools/check_layout.py deck.tex build/deck.log --advise`
+1. **Search memory index** — read `memories/MEMORY_INDEX.md` for keyword lookup
+2. **Load relevant preferences** — read `memories/repo/user-preferences.md` (MANDATORY for design/plan tasks)
+3. **Check current project state** — read `CLAUDE.md` for project context
+4. **For layout questions** — use `skills/beamer-layout/SKILL.md`
+5. **For new slides** — run `python tools/layout_optimizer.py suggest --img W:H --cards N`
+6. **For overflow issues** — run `python tools/check_layout.py deck.tex build/deck.log --advise`
 
-### Tool Reference
+---
 
-| Tool | When to Use |
-|------|-------------|
-| `layout_optimizer.py` | Choosing layout template, generating LaTeX skeleton |
-| `check_layout.py` | Auditing slide density, column balance, grammar violations |
-| `auto_crop.py` | Removing white margins from embedded images |
-| `build_clean.ps1` | Compiling deck (supports parameterized builds) |
+## Memory-Aware Agent Workflow
 
-### Key Constraints
+### Three-Phase Memory Injection
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   PLAN      │────→│  EXECUTE    │────→│   REVIEW    │
+│  (计划)      │     │  (执行)      │     │  (审查)      │
+└─────────────┘     └─────────────┘     └─────────────┘
+      │                   │                   │
+      ▼                   ▼                   ▼
+  Read MEMORY_INDEX   Check CRITICAL      Verify compliance
+  Read user-pref      preferences         Update session mem
+  Incorporate into    before each edit
+  plan
+```
+
+### Phase 1: Plan — Memory Search (MANDATORY)
+
+**Rule**: Before generating any implementation plan, the agent MUST:
+
+1. **Read `memories/MEMORY_INDEX.md`** — Search for keywords matching the user's request
+2. **Read `memories/repo/user-preferences.md`** — Load all relevant preference sections
+3. **Identify CRITICAL constraints** — Mark rules that cannot be violated:
+   - Box philosophy: "plain text first, boxes as exceptions"
+   - Content density: "mentor deck = dense, self-contained"
+   - Theme: "teal over academic"
+   - Any domain-specific rules (e.g., OT Chapter 1 supplement ladder)
+4. **Incorporate into plan** — Reference specific preference sections in the plan
+
+**Example plan snippet with memory integration:**
+```markdown
+## Plan: Redesign OT Chapter 1 Deck
+
+### Constraints from user-preferences.md
+- [Box Philosophy] Plain text first; use \TLinfoblock only for key theorems
+- [Content Density] Mentor deck: dense, complete sentences, ≥3 exercises
+- [Theme] Use teal theme
+- [OT Chapter 1] Follow supplement ladder: coupling → measure → pushforward → OT
+
+### Steps
+1. ...
+```
+
+### Phase 2: Execute — Preference Guard
+
+**Rule**: Before each file edit/create operation, verify:
+
+- [ ] Does this violate any CRITICAL preference? (Block if yes)
+- [ ] Does this match the established box philosophy?
+- [ ] Does this match the content density standard?
+- [ ] Does this use the correct theme?
+
+### Phase 3: Review — Compliance Check
+
+**Rule**: After completing changes, verify:
+
+- [ ] All CRITICAL preferences are respected
+- [ ] Consistent with existing codebase patterns
+- [ ] Update session memory with decisions made
+
+---
+
+## Tool Reference
+
+| Tool | When to Use | Example |
+|------|-------------|---------|
+| `layout_optimizer.py` | Choosing layout template, generating LaTeX skeleton | `python tools/layout_optimizer.py suggest --img 1716:1124 --cards 2` |
+| `check_layout.py` | Auditing slide density, column balance, grammar violations | `python tools/check_layout.py deck.tex build/deck.log --advise` |
+| `auto_crop.py` | Removing white margins from embedded images | `python tools/auto_crop.py fig.png --padding 8` |
+| `test_themes.py` | Compile-test all 5 themes (+ optional layout stress test) | `python tools/test_themes.py` or `--layouts` for full 5×8 matrix |
+| `paper_parser.py` | Extract text/figures/references from PDF papers | `python tools/paper_parser.py paper.pdf --output paper.json` |
+| `build_clean.ps1` | Compiling deck (Windows, parameterized) | `.\build_clean.ps1 deckname` |
+| `build.sh` | Compiling deck (macOS/Linux) | `./build.sh deckname` |
+
+---
+
+## Key Constraints
 
 - **Never** use `2*#1\textwidth` in `\dimexpr` — use `#1\textwidth-#1\textwidth` instead
 - **Always** wrap `\@ifundefined` with `\makeatletter`/`\makeatother` in `\input`'d files
 - **Always** use `\providecommand` in layout/component files to prevent duplicates
-- **Hardcode** column heights when inside `\budgetwideimg` or `[shrink=N]` frames
+- **Hardcode** column heights when inside `\sbox` contexts or `[shrink=N]` frames
+- **New decks** use `template-lib` commands (`\TLinfoblock`, etc.); legacy decks use `config.tex`
 
 ---
 
@@ -36,7 +109,7 @@ These rules apply to ALL Beamer work in this repo. Violations must be fixed befo
 ### Content Rules
 
 1. **No overlays** — never use `\pause`, `\onslide`, `\only`, `\uncover`. Use multiple slides for progressive builds, color emphasis for attention.
-2. **Max 3 colored boxes per slide** — `bluecard`, `eqbox`, `greencard`, `alertcard`, `goldcall` combined. More dilutes emphasis.
+2. **Max 3 colored boxes per slide** — `\TLinfoblock`, `\TLalertblock`, `\TLresultblock`, `\TLwarnblock`, `\TLtakeaway` combined. More dilutes emphasis.
 3. **Motivation before formalism** — every concept starts with "Why?" before "What?".
 4. **Worked example within 2 slides** of every definition.
 5. **Telegraphic style** — keyword phrases, not full sentences. Slides are speaker prompts, not manuscripts.
@@ -73,7 +146,7 @@ These rules apply to ALL Beamer work in this repo. Violations must be fixed befo
 ### Quick Dispatch
 
 | User says... | Use skill | Action |
-|---------------|-----------|--------|
+|--------------|-----------|--------|
 | "Create a new deck" / "Make slides for..." | beamer-create | Full pipeline |
 | "Proofread" / "Check for typos" | beamer-review | `proofread` |
 | "Audit layout" / "Fix overflow" | beamer-review | `audit` |
@@ -86,10 +159,66 @@ These rules apply to ALL Beamer work in this repo. Violations must be fixed befo
 | "Validate" / "How many slides?" | beamer-validate | `validate` |
 | "Visual check" / "Check the PDF" | beamer-validate | `visual-check` |
 | "Full health check" | beamer-validate | `check` |
+| **"Update memory" / "Remember this" / "Save preference"** | **memory** | **Write to `memories/repo/user-preferences.md`** |
 
 ### How to Invoke a Skill
 
-1. Read the skill's `SKILL.md` for detailed instructions
-2. Follow the phase/action steps precisely
-3. Cross-reference other skills when the workflow spans concerns
-4. Always compile and verify after making changes
+1. **Read the skill's `SKILL.md`** for detailed instructions
+2. **Search memory** — Before invoking, check `memories/MEMORY_INDEX.md` for relevant constraints
+3. **Follow the phase/action steps** precisely
+4. **Cross-reference other skills** when the workflow spans concerns
+5. **Always compile and verify** after making changes
+
+---
+
+## Memory Update Protocol
+
+### When to Update Memory
+
+| Trigger | Action | File |
+|---------|--------|------|
+| User states a preference | Append to relevant section | `memories/repo/user-preferences.md` |
+| New domain knowledge (e.g., OT Chapter 2) | Add new section | `memories/repo/user-preferences.md` |
+| New keyword patterns identified | Update lookup table | `memories/MEMORY_INDEX.md` |
+| Workflow improvement discovered | Update this file | `AGENTS.md` |
+
+### How to Update `user-preferences.md`
+
+1. Read existing file to understand structure
+2. Append new preference under appropriate heading
+3. Use consistent markdown formatting
+4. Include rationale if non-obvious
+
+### How to Update `MEMORY_INDEX.md`
+
+1. Identify new keyword → memory mapping
+2. Add row to Quick Lookup Table
+3. Assign priority (P0/P1/P2)
+4. Update Last Updated timestamp
+
+---
+
+## Mentor Deck Mode (Self-Study Slides)
+
+When the user indicates they are building a **mentor deck** (self-study material, not a live presentation):
+
+### Content Differences
+
+| Aspect | Presentation | Mentor Deck |
+|--------|-------------|-------------|
+| Style | Telegraphic | Complete sentences |
+| Examples | 1 per concept | 2-3 per concept, worked |
+| Exercises | None | ≥3 per chapter, with hints |
+| Proofs | Sketch only | Key idea + backup details |
+| Density | Sparse | Dense, comprehensive |
+
+### Mentor Deck Rules
+
+1. **Self-contained** — never assume reader has external references
+2. **Worked examples** — concrete numbers, step-by-step, reproducible
+3. **Progressive difficulty** — 1D/discrete first, then continuous/high-D
+4. **Exercises with hints** — 2-3 hints per exercise, answers in backup
+5. **Common pitfalls** — use `\TLwarnblock` for beginner mistakes
+6. **No "obviously" / "trivially"** — explain everything
+
+See `memories/repo/user-preferences.md` for full mentor deck standards.

@@ -1,25 +1,153 @@
-# CvG-Diff Beamer Deck — Project Context
+# Beamer Deck Auto — Project Context
 
-**Project:** CvG-Diff MICCAI 2025 XeLaTeX Beamer Deck  
-**Theme:** Academic (navy + red, classic style)  
-**Build:** XeLaTeX + Metropolis theme  
-**Main source:** `cvgdiff-beamer.tex`  
-**Config:** `config.tex` (box macros + theme palettes)  
-**Build script:** `build_clean.ps1`
+**Project:** XeLaTeX Beamer Template Library + Layout Optimization Tools  
+**Architecture:** Three-tier (Theme → Layout → Component)  
+**Build:** XeLaTeX + Metropolis theme + xeCJK  
+**Entry Point:** `\usepackage[<theme>]{template-lib}`  
+**Build Scripts:** `build_clean.ps1` (Windows), `build.sh` (macOS/Linux)
 
 ---
 
-## Box Environments (from config.tex)
+## Three-Tier Architecture
 
-| Environment | Purpose | Colors |
-|-------------|---------|--------|
-| `bluecard{title}` | Primary info block | ThemePrimary frame + ThemeTint bg |
-| `goldcall` | Alert / key takeaway | ThemeAccent frame + ThemeAccentLight bg |
-| `eqbox{title}` | Equations / definitions | ThemePrimary!50 frame + ThemeSurface bg |
-| `greencard{title}` | Positive result | PosGreen frame |
-| `alertcard{title}` | Warning / limitation | NegRed frame |
+```
+┌─────────────────────────────────────────────────────────────┐
+│  TIER 1: THEMES (Color + Typography)                        │
+│  ├─ academic    Navy #1a3a6b + Brick #b8321a               │
+│  ├─ teal        Teal #00796b + Amber #e65100               │
+│  ├─ dark        Dark mode, Catppuccin-like                 │
+│  ├─ navygold    Navy #1a3a6b + Gold #c9a23a                │
+│  └─ minimal     Charcoal #2d2d2d + Silver #6b6b6b          │
+├─────────────────────────────────────────────────────────────┤
+│  TIER 2: LAYOUTS (Page Structure)                           │
+│  ├─ text        Pure text flow                              │
+│  ├─ 1img        Single image: left/right/top/bottom         │
+│  ├─ 2img        Two images: side-by-side, labeled           │
+│  ├─ 3img        Three images: grid, asymmetric              │
+│  ├─ eq          Equation-focused: single, compare, deriv    │
+│  ├─ table       Table: full-width, side-text                │
+│  ├─ imgtop      Image-top with auto-height bottom content   │
+│  └─ twocol      Two-column text: equal, divider, pro/con    │
+├─────────────────────────────────────────────────────────────┤
+│  TIER 3: COMPONENTS (Reusable Blocks)                       │
+│  ├─ Title       \TLtitlestandard, \TLtitlecenter, \TLsection│
+│  ├─ Blocks      \TLinfoblock, \TLalertblock, \TLresultblock │
+│  ├─ Figures     \TLautoimg, \TLimgcap, \TLsubfig           │
+│  ├─ Tables      \TLtable, \TLthead, \TLthl                 │
+│  ├─ Inline      \TLpos, \TLneg, \TLhl, \TLmuted, \TLterm   │
+│  └─ Takeaway    \TLtakeaway                                  │
+└─────────────────────────────────────────────────────────────┘
+```
 
-All boxes accept optional `[...]` tcolorbox parameters before the title.
+### Usage
+
+```latex
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[teal]{template-lib}  % or academic, dark, navygold, minimal
+\uselayout{1img}                 % load specific layout(s)
+\uselayout{eq}
+
+\TLsetfoot{Author · Conference 2025}
+
+\begin{document}
+\TLtitlestandard[teaser.png]{Title}{Subtitle}{Author}{Institute}{Date}
+
+\begin{frame}{Single Image Layout}
+  \TLoneimgleft{image.png}{
+    \begin{itemize}
+      \item Point 1
+      \item Point 2
+    \end{itemize}
+  }
+\end{frame}
+\end{document}
+```
+
+---
+
+## Color Token System (11 TL-Prefixed Tokens)
+
+All themes define these 11 tokens. Components reference tokens, never hardcode colors.
+
+| Token | Role | Example (academic) |
+|-------|------|-------------------|
+| `TLprimary` | Brand primary | Navy #1a3a6b |
+| `TLprimaryDark` | Title bg, emphasis | Dark navy #0d1f3e |
+| `TLprimaryLight` | Subtle accents | Light navy #c8d8ee |
+| `TLprimaryTint` | Block backgrounds | Very light #e8eff8 |
+| `TLaccent` | Callouts, alerts | Brick red #b8321a |
+| `TLaccentLight` | Highlight backgrounds | Light brick #fbe8e3 |
+| `TLink` | Body text | Near black #1a1a2e |
+| `TLinkSoft` | Secondary text, captions | Soft gray #5a5a7e |
+| `TLsurface` | Canvas off-white | #f7f8fb |
+| `TLpos` | Positive/green | #2E7D32 |
+| `TLneg` | Negative/red | #C62828 |
+
+Plus 2 semantic aliases per theme: `TLcanvas` (slide bg), `TLblockbody` (block interior).
+
+---
+
+## Component Reference
+
+### Block Components (`comp-block.sty`)
+
+| Command | Purpose | Colors |
+|---------|---------|--------|
+| `\TLinfoblock{title}{content}` | Primary info block | `TLprimary` frame + `TLprimaryTint` bg |
+| `\TLalertblock[title]{content}` | Alert / warning | `TLaccent` frame + `TLaccentLight` bg |
+| `\TLresultblock{title}{content}` | Positive result | `TLpos` frame + `TLpos!10` bg |
+| `\TLwarnblock{title}{content}` | Warning / limitation | `TLneg` frame + `TLneg!8` bg |
+| `\TLtakeaway{content}` | Key takeaway inline | `TLaccentLight` bg, full width |
+| `\TLterm{text}` | Inline term highlight | `TLaccent` bold |
+
+### Semantic Inline (`comp-block.sty`)
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `\TLpos{text}` | Positive emphasis (green bold) | `\TLpos{+2.3 dB}` |
+| `\TLneg{text}` | Negative emphasis (red bold) | `\TLneg{−15\%}` |
+| `\TLhl{text}` | Highlight background | `\TLhl{key result}` |
+| `\TLmuted{text}` | De-emphasized (gray) | `\TLmuted{optional}` |
+
+### Figure Components (`comp-fig.sty`)
+
+| Command | Purpose |
+|---------|---------|
+| `\TLautoimg[opts]{file}` | Auto-scale to column width, cap at 72% frame height |
+| `\TLimgcap[opts]{file}{caption}` | Image with caption below |
+| `\TLsubfig[width]{img1}{img2}{caption}` | Side-by-side images |
+| `\TLtable{cols}` | Environment: centered, small, booktabs-ready |
+| `\TLthead` | Styled header row (primary bg, white text) |
+| `\TLthl` | Row highlight (primary tint bg) |
+
+### Title Components (`comp-title.sty`)
+
+| Command | Purpose |
+|---------|---------|
+| `\TLtitlestandard[img]{title}{sub}{author}{inst}{date}` | Left text, right image |
+| `\TLtitlecenter{title}{sub}{author}{date}` | Centered, no image |
+| `\TLsection{Title}` | Section divider slide |
+
+---
+
+## Legacy vs. New Command Mapping
+
+Old `personal-deck/` commands (CvG-Diff era) → New `template-lib` commands:
+
+| Old (config.tex) | New (template-lib) | Notes |
+|------------------|-------------------|-------|
+| `bluecard{title}` | `\TLinfoblock{title}{...}` | Primary info block |
+| `goldcall` | `\TLalertblock{title}{...}` or `\TLtakeaway{...}` | Alert / takeaway |
+| `eqbox{title}` | `\begin{tcolorbox}[title=...]` or plain math | Equation box |
+| `greencard{title}` | `\TLresultblock{title}{...}` | Positive result |
+| `alertcard{title}` | `\TLwarnblock{title}{...}` | Warning |
+| `\deltapos{+X}` | `\TLpos{+X}` | Green bold delta |
+| `\deltaneg{−X}` | `\TLneg{−X}` | Red bold delta |
+| `\autoimg{file}` | `\TLautoimg{file}` | Auto-scale image |
+| `\budgetwideimg` | `\TLimgtop` (in `layout-imgtop.sty`) | Image-top layout |
+| `\scaleeq{math}` | `\resizebox{\linewidth}{!}{$...$}` | Scale equation |
+
+**Rule:** New decks should use `template-lib` commands. Legacy `personal-deck/` files retain old commands for backward compatibility.
 
 ---
 
@@ -31,101 +159,52 @@ All boxes accept optional `[...]` tcolorbox parameters before the title.
 |---------|---------------------|--------|
 | Standalone frame, no shrink | ✅ Works after 2 passes | Can use group OR hardcode |
 | Frame with `[shrink=N]` | ❌ Fails | **Must hardcode** |
-| Inside `\budgetwideimg` / `\budgetwidecontent` | ❌ Fails (inside `\sbox`) | **Must hardcode** |
+| Inside `\sbox` (custom wrappers) | ❌ Fails | **Must hardcode** |
 
 ### Why `equal height group` Fails in Some Contexts
 
-1. **`\sbox` context** (`\budgetwideimg`, `\budgetwidecontent`): tcolorbox writes height info to `.aux` at shipout time, but `\sbox` prevents shipout → no height recorded → group fails.
+1. **`\sbox` context**: tcolorbox writes height info to `.aux` at shipout time, but `\sbox` prevents shipout → no height recorded → group fails.
 2. **`[shrink=N]` frames**: Beamer's shrink mechanism rescales the entire frame after typesetting, but `equal height group` heights are computed pre-shrink → mismatch.
 
 ### Hardcoding Procedure (always use this)
 
 1. Add `equal height group=TMP` to both boxes (temporary, for measurement only)
 2. Build 2 passes: `xelatex ...` × 2
-3. Read height: `Select-String "TMP" build\cvgdiff-beamer.aux`
+3. Read height: `Select-String "TMP" build\deck.aux`
 4. Replace with `height=XX.XXXXXpt,valign=top` on BOTH boxes
 5. Rebuild and verify
 
 ---
 
-## Height Hardcoding Record
-
-| Frame | PDF Page | Context | Box A | Box B | Height Used |
-|-------|----------|---------|-------|-------|-------------|
-| S3 Radon/FBP | p3 | `[shrink=5]` frame | eqbox "Radon" | eqbox "FBP" | `67.42996pt` |
-| S4 稀疏视图 | p4 | `\budgetwidecontent` | bluecard "动机" | bluecard "挑战" | `71.06035pt` |
-| S6b 背景扩散 | p7 | `\budgetwideimg` | bluecard "核心思想" | bluecard "代表工作" | `71.40608pt` |
-| S8 Cold Diffusion | p10 | Standalone, 2 rows | Row 1: eqbox+bluecard | Row 2: eqbox+bluecard | R1: `61.99364pt`, R2: `75.90117pt` |
-| S14 SPDPS | p15 | `\budgetwideimg` | bluecard "Phase 1" | bluecard "Phase 2" | `54.25087pt` (measured, hardcode recommended) |
-| S16b 消融解读 | p20 | Standalone frame | bluecard "18-view PSNR" | bluecard "物理解释" | `86.83221pt` |
-
-### Active `equal height group` Entries (current build)
-
-| Group | Frame | Boxes | Resolved Height |
-|-------|-------|-------|-----------------|
-| `S12top` | S12 EPCT 2/2 | eqbox "Restore Loss" ↔ bluecard "为什么有效？" | `61.43942pt` |
-| `S12bot` | S12 EPCT 2/2 | eqbox "Compose Loss" ↔ bluecard "消融验证" | `62.71098pt` |
-| `S13top` | S13 顺序采样 | bluecard "①语义错误" ↔ bluecard "核心观察" | `75.03171pt` |
-| `S13bot` | S13 顺序采样 | bluecard "②NFE浪费" ↔ goldcall "SPDPS动机" | `70.18864pt` |
-| `S14` | S14 SPDPS | bluecard "Phase 1" ↔ bluecard "Phase 2" | `54.25087pt` (inside `\sbox` — may need hardcode) |
-
----
-
-## Layout Helpers
-
-### `\budgetwideimg{caption}{bottom-block}{imagefile}`
-
-Convenience wrapper for IMAGE_TOP layout:
-- Image fills top, auto-capped by remaining height
-- Caption below image
-- Bottom block (cards, text) at frame bottom
-- **Inside `\sbox`**: `equal height group` does NOT work → hardcode heights
-
-### `\budgetwidecontent{top-visual}{caption}{bottom-block}`
-
-General IMAGE_TOP helper for multi-image grids, tables, custom visuals.
-- Use `\bbiAvailHt` as height cap in grids
-- **Inside `\sbox`**: `equal height group` does NOT work → hardcode heights
-
-### `\autoimg[opts]{file}`
-
-Fill column width, cap at 76% frame height. Use inside columns.
-
-### `\scaleeq{math}`
-
-Scales a display equation to fit `\linewidth`. Use inside narrow columns.
-
----
-
-## Custom Commands
-
-| Command | Purpose |
-|---------|---------|
-| `\deltapos{+X dB}` | Green bold positive delta |
-| `\deltaneg{$-$X dB}` | Red bold negative delta |
-| `\cnum{①}` | CJK number in non-CJK font |
-| `\thetaEMA` | `\theta^{\mathrm{EMA}}` shorthand |
-| `\hlrow` | Highlight row color (ThemeLight) |
-
----
-
 ## File Locations
 
-| File | Path |
-|------|------|
-| Main source | `cvgdiff-beamer.tex` |
-| Box macros + theme | `config.tex` |
-| Build script | `build_clean.ps1` |
-| Assets | `slides_assets/` |
-| Backup | `cvgdiff-beamer.tex.bak.20260520` |
+| File | Path | Purpose |
+|------|------|---------|
+| Template library entry | `template-lib/template-lib.sty` | Master package, theme selection |
+| Themes | `template-lib/themes/theme-*.sty` | 5 color palettes + base boilerplate |
+| Layouts | `template-lib/layouts/layout-*.sty` | 8 page structure patterns |
+| Components | `template-lib/components/comp-*.sty` | Blocks, figures, titles |
+| Font config | `template-lib/font-config.sty` | Cross-platform CJK auto-detection |
+| Catalog | `template-lib/docs/CATALOG.md` | Full API reference with examples |
+| Legacy config | `personal-deck/config.tex` | Old CvG-Diff box macros (backward compat) |
+| Legacy deck | `personal-deck/cvgdiff-beamer.tex` | Example real-world deck |
+| Build script (Win) | `build_clean.ps1` | PowerShell build wrapper |
+| Build script (Unix) | `build.sh` | Bash build wrapper |
 
 ---
 
-## Build Command
+## Build Commands
 
 ```powershell
-# From project root
-xelatex -interaction=nonstopmode -output-directory=build cvgdiff-beamer.tex
+# Windows — compile single deck
+xelatex -interaction=nonstopmode -output-directory=build deck.tex
+
+# Or use the wrapper
+.\build_clean.ps1              # default: compile all .tex
+.\build_clean.ps1 deckname    # compile specific deck
+
+# macOS / Linux
+./build.sh deckname
 ```
 
 Run **twice** when using `equal height group` (first pass writes .aux, second pass reads it).
@@ -134,35 +213,41 @@ Run **twice** when using `equal height group` (first pass writes .aux, second pa
 
 ## Writing Style Guide
 
-### Telegraphic Style
+### Two Modes: Presentation Deck vs. Mentor Deck
+
+| Aspect | Presentation Deck | Mentor Deck (self-study) |
+|--------|------------------|--------------------------|
+| **Audience** | Live listeners | Solo reader |
+| **Density** | Sparse, high impact | Dense, comprehensive |
+| **Style** | Telegraphic, keywords | Complete sentences, explanatory |
+| **Examples** | Minimal (1 per concept) | Extensive (2-3 per concept, worked) |
+| **Exercises** | None | ≥3 per chapter, with hints |
+| **Proofs** | Sketch only (≤3 bullets) | Key idea + details in backup |
+| **Takeaways** | 1 per slide | Summary + "check your understanding" |
+
+### Telegraphic Style (Presentation Mode)
 
 Slides are **speaker prompts**, not manuscripts:
 - Use keyword phrases, not full sentences
-- Every slide must have a clear **takeaway** — the one thing the audience should remember
+- Every slide must have a clear **takeaway**
 - No conversational hedging ("we might consider", "it could be argued")
-- Use `\textbf{}` for key terms on first introduction
+- Use `\TLterm{}` or `\textbf{}` for key terms on first introduction
+
+### Mentor Deck Style (Self-Study Mode)
+
+- **Complete explanations**: reader has no speaker to fill gaps
+- **Worked examples**: concrete numbers, step-by-step, reproducible
+- **Progressive difficulty**: 1D/discrete first, then continuous/high-D
+- **Common pitfalls**: use `\TLwarnblock` for mistakes beginners make
+- **Exercises**: ⭐ calculation → ⭐⭐ verification → ⭐⭐⭐ insight
+- **Hints**: 2-3 per exercise, answers in backup slides
 
 ### Formula + Analysis Interleave
 
 Never present a bare equation without context:
 1. **Motivation first**: 1-line informal statement before formalism
-2. **Equation**: displayed math in `eqbox` or standalone
+2. **Equation**: displayed math in `tcolorbox` or standalone
 3. **Analysis**: 1-2 bullet points interpreting the result
-
-### Opening Strategies (choose one)
-
-| Strategy | When to Use |
-|----------|-------------|
-| Surprising statistic | "90% of CT reconstructions suffer from..." |
-| Provocative question | "Why do state-of-the-art methods still fail on..." |
-| Real-world failure case | Show a failed reconstruction, then ask "What went wrong?" |
-| Visual demonstration | Side-by-side good vs. bad result |
-
-### Closing Strategies (use ≥1)
-
-- **Call-back**: reference the opening question/statistic with the answer
-- **3 takeaways**: the only things to remember (use `goldcall` box)
-- **Open question**: what remains unsolved → future work
 
 ---
 
@@ -172,7 +257,7 @@ Never present a bare equation without context:
 
 ```
 [Motivation: 1-line informal "Why we need this"]
-[Formal definition in eqbox or displayed math]
+[Formal definition in \TLinfoblock or displayed math]
 [Worked example within 2 slides]
 ```
 
@@ -181,7 +266,7 @@ Never present a bare equation without context:
 ```
 [Problem statement (1-2 lines)]
 [Algorithm steps — max 10 lines of pseudocode]
-[Highlight critical step with color]
+[Highlight critical step with \TLterm or color]
 [Input/output clearly labeled]
 ```
 
@@ -195,9 +280,18 @@ Never present a bare equation without context:
 ### Theorem / Proof Slide
 
 - **Never** cram theorem + proof on one slide
-- Theorem slide: informal framing → `\begin{theorem}` → key implication
+- Theorem slide: informal framing → formal statement → key implication
 - Proof on **next** slide; for long proofs, show proof sketch + full proof in backup
 - Use `\begin{proof}[Proof sketch]` for abbreviated proofs
+
+### Exercise Slide (Mentor Deck)
+
+```
+[Problem statement, clearly labeled Exercise N.M]
+[Difficulty: ⭐ / ⭐⭐ / ⭐⭐⭐]
+[Hints (2-3 bullets, progressively revealing)]
+[\TLtakeaway{Key concept tested}]
+```
 
 ### Cross-Referencing Between Slides
 
@@ -216,7 +310,7 @@ Never present a bare equation without context:
 | Bullet points | 7 | Split slide |
 | Displayed equations | 2 | Split slide |
 | New symbols introduced | 5 | Introduce over multiple slides |
-| Colored boxes (`bluecard`/`eqbox`/`goldcall`/`greencard`/`alertcard` combined) | 3 | Redistribute content |
+| Colored blocks (`\TLinfoblock`/etc.) combined | 3 | Redistribute content |
 
 ### Lower Bounds (per slide)
 
@@ -235,12 +329,12 @@ After each batch of 5-10 slides:
 ## Table Best Practices
 
 - **Always center**: wrap standalone tables in `\begin{center}...\end{center}`
-- **Spacing after title**: insert `\vspace{4pt}` between frame title and first `\toprule` (prevents visual merge with title bar — compiler emits zero warnings for this)
+- **Spacing after title**: insert `\vspace{4pt}` between frame title and first `\toprule`
 - **Always use `booktabs`**: `\toprule`, `\midrule`, `\bottomrule` — never vertical lines (`|`)
 - **Column alignment**: numbers → `r`, text → `l`, short labels → `c`
 - **Max dimensions**: 6-7 columns, 8-10 rows per slide; more → paginate
-- **Pagination rules**: repeat full header on each page, append "(cont'd)" to frame title, split at logical boundaries, last page must have ≥3 data rows
-- **Highlight key cells**: `\cellcolor{ThemeLight}` or `\textbf{}` — draw the eye to the result
+- **Pagination rules**: repeat full header on each page, append "(cont'd)" to frame title
+- **Highlight key cells**: `\TLthl` or `\textbf{}` — draw the eye to the result
 - **For comparison tables**: bold the best result in each row/column
 - **`\resizebox` only as last resort** — prefer reducing columns/rows first
 
@@ -274,6 +368,19 @@ Start at **100**. Deduct for issues:
 
 ---
 
-## Pending Work (from HANDOFF.md)
+## User Preferences
 
-See `HANDOFF.md` for detailed user-requested fixes and troubleshooting notes.
+**CRITICAL**: Before any design or planning task, read `memories/repo/user-preferences.md` and `memories/MEMORY_INDEX.md`.
+
+See `memories/repo/user-preferences.md` for:
+- Theme preference (teal over academic)
+- Box philosophy (plain text first, boxes as exceptions)
+- Mentor deck standards (worked examples, exercises, self-contained)
+- Reader cognitive baseline (what math background to assume)
+- Measure theory bridging strategy (how to explain technical terms)
+- Domain-specific rules (e.g., OT Chapter 1 supplement ladder)
+
+See `memories/MEMORY_INDEX.md` for:
+- Keyword lookup table to quickly locate relevant preference sections
+- Agent workflow phases (Plan → Execute → Review)
+- Priority levels for different preference categories
