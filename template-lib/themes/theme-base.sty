@@ -1,0 +1,72 @@
+% ============================================================================
+% theme-base.sty — Shared Beamer Boilerplate for All Themes
+% ============================================================================
+% Loaded by each theme file AFTER the 11 TL color tokens are defined.
+% Themes must also define two semantic aliases before \input'ing this file:
+%
+%   \definecolor{TLcanvas}{named}{white}       % or TLsurface for dark
+%   \definecolor{TLblockbody}{named}{white}     % or TLsurface for dark
+%
+% This file provides:
+%   - Metropolis base theme loading
+%   - Beamer color wiring (references TL tokens + TLcanvas/TLblockbody)
+%   - Font settings
+%   - Footer template + \TLfootleft / \TLsetfoot
+%   - \TLtitlebg / \TLresetbg hooks
+% ============================================================================
+
+\usetheme[progressbar=frametitle,block=fill,numbering=fraction]{metropolis}
+\usepackage{appendixnumberbeamer}
+
+% ── Beamer Color Wiring ─────────────────────────────────────────────────────
+\setbeamercolor{background canvas}{bg=TLcanvas}
+\setbeamercolor{normal text}{fg=TLink,bg=TLcanvas}
+\setbeamercolor{frametitle}{bg=TLprimary,fg=white}
+\setbeamercolor{frametitle right}{bg=TLprimaryDark}
+\setbeamercolor{title separator}{fg=TLaccent}
+\setbeamercolor{progress bar}{fg=TLaccent,bg=TLprimaryLight}
+\setbeamercolor{alerted text}{fg=TLaccent}
+\setbeamercolor{block title}{bg=TLprimaryTint,fg=TLprimary}
+\setbeamercolor{block body}{bg=TLsurface}
+\setbeamercolor{block title alerted}{bg=TLaccentLight,fg=TLaccent}
+\setbeamercolor{block body alerted}{bg=TLblockbody}
+\setbeamercolor{block title example}{bg=TLprimaryLight,fg=TLprimaryDark}
+\setbeamercolor{block body example}{bg=TLblockbody}
+\setbeamercolor{palette primary}{fg=white,bg=TLprimary}
+\setbeamercolor{itemize item}{fg=TLprimary}
+\setbeamercolor{itemize subitem}{fg=TLprimary}
+\setbeamercolor{enumerate item}{fg=TLprimary}
+\setbeamercolor{enumerate subitem}{fg=TLprimary}
+
+% ── Fonts ───────────────────────────────────────────────────────────────────
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\normalsize}
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+\setbeamerfont{block body}{size=\small}
+
+% ── Footer ──────────────────────────────────────────────────────────────────
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=0.72\paperwidth,ht=2.5ex,dp=1.25ex,leftskip=8pt]{palette primary}%
+      \usebeamerfont{footline}\tiny \TLfootleft%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=0.28\paperwidth,ht=2.5ex,dp=1.25ex,rightskip=8pt]{palette primary}%
+      \hfill\usebeamerfont{footline}\tiny\insertframenumber\,/\,\inserttotalframenumber%
+    \end{beamercolorbox}%
+  }%
+}
+
+% ── User-configurable footer text ───────────────────────────────────────────
+\newcommand{\TLfootleft}{Presentation}
+\newcommand{\TLsetfoot}[1]{\renewcommand{\TLfootleft}{#1}}
+
+% ── Title Page / Background Hooks ───────────────────────────────────────────
+% These use \providecommand so themes can override the canvas color.
+\providecommand{\TLtitlebg}{%
+  \setbeamercolor{background canvas}{bg=TLprimaryDark}%
+}
+\providecommand{\TLresetbg}{%
+  \setbeamercolor{background canvas}{bg=TLcanvas}%
+}
