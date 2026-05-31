@@ -222,7 +222,7 @@ Run **twice** when using `equal height group` (first pass writes .aux, second pa
 | **Style** | Telegraphic, keywords | Complete sentences, explanatory |
 | **Examples** | Minimal (1 per concept) | Extensive (2-3 per concept, worked) |
 | **Exercises** | None | ≥3 per chapter, with hints |
-| **Proofs** | Sketch only (≤3 bullets) | Key idea + details in backup |
+| **Proofs** | Sketch only (≤3 bullets) | **Full proofs**, every step shown (not "sketched") |
 | **Takeaways** | 1 per slide | Summary + "check your understanding" |
 
 ### Telegraphic Style (Presentation Mode)
@@ -241,6 +241,12 @@ Slides are **speaker prompts**, not manuscripts:
 - **Common pitfalls**: use `\TLwarnblock` for mistakes beginners make
 - **Exercises**: ⭐ calculation → ⭐⭐ verification → ⭐⭐⭐ insight
 - **Hints**: 2-3 per exercise, answers in backup slides
+- **Page count is irrelevant**: completeness and pedagogical clarity are the only metrics; "i don't care if you use 100 or 200 pages"
+- **Every equation gets its own frame** (or a shared frame with its derivation); never cram multiple unrelated equations on one slide
+- **Every assumption explicitly stated** with physical/mathematical intuition; never say "obviously" or "it is well known"
+- **Proof steps shown explicitly**, not "sketched" — even if the source text says "proofs will only be sketched"
+- **Bibliographical notes are a full section**, 4–5+ frames, not an optional afterthought
+- **Content must be MORE detailed than the source**, not less; the deck supplements background the source assumes
 
 ### Formula + Analysis Interleave
 
