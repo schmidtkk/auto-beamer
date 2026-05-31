@@ -85,6 +85,29 @@ grep -c "multiply defined" build/FILE.log
 | Undefined citations | 0 | 1–2 | 3+ |
 | Multiply defined labels | 0 | — | 1+ |
 
+#### 2f. Layout Audit (mandatory — run tool)
+
+```bash
+python tools/check_layout.py deck.tex build/deck.log --advise
+```
+
+| Metric | Presentation OK | Mentor OK | Action if fail |
+|--------|----------------|-----------|----------------|
+| U (utilization) | [0.80, 0.95] | [0.75, 0.98] | < 0.60 → sparse, merge; > 1.00 → overflow, split |
+| B (balance) | > 0.80 | > 0.70 | Rebalance columns |
+| G (gravity) | < 0.15 | < 0.20 | Adjust vertical spacing |
+| DGV | 0 | 0 | Fix grammar violations |
+
+#### 2g. Sparse Slide Detection (from .tex source)
+
+For each `\begin{frame}` block, count substantive elements (formulas `\[`, diagrams `\begin{tikzpicture}`, tables `\begin{tabular}`, theorems `\begin{theorem}`, algorithms `\begin{algorithm}`).
+
+| Frame type | Critical threshold |
+|-----------|-------------------|
+| Single `\TLtakeaway` or `\TLinfoblock` with no math/diagram/table | **CRITICAL** — must merge or enrich |
+| ≤ 2 short text bullets, no math | **CRITICAL** — must merge or enrich |
+| Only text + citations, no substantive element | **WARNING** — consider enriching |
+
 #### 2e. Source Code Static Checks (from .tex)
 
 ```bash
@@ -124,6 +147,8 @@ grep -c "begin{thebibliography}\|\\\\bibliography" FILE.tex
 | Box fatigue violations | N slides | OK / WARNING |
 | Font abuse (\tiny) | N found | OK / VIOLATION |
 | References slide | Present / Missing | OK / WARNING |
+| **Layout audit (U/B/G/DGV)** | U=X, B=X, G=X, DGV=X | OK / WARNING / CRITICAL |
+| **Sparse slides** | N frames < 0.60 utilization | OK / CRITICAL |
 
 Overall: PASS / PASS WITH WARNINGS / FAIL
 ```
@@ -138,9 +163,11 @@ Overall: PASS / PASS WITH WARNINGS / FAIL
 
 ---
 
-## Action: `visual-check [file]`
+## Action: `visual-check [file]` (MANDATORY)
 
-PDF-based visual verification. Converts compiled PDF to images, then inspects each slide.
+PDF-based visual verification. **This step is NOT optional.** Beamer suppresses overfull warnings inside blocks — only visual inspection catches block-interior overflow and sparse slides.
+
+**When to run:** After every compile, before declaring validation PASS.
 
 ### Step 1: Convert PDF to Images
 
@@ -170,6 +197,12 @@ For each generated slide image, verify:
 - [ ] No visual clutter
 - [ ] Images properly scaled (not pixelated, not oversized)
 - [ ] Footer/header not overlapping content
+- [ ] **No sparse slides** — each frame must have ≥1 substantive element and ≥30% vertical fill
+
+**Sparse-slide detection heuristic:**
+- If a frame contains only 1 block (e.g., `\TLtakeaway`, `\TLinfoblock`) and no math/diagram/table/theorem → flag as CRITICAL
+- If a frame has large empty vertical space (>50% of slide height unused) → flag as WARNING
+- For Mentor mode: also check that bibliographical notes, glossary, and exercise sections are present
 
 ### Step 3: Report Per Issue
 
@@ -194,10 +227,13 @@ For each generated slide image, verify:
 
 Run both `validate` and `visual-check` in sequence for a complete health report.
 
-1. Run all quantitative checks (Step 2a–2e)
-2. Convert PDF to images
-3. Inspect each slide visually
-4. Produce combined report
+1. Run all quantitative checks (Step 2a–2g)
+2. Run `python tools/check_layout.py deck.tex build/deck.log --advise`
+3. Convert PDF to images
+4. Inspect each slide visually (mandatory — block overflow is invisible in logs)
+5. Produce combined report
+
+**Do NOT skip visual-check.** Overfull warnings inside Beamer blocks are suppressed by the engine; only visual inspection catches them.
 
 ---
 
