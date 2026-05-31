@@ -112,7 +112,7 @@ These rules apply to ALL Beamer work in this repo. Violations must be fixed befo
 2. **Max 3 colored boxes per slide** — `\TLinfoblock`, `\TLalertblock`, `\TLresultblock`, `\TLwarnblock`, `\TLtakeaway` combined. More dilutes emphasis.
 3. **Motivation before formalism** — every concept starts with "Why?" before "What?".
 4. **Worked example within 2 slides** of every definition.
-5. **Telegraphic style** — keyword phrases, not full sentences. Slides are speaker prompts, not manuscripts.
+5. **Telegraphic style** — keyword phrases, not full sentences. Slides are speaker prompts, not manuscripts. **Exception:** Mentor Deck mode (self-study) uses complete sentences and self-contained explanations.
 6. **Every slide earns its place** — each slide must contain at least one substantive element (formula, diagram, table, theorem, or algorithm). A slide with only 3 short bullets must be merged or enriched.
 
 ### Technical Rules
@@ -121,7 +121,7 @@ These rules apply to ALL Beamer work in this repo. Violations must be fixed befo
 8. **Beamer .tex is the single source of truth** — TikZ diagrams, content, notation all originate here.
 9. **Verify after every task** — compile, check warnings, open PDF.
 10. **No `\tiny`** — never use `\tiny` for any user-facing content.
-11. **Box-interior overflow guard** — boxes add internal padding (~15% less width, ~12-16pt extra height). Limit box content to **one display equation OR 2-3 bullet items**. Beamer suppresses overfull warnings inside blocks — always visually verify.
+11. **Box-interior overflow guard** — boxes add internal padding (~15% less width, ~12-16pt extra height). Limit box content to **one display equation OR 2-3 bullet items**. Beamer suppresses overfull warnings inside blocks — **log grep is insufficient; run `visual-check` on every frame containing blocks.**
 12. **Columns layout** — use `\begin{columns}[T]` + `\column{W\textwidth}`. Never nest columns. Always top-align.
 
 ### Structural Rules
@@ -129,6 +129,11 @@ These rules apply to ALL Beamer work in this repo. Violations must be fixed befo
 13. **References slide** — second-to-last slide (before Thank You) must be a **References** slide.
 14. **Color and contrast** — text-background contrast ≥ 4.5:1 (WCAG AA). Limit palette to 3-5 colors. Never red+green binary contrasts.
 15. **Backup slides** — after Thank You, include 3-5 backup slides for anticipated questions. Use `\appendix` before backup section. Backup slides do NOT count toward timing.
+
+### Mode Rules
+
+16. **Deck mode must be explicitly set** — before creation, ask "Presentation (live talk) or Mentor (self-study)?". Mentor mode overrides Presentation-mode defaults (telegraphic style, duration limits, proof sketches). See `CLAUDE.md` for full mode comparison.
+17. **Sparse slides are Critical issues** — any frame with <30% vertical fill, or containing only 1 block with no math/diagram/table/theorem, must be merged or enriched. Run `check_layout.py` to detect automatically.
 
 ---
 

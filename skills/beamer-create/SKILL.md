@@ -55,10 +55,28 @@ Conduct a content-driven interview. The questions below are the **minimum requir
 
 1. **Duration**: How long is the presentation?
 2. **Audience level**: Who are the listeners?
+3. **Deck mode**: Presentation (live talk, telegraphic, time-constrained) or Mentor (self-study, complete sentences, no time limit)?
 
 ### Optional Questions (ask for journal club, defense, or when user wants rehearsal)
 
 3. **Speaker notes**: Would you like speaker notes in Presenter View? If yes, `\note{}` blocks per frame with telegraphic talking points. Requires `\setbeameroption{show notes on second screen=right}` in preamble.
+
+### Mentor Mode Overrides (apply when user selects "Mentor / self-study")
+
+When the deck is for **self-study** (not a live presentation), override these defaults:
+
+| Aspect | Presentation default | Mentor override |
+|--------|---------------------|-----------------|
+| Writing style | Telegraphic keywords | **Complete sentences**, self-contained explanations |
+| Slide count heuristic | ~1 per 1.5–2 min | **No limit** — completeness over brevity |
+| Proofs | Sketch only (≤3 bullets) | **Full proofs**, every step shown |
+| Content density | Max 2 equations, 7 bullets, 3 blocks | Max **3 equations, 10 bullets, 5 blocks** |
+| Examples | 1 per concept | **2–3 per concept**, worked step-by-step |
+| Exercises | None | **≥3 per chapter**, with hints and answers |
+| Bibliography | Optional references slide | **Full bibliographical notes section**, 4–5+ frames |
+| Structural elements | Title → Content → Summary | Title → Content → **Glossary** → **Exercises** → **Bibliography** |
+
+**Key rule for Mentor mode**: "Content must be MORE detailed than the source, not less." If the source says "proofs will only be sketched", the Mentor deck shows every step.
 
 ### Content-Driven Questions (derive from Phase 0)
 
@@ -122,10 +140,17 @@ Produce a **detailed outline**. For each section:
 
 ### 3a. Writing Style
 
+**Presentation mode (default):**
 - **Telegraphic keywords**, not full sentences. Exception: one framing sentence per slide to set context.
 - **Formulas and analysis interleave tightly** — define a quantity, then immediately state its cost/property/implication.
 - **No conversational hedging** — never write "wait, not exactly" or "actually, let me clarify".
 - **Use `\textbf{}` for key terms** on first introduction; use semantic colors for positive/negative/highlight.
+
+**Mentor mode (self-study):**
+- **Complete sentences** — the reader has no speaker to fill gaps.
+- **Motivation before every formal statement** — explain "why" before "what", even for lemmas.
+- **Explain every symbol** — no "obviously" or "it is well known"; define everything.
+- **Paraphrase, don't quote** — translate dense mathematical prose into accessible explanations (see `CLAUDE.md` Mentor Deck Style).
 
 ### 3b. Opening and Closing Strategies
 
@@ -177,6 +202,8 @@ The second-to-last content slide delivers the lasting impression.
 ```
 
 **Theorem/Proof slide:**
+
+Presentation mode:
 ```
 [Framing sentence: informal statement]
 \begin{theorem}[Optional name]
@@ -187,21 +214,50 @@ The second-to-last content slide delivers the lasting impression.
 - Proof on the **next** slide (never cram theorem + proof on one slide).
 - For long proofs: show proof sketch only, full proof in backup slides.
 
+Mentor mode:
+```
+[Framing sentence: informal statement + why this matters]
+\begin{theorem}[Optional name]
+  [Formal statement, ALL assumptions listed]
+\end{theorem}
+[Physical/geometric intuition if applicable]
+```
+- Proof on the **next** slide(s); for long proofs, use **multiple consecutive slides** showing every step.
+- Never say "proof sketch" or "proof omitted" in Mentor mode — show **every intermediate step**.
+- Each proof step gets its own frame if the algebra is dense.
+
 ### 3d. Content Density Constraints
 
-**Upper bounds (per slide):**
-- ≤ 7 bullet points
-- ≤ 2 displayed equations
-- ≤ 5 new symbols introduced
-- ≤ 3 colored boxes (our convention; external says 2)
+**Presentation mode (default):**
 
-**Lower bounds (per slide):**
+| Element | Max per slide | Action if exceeded |
+|---------|---------------|-------------------|
+| Bullet points | 7 | Split slide |
+| Displayed equations | 2 | Split slide |
+| New symbols | 5 | Introduce over multiple slides |
+| Colored boxes | 3 | Redistribute content |
+
+**Lower bounds (Presentation):**
 - Each slide MUST contain at least one substantive element
 - A slide with only ≤ 3 short text-only bullets is too sparse — merge or enrich
 - Pure text-only bullet slides ≤ 30% of total deck
 
+**Mentor mode (self-study):**
+
+| Element | Max per slide | Rationale |
+|---------|---------------|-----------|
+| Bullet points | 10 | Complete sentences need more room |
+| Displayed equations | 3 | Derivations are the content |
+| New symbols | 8 | Background supplement introduces more notation |
+| Colored boxes | 5 | Info blocks for assumptions, theorems, examples, takeaways |
+
+**Lower bounds (Mentor):**
+- Every slide MUST contain ≥1 substantive element (formula, diagram, table, theorem, proof step, or worked example)
+- A slide with only ≤ 3 short text-only bullets is too sparse — merge or enrich
+- **Pure text-only bullet slides ≤ 20%** of total deck (stricter than Presentation)
+
 **Density self-check after each batch:**
-- Count slides with zero formulas/diagrams/tables → flag if > 30%
+- Count slides with zero formulas/diagrams/tables → flag if > 30% (Presentation) or > 20% (Mentor)
 - Count slides with ≤ 3 short items and no math → candidates for merging
 
 ### 3e. Batch Workflow
@@ -324,16 +380,17 @@ Check: errors, overfull hbox, undefined references.
 - [ ] Logical flow: motivation → background → technique → results → summary
 - [ ] No section has >4 consecutive formal slides without example or visual break
 - [ ] Transition sentences between major sections
+- [ ] **Mentor mode**: Glossary slide present, exercise slides present, bibliographical notes section present
 
 **Content density:**
 - [ ] No slide has only ≤3 short bullets with no math/diagram
-- [ ] Pure text-only slides ≤ 30%
-- [ ] No slide exceeds upper bounds (7 bullets, 2 equations, 5 symbols, 3 boxes)
+- [ ] Pure text-only slides ≤ 30% (Presentation) or ≤ 20% (Mentor)
+- [ ] No slide exceeds upper bounds (Presentation: 7 bullets / 2 eq / 5 symbols / 3 boxes; Mentor: 10 / 3 / 8 / 5)
 
 **TikZ and visuals:**
 - [ ] No label-label or label-curve overlaps
 - [ ] No content overflowing slide boundary
-- [ ] No content overflowing inside colored boxes (visually verify every box)
+- [ ] No content overflowing inside colored boxes (visually verify **every** box)
 - [ ] TikZ diagrams fit within remaining slide space
 - [ ] Tables fit within slide width and are centered
 
@@ -341,12 +398,19 @@ Check: errors, overfull hbox, undefined references.
 - [ ] Same symbol used consistently
 - [ ] Every symbol defined before use
 
-**Layout metrics** (run our tools):
+**Layout metrics** (run our tools — **mandatory**):
 ```bash
 python tools/check_layout.py deck.tex build/deck.log --advise
 ```
 
-Target: DGV=0, U∈[0.80,0.95], B>0.80, G<0.15, Block≤3.
+| Mode | U (utilization) | B (balance) | G (gravity) | DGV |
+|------|-----------------|-------------|-------------|-----|
+| Presentation | [0.80, 0.95] | >0.80 | <0.15 | 0 |
+| Mentor | [0.75, 0.98] | >0.70 | <0.20 | 0 |
+
+- **U < 0.60** in any frame → sparse slide, must merge or enrich
+- **U > 1.00** in any frame → overflow, must split
+
 See [beamer-layout](../beamer-layout/SKILL.md) for full acceptance criteria.
 
 ### 5c. Quality Score Rubric
@@ -359,18 +423,27 @@ Start at 100, deduct per issue:
 | Overfull hbox > 10pt | −5 each |
 | Undefined reference | −3 each |
 | Box overflow (visual) | −5 each |
-| Sparse slide (≤3 text-only bullets) | −3 each |
-| Text-only slide ratio > 30% | −5 (total) |
+| Sparse slide (≤3 text-only bullets, or U < 0.60) | −5 each |
+| Text-only slide ratio > 30% (Presentation) or > 20% (Mentor) | −5 (total) |
 | >4 consecutive formal slides | −3 per run |
 | TikZ label overlap | −5 each |
 | Notation inconsistency | −3 each |
 | Missing motivation before definition | −3 each |
 | Missing backup slides | −3 |
 | No references slide | −5 |
+| **Mentor only**: Proof sketch instead of full proof | −10 each |
+| **Mentor only**: Missing glossary or exercise section | −5 each |
+| **Mentor only**: Missing bibliographical notes section | −5 |
 
-**Score ≥ 90**: Ready to present.
-**Score 80–89**: Minor refinements needed.
-**Score < 80**: Significant revision required.
+**Presentation mode thresholds:**
+- **Score ≥ 90**: Ready to deliver
+- **Score 80–89**: Acceptable with caveats
+- **Score < 80**: Must fix before delivery
+
+**Mentor mode thresholds:**
+- **Score ≥ 95**: Ready to deliver
+- **Score 90–94**: Minor refinements needed
+- **Score < 90**: Must fix before delivery
 
 ### 5d. Fix
 
@@ -378,6 +451,7 @@ Fix all critical and major issues. Re-compile. Max 3 rounds.
 
 ### Post-Creation Checklist (final gate)
 
+**Presentation mode:**
 ```
 [ ] Compiles without errors
 [ ] No overfull hbox > 10pt
@@ -392,6 +466,19 @@ Fix all critical and major issues. Re-compile. Max 3 rounds.
 [ ] References slide present (second-to-last)
 [ ] Backup slides present (after Thank You)
 [ ] check_layout.py: DGV=0, U∈[0.80,0.95], B>0.80
+```
+
+**Mentor mode (additional / override):**
+```
+[ ] Score ≥ 95
+[ ] Every proof shown in full (no "sketch" or "omitted")
+[ ] Glossary slide present (术语速查)
+[ ] Exercise slides present (≥3 per chapter)
+[ ] Bibliographical notes section present (4–5+ frames)
+[ ] Every assumption stated with intuition
+[ ] check_layout.py: DGV=0, U∈[0.75,0.98], B>0.70
+[ ] Visual-check: every frame with blocks inspected for interior overflow
+[ ] No frame with only 1 block and zero math/diagram
 ```
 
 ---

@@ -185,11 +185,22 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 ```
 
 **Acceptance criteria:**
+
+Presentation mode:
 - DGV = 0 (no grammar violations)
 - U ∈ [0.80, 0.95] (not sparse, not overflowing)
 - B > 0.80 (columns balanced) or N/A (non-column layouts)
 - G < 0.15 (visual center near geometric center)
-- **Block count ≤ 3 per slide** (user preference — see Phase 1.2)
+- **Block count ≤ 3 per slide**
+
+Mentor mode:
+- DGV = 0
+- U ∈ [0.75, 0.98] (denser is acceptable; < 0.60 is still sparse)
+- B > 0.70
+- G < 0.20
+- **Block count ≤ 5 per slide**
+
+**Critical:** Any frame with U < 0.60 or containing only 1 block with no math/diagram must be flagged as sparse.
 
 ### Step 3.3: Visual Verification
 
@@ -203,6 +214,16 @@ Spot-check:
 - [ ] Columns visually balanced
 - [ ] No cropped equations or images
 - [ ] Color contrast adequate
+- [ ] **No sparse slides** — every frame has ≥1 substantive element (formula, diagram, table, theorem, proof step, or worked example)
+- [ ] **No block-interior overflow** — visually inspect every `\TLinfoblock`, `\TLalertblock`, and tcolorbox for truncated content
+
+**Sparse-slide detection:**
+| Indicator | Severity | Fix |
+|-----------|----------|-----|
+| Frame with only 1 `\TLtakeaway` and nothing else | CRITICAL | Merge into preceding frame or add derivation |
+| Frame > 50% empty vertical space | WARNING | Merge with adjacent frame or add content |
+| Frame with text-only bullets, no math/diagram | WARNING | Add a formula, diagram, or table; or merge |
+| Consecutive sparse frames (>2 in a row) | CRITICAL | Restructure section
 
 ---
 
