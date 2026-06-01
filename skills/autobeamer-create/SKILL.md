@@ -121,6 +121,96 @@ When the deck is for **self-study** (not a live presentation), override these de
 
 ---
 
+## Book / Textbook Reading-Group Decks
+
+A chapter from a math textbook (e.g., Villani, Brenier, Evans, Rudin) is never a presentation — **always default to Mentor mode**. The reader has no speaker; the deck *is* the lecture.
+
+### 2.1 Content Ladder (mandatory structure per chapter)
+
+Every book deck chapter follows this ladder in order. Skipping a rung produces confusion for self-study readers.
+
+| Rung | Slides | Purpose |
+|------|--------|---------|
+| Chapter overview | 1–2 | State what this chapter proves and why it matters. Connect to previous chapter's result. |
+| Prerequisite reminder | 1–2 | List results and notation carried forward. Readers who forgot can stop here and review. |
+| Core definitions | 2–4 slides per definition | Motivation → formal statement → example → key properties. Never bare definition without motivation. |
+| Main theorems | 3–10 slides per theorem | Informal statement → formal statement → full proof (every step) → geometric intuition |
+| Worked examples | 2–3 per concept | Concrete, small-scale. Walk through applying the definition/theorem step by step. |
+| Exercises | 3+ per chapter | Graded difficulty. Include hint (collapsed) and solution in backup slides. |
+| Bibliographical notes | 4–5 slides | Original sources, historical context, alternative proofs, related work. |
+| Glossary / notation | 1–2 | All symbols used in the chapter. Bilingual if the reading group mixes languages. |
+
+### 2.2 Visual Intuition for Each Key Object
+
+**Rule: every abstract mathematical object must get a 2D visual.** Without a picture, measure-theory readers lose spatial intuition within 3 slides.
+
+| Object class | Required visual |
+|---|---|
+| Measure / distribution | A density curve or probability mass shown over a domain |
+| Joint distribution / coupling | A 2D grid or scatter plot showing the joint mass |
+| Map / push-forward | Source density → arrow → deformed target density |
+| Deterministic transport (Monge map) | Each source point with a single arrow to its destination |
+| Wasserstein / metric ball | A "ball" of measures around a center measure in a schematic space |
+| Convex function | Graph + epigraph + tangent line |
+| Set / constraint | Highlighted region in 2D with boundary annotated |
+
+Do not write a formal definition slide until the visual has been shown.
+
+### 2.3 Figure Selection Protocol for Pure Math
+
+1. **Is there a canonical, publication-quality diagram in the literature?**
+   - Check: POT library examples (Python Optimal Transport), Wikimedia Commons, arXiv paper figures (CC license), standard textbook illustrations
+2. **If yes and high quality** → use the external image with attribution. Label it in the slide footer.
+3. **If no exact match, or the setup is specific** (particular function values, dual CDF visualization, specific coordinate system) → build TikZ.
+
+**Empirical baseline**: in a standard measure-theory / OT chapter, roughly 2 out of 5 custom figures can be replaced with external images. Accept this ratio; do not force external images where TikZ is more precise.
+
+When keeping TikZ for a specific setup, document *why* in a comment so the decision is clear on revisit.
+
+### 2.4 Symbol Introduction Discipline
+
+Every new symbol must appear in three roles:
+1. **Display math** — formal definition
+2. **Intuitive sentence** — "this measures the cost of moving one unit of mass from x to y"
+3. **Connecting example** — apply it to a concrete small case (e.g., two-point distribution)
+
+**Max 3 new symbols per slide.** If a theorem introduces 5+ new symbols, break the introduction over multiple slides before stating the theorem.
+
+### 2.5 Proof Granularity in Mentor Mode
+
+For analysis / measure theory proofs:
+- Each **inequality step** = one bullet with justification (e.g., "by Jensen's inequality")
+- Each **application of a theorem** = one bullet citing the theorem by name
+- Each **approximation / limit argument** = its own slide
+- Major theorem proof: plan **4–8 slides** for a non-trivial result; **8–15 slides** for a core theorem like Brenier or Kantorovich duality
+
+Never write "by standard arguments" or "it follows" in Mentor mode. If a step is non-trivial, show it.
+
+### 2.6 Bilingual Notation Convention (Chinese/English reading groups)
+
+- **First occurrence**: `English term (中文术语)` — parenthetical on first use in body text
+- **Glossary slide**: bilingual table `English | 中文 | Symbol | Definition`
+- **Italic** for English terms embedded in Chinese sentences: `测度 $\mu$ 是 \textit{push-forward} 的...`
+- Chapter title slide: subtitle in Chinese (读书报告 · 第 N 章)
+- Section headings: English primary, Chinese subtitle (optional)
+
+### 2.7 Prerequisite Scaffolding
+
+Start every major theorem section with a **"What we need from before"** slide (1 slide):
+
+```latex
+\begin{frame}{Prerequisites for This Section}
+  \begin{itemize}
+    \item [Result/definition we rely on, with reference to earlier chapter]
+    \item ...
+  \end{itemize}
+\end{frame}
+```
+
+Never assume the reader remembers results from a previous chapter. Explicit forward-references reduce cognitive load for self-study.
+
+---
+
 ## Phase 2: Structure Plan (GATE — user must approve before drafting)
 
 Produce a **detailed outline**. For each section:
