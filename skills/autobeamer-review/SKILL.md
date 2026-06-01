@@ -1,22 +1,22 @@
 ---
-name: beamer-review
+name: autobeamer-review
 description: |
   Use when reviewing, auditing, or quality-checking existing Beamer slide decks.
   Triggers on: "review slides", "audit deck", "check quality", "pedagogy review",
   "proofread", "devils advocate", "excellence review", "find issues in slides".
   Provides structured review with rubric scoring, layout audit with DGV metrics,
   pedagogical validation, and multi-perspective excellence review.
-  Do NOT trigger on: creating new slides (use beamer-create), build errors (use beamer-build).
+  Do NOT trigger on: creating new slides (use autobeamer-create), build errors (use autobeamer-build).
 argument-hint: "review [deck.tex] — starts structured review pipeline"
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "AskUserQuestion"]
 ---
 
-# Beamer Review — Quality Assurance Actions
+# AutoBeamer Review — Quality Assurance Actions
 
-> **For deck creation**, see [beamer-create](../beamer-create/SKILL.md).
-> **For layout optimization**, see [beamer-layout](../beamer-layout/SKILL.md).
-> **For build errors**, see [beamer-build](../beamer-build/SKILL.md).
-> **For TikZ quality**, see [beamer-tikz](../beamer-tikz/SKILL.md).
+> **For deck creation**, see [autobeamer-create](../autobeamer-create/SKILL.md).
+> **For layout optimization**, see [autobeamer-layout](../autobeamer-layout/SKILL.md).
+> **For build errors**, see [autobeamer-build](../autobeamer-build/SKILL.md).
+> **For TikZ quality**, see [autobeamer-tikz](../autobeamer-tikz/SKILL.md).
 
 ## Action Index
 
@@ -363,8 +363,8 @@ Challenge assumptions and find weaknesses. Especially useful for pre-defense or 
 
 | Need | Skill |
 |------|-------|
-| Create new deck from scratch | [beamer-create](../beamer-create/SKILL.md) |
-| Layout optimization, DGV grammar | [beamer-layout](../beamer-layout/SKILL.md) |
-| Build errors, compilation | [beamer-build](../beamer-build/SKILL.md) |
-| TikZ quality, patterns | [beamer-tikz](../beamer-tikz/SKILL.md) |
-| Automated validation, visual check | [beamer-validate](../beamer-validate/SKILL.md) |
+| Create new deck from scratch | [autobeamer-create](../autobeamer-create/SKILL.md) |
+| Layout optimization, DGV grammar | [autobeamer-layout](../autobeamer-layout/SKILL.md) |
+| Build errors, compilation | [autobeamer-build](../autobeamer-build/SKILL.md) |
+| TikZ quality, patterns | [autobeamer-tikz](../autobeamer-tikz/SKILL.md) |
+| Automated validation, visual check | [autobeamer-validate](../autobeamer-validate/SKILL.md) |

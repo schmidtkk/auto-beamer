@@ -1,28 +1,28 @@
 {
   "$schema": "https://code.claude.com/docs/en/plugin-marketplace-schema.json",
-  "name": "beamer-deck-auto-marketplace",
-  "description": "Marketplace for Beamer Deck Auto — AI-powered XeLaTeX Beamer slide system",
-  "version": "1.0.0",
+  "name": "auto-beamer-marketplace",
+  "description": "Marketplace for AutoBeamer — AI-powered XeLaTeX Beamer slide system",
+  "version": "1.1.0",
   "owner": {
     "name": "schmidtkk",
     "email": ""
   },
   "plugins": [
     {
-      "name": "beamer-deck-auto",
+      "name": "auto-beamer",
       "source": {
         "source": "github",
-        "repo": "schmidtkk/beamer-deck-auto",
-        "ref": "minimal"
+        "repo": "schmidtkk/auto-beamer",
+        "ref": "main"
       },
-      "description": "AI-powered XeLaTeX Beamer slide system — layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
-      "version": "1.0.0",
+      "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
+      "version": "1.1.0",
       "author": {
         "name": "schmidtkk",
         "email": ""
       },
-      "homepage": "https://github.com/schmidtkk/beamer-deck-auto",
-      "repository": "https://github.com/schmidtkk/beamer-deck-auto.git",
+      "homepage": "https://github.com/schmidtkk/auto-beamer",
+      "repository": "https://github.com/schmidtkk/auto-beamer.git",
       "license": "MIT",
       "keywords": [
         "beamer",
@@ -32,7 +32,8 @@
         "academic",
         "xelatex",
         "layout",
-        "ai-skills"
+        "ai-skills",
+        "autobeamer"
       ],
       "category": "productivity",
       "skills": "./skills/"

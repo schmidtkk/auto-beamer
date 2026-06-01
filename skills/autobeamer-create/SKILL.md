@@ -1,22 +1,22 @@
 ---
-name: beamer-create
+name: autobeamer-create
 description: |
   Use when creating a new Beamer slide deck from scratch — converting papers, notes, or ideas
   into a structured XeLaTeX presentation. Triggers on: "create slides", "make a presentation",
   "build a talk", "prepare a lecture", "generate Beamer slides from paper", 论文讲解, 讨论班.
   Covers the full creation pipeline: material analysis → needs interview → structure plan →
   iterative drafting → figure integration → quality loop.
-  Do NOT trigger on: editing existing slides (use beamer-layout), build errors (use beamer-build),
-  review only (use beamer-review).
+  Do NOT trigger on: editing existing slides (use autobeamer-layout), build errors (use autobeamer-build),
+  review only (use autobeamer-review).
 argument-hint: "create [topic-or-file] — starts the full deck creation pipeline"
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "AskUserQuestion", "TaskCreate", "TaskUpdate", "TaskList", "TaskGet"]
 ---
 
-# Beamer Create — Deck Creation Pipeline
+# AutoBeamer Create — Deck Creation Pipeline
 
-> **For layout optimization**, see [beamer-layout](../beamer-layout/SKILL.md).
-> **For build errors**, see [beamer-build](../beamer-build/SKILL.md).
-> **For review/audit**, see [beamer-review](../beamer-review/SKILL.md).
+> **For layout optimization**, see [autobeamer-layout](../autobeamer-layout/SKILL.md).
+> **For build errors**, see [autobeamer-build](../autobeamer-build/SKILL.md).
+> **For review/audit**, see [autobeamer-review](../autobeamer-review/SKILL.md).
 
 ## Pipeline Overview
 
@@ -270,7 +270,7 @@ Mentor mode:
   # Linux/macOS
   ./build.sh deck-name
   ```
-  See [beamer-build](../beamer-build/SKILL.md) for compilation details.
+  See [autobeamer-build](../autobeamer-build/SKILL.md) for compilation details.
 - After each batch: self-check notation consistency, density constraints, motivation-before-formalism
 - Continue to next batch only after current batch compiles cleanly and passes self-check
 - Fixing 2 issues in a 10-slide batch is far cheaper than fixing 12 issues in a 40-slide deck
@@ -304,7 +304,7 @@ Mentor mode:
 ### TikZ Diagrams
 
 - TikZ diagrams in Beamer source (single source of truth)
-- Apply TikZ quality standards — see [beamer-tikz](../beamer-tikz/SKILL.md)
+- Apply TikZ quality standards — see [autobeamer-tikz](../autobeamer-tikz/SKILL.md)
 
 ### Data Visualization Guidelines
 
@@ -347,7 +347,7 @@ For each slide with images, run:
 python tools/layout_optimizer.py suggest --img W:H --cards N
 ```
 
-Then populate the generated skeleton. See [beamer-layout](../beamer-layout/SKILL.md) for full layout pipeline.
+Then populate the generated skeleton. See [autobeamer-layout](../autobeamer-layout/SKILL.md) for full layout pipeline.
 
 ---
 
@@ -411,7 +411,7 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 - **U < 0.60** in any frame → sparse slide, must merge or enrich
 - **U > 1.00** in any frame → overflow, must split
 
-See [beamer-layout](../beamer-layout/SKILL.md) for full acceptance criteria.
+See [autobeamer-layout](../autobeamer-layout/SKILL.md) for full acceptance criteria.
 
 ### 5c. Quality Score Rubric
 
@@ -487,8 +487,8 @@ Fix all critical and major issues. Re-compile. Max 3 rounds.
 
 | Need | Skill |
 |------|-------|
-| Layout optimization, column balance, DGV metrics | [beamer-layout](../beamer-layout/SKILL.md) |
-| Build errors, font issues, compilation | [beamer-build](../beamer-build/SKILL.md) |
-| Review, audit, pedagogy, excellence | [beamer-review](../beamer-review/SKILL.md) |
-| TikZ quality, patterns, accuracy | [beamer-tikz](../beamer-tikz/SKILL.md) |
-| Automated validation, visual check | [beamer-validate](../beamer-validate/SKILL.md) |
+| Layout optimization, column balance, DGV metrics | [autobeamer-layout](../autobeamer-layout/SKILL.md) |
+| Build errors, font issues, compilation | [autobeamer-build](../autobeamer-build/SKILL.md) |
+| Review, audit, pedagogy, excellence | [autobeamer-review](../autobeamer-review/SKILL.md) |
+| TikZ quality, patterns, accuracy | [autobeamer-tikz](../autobeamer-tikz/SKILL.md) |
+| Automated validation, visual check | [autobeamer-validate](../autobeamer-validate/SKILL.md) |

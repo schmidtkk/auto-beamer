@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/teaser/showcase/theme-gallery-2x2.png" alt="Beamer Deck Auto Theme Gallery" width="800">
+  <img src="assets/teaser/showcase/theme-gallery-2x2.png" alt="AutoBeamer Theme Gallery" width="800">
 </p>
 
-<h1 align="center">Beamer Deck Auto</h1>
+<h1 align="center">AutoBeamer</h1>
 
 <p align="center">
   <b>A design-engineered slide system for XeLaTeX Beamer.</b><br>
@@ -27,41 +27,41 @@
 
 ```bash
 # Step 1: Add this repo as a marketplace (one-time)
-/plugin marketplace add schmidtkk/beamer-deck-auto
+/plugin marketplace add schmidtkk/auto-beamer
 
 # Step 2: Install the plugin from the marketplace
-/plugin install beamer-deck-auto@beamer-deck-auto-marketplace
+/plugin install auto-beamer@auto-beamer-marketplace
 ```
 
-> **Note:** The `@beamer-deck-auto-marketplace` suffix is the marketplace name from `marketplace.json`. If you add the repo with a different alias, use that alias instead.
+> **Note:** The `@auto-beamer-marketplace` suffix is the marketplace name from `marketplace.json`. If you add the repo with a different alias, use that alias instead.
 
-Once installed, reload plugins and the 6 skills become available under the `beamer-deck-auto:` namespace:
+Once installed, reload plugins and the 6 skills become available under the `auto-beamer:` namespace:
 
 | Skill | Command | What it does |
 |-------|---------|--------------|
-| Create | `/beamer-deck-auto:beamer-create` | Full deck creation pipeline |
-| Layout | `/beamer-deck-auto:beamer-layout` | Layout optimization & DGV grammar |
-| Build | `/beamer-deck-auto:beamer-build` | Compilation & font troubleshooting |
-| Review | `/beamer-deck-auto:beamer-review` | Content & pedagogy review |
-| TikZ | `/beamer-deck-auto:beamer-tikz` | TikZ diagram quality |
-| Validate | `/beamer-deck-auto:beamer-validate` | Automated quantitative checks |
+| Create | `/auto-beamer:autobeamer-create` | Full deck creation pipeline |
+| Layout | `/auto-beamer:autobeamer-layout` | Layout optimization & DGV grammar |
+| Build | `/auto-beamer:autobeamer-build` | Compilation & font troubleshooting |
+| Review | `/auto-beamer:autobeamer-review` | Content & pedagogy review |
+| TikZ | `/auto-beamer:autobeamer-tikz` | TikZ diagram quality |
+| Validate | `/auto-beamer:autobeamer-validate` | Automated quantitative checks |
 
 ### Codex CLI
 
 ```bash
 # Install the plugin
-codex plugins install https://github.com/schmidtkk/beamer-deck-auto
+codex plugins install https://github.com/schmidtkk/auto-beamer
 
 # Use a skill
-codex beamer-deck-auto:beamer-create "Create slides for my NeurIPS paper"
+codex auto-beamer:autobeamer-create "Create slides for my NeurIPS paper"
 ```
 
 ### Codex App (VS Code)
 
 1. Open the **Plugins** panel in the Codex sidebar
 2. Click **Add Plugin** → **From GitHub**
-3. Enter: `https://github.com/schmidtkk/beamer-deck-auto`
-4. The skills appear in the command palette under `beamer-deck-auto:`
+3. Enter: `https://github.com/schmidtkk/auto-beamer`
+4. The skills appear in the command palette under `auto-beamer:`
 
 ### Cursor / OpenCode / Other Agents
 
@@ -69,7 +69,7 @@ For agents that support the [Agent Skills](https://agentskills.io/) open standar
 
 ```bash
 # Clone just the skills
-git clone --depth 1 https://github.com/schmidtkk/beamer-deck-auto.git /tmp/beamer-skills
+git clone --depth 1 https://github.com/schmidtkk/auto-beamer.git /tmp/beamer-skills
 cp -r /tmp/beamer-skills/skills/* ./.claude/skills/   # or your agent's skills dir
 ```
 
@@ -78,8 +78,8 @@ cp -r /tmp/beamer-skills/skills/* ./.claude/skills/   # or your agent's skills d
 If you only want the LaTeX template library and Python tools:
 
 ```bash
-git clone https://github.com/schmidtkk/beamer-deck-auto.git
-cd beamer-deck-auto
+git clone https://github.com/schmidtkk/auto-beamer.git
+cd auto-beamer
 
 # Install TeX dependencies (see Requirements below)
 # Then use the template library directly in your .tex files
@@ -87,14 +87,14 @@ cd beamer-deck-auto
 
 ---
 
-## Why Beamer Deck Auto?
+## Why AutoBeamer?
 
 Building academic slides with LaTeX Beamer usually means:
 - **Guessing layouts** — Will this figure fit on the left? Should I use `columns` or `minipage`?
 - **Manual tweaking** — Adjusting `\vspace{-2ex}` until the slide stops overflowing
 - **No quality gate** — "Looks fine to me" — but the audience sees unbalanced columns and loose text
 
-**Beamer Deck Auto** replaces guesswork with a systematic pipeline:
+**AutoBeamer** replaces guesswork with a systematic pipeline:
 
 <p align="center">
   <img src="assets/teaser/pipeline/pipeline-overview.png" alt="4-Phase Pipeline" width="900">
@@ -167,12 +167,12 @@ Pre-built skills for **Claude Code**, **Codex CLI**, and any agent supporting th
 
 | Skill | Triggers On | What It Does | Invocation |
 |-------|-------------|--------------|------------|
-| `beamer-build` | Compilation errors, font issues, build failures | XeLaTeX wrapper, auto font config, error recovery | `/beamer-deck-auto:beamer-build` |
-| `beamer-create` | Create a new deck from scratch | Material analysis → interview → structure → draft → figures | `/beamer-deck-auto:beamer-create` |
-| `beamer-layout` | Layout questions, overflow, image scaling | 4-phase design pipeline: theme → draft → optimize → polish | `/beamer-deck-auto:beamer-layout` |
-| `beamer-review` | Proofread, audit, pedagogy check | `proofread`, `audit`, `pedagogy`, `excellence`, `devil's-advocate` | `/beamer-deck-auto:beamer-review` |
-| `beamer-tikz` | TikZ diagram quality | Accuracy rules, 6 patterns, iterative review | `/beamer-deck-auto:beamer-tikz` |
-| `beamer-validate` | Automated quantitative checks | `validate`, `visual-check`, `check` | `/beamer-deck-auto:beamer-validate` |
+| `autobeamer-build` | Compilation errors, font issues, build failures | XeLaTeX wrapper, auto font config, error recovery | `/auto-beamer:autobeamer-build` |
+| `autobeamer-create` | Create a new deck from scratch | Material analysis → interview → structure → draft → figures | `/auto-beamer:autobeamer-create` |
+| `autobeamer-layout` | Layout questions, overflow, image scaling | 4-phase design pipeline: theme → draft → optimize → polish | `/auto-beamer:autobeamer-layout` |
+| `autobeamer-review` | Proofread, audit, pedagogy check | `proofread`, `audit`, `pedagogy`, `excellence`, `devil's-advocate` | `/auto-beamer:autobeamer-review` |
+| `autobeamer-tikz` | TikZ diagram quality | Accuracy rules, 6 patterns, iterative review | `/auto-beamer:autobeamer-tikz` |
+| `autobeamer-validate` | Automated quantitative checks | `validate`, `visual-check`, `check` | `/auto-beamer:autobeamer-validate` |
 
 ---
 
@@ -219,17 +219,17 @@ All 4 themes × 8 layouts × component variations in a single reference deck: `t
 
 **Claude Code:**
 ```bash
-/plugin install https://github.com/schmidtkk/beamer-deck-auto
+/plugin install https://github.com/schmidtkk/auto-beamer
 ```
 
 **Codex CLI:**
 ```bash
-codex plugins install https://github.com/schmidtkk/beamer-deck-auto
+codex plugins install https://github.com/schmidtkk/auto-beamer
 ```
 
 **Cursor / OpenCode / Generic Agent:**
 ```bash
-git clone --depth 1 https://github.com/schmidtkk/beamer-deck-auto.git /tmp/bda
+git clone --depth 1 https://github.com/schmidtkk/auto-beamer.git /tmp/bda
 cp -r /tmp/bda/skills/* ./.claude/skills/
 ```
 
@@ -252,18 +252,18 @@ brew install mactex-no-gui
 brew install font-noto-sans-cjk-sc
 ```
 
-> After installation, the AI agent handles building, layout selection, and auditing via the `beamer-layout` and `beamer-build` skills.
+> After installation, the AI agent handles building, layout selection, and auditing via the `autobeamer-layout` and `autobeamer-build` skills.
 
 ### 3. Create Your First Deck
 
 **With Claude Code:**
 ```bash
-/beamer-deck-auto:beamer-create "Create a 15-slide deck for my NeurIPS paper on diffusion models"
+/auto-beamer:autobeamer-create "Create a 15-slide deck for my NeurIPS paper on diffusion models"
 ```
 
 **With Codex CLI:**
 ```bash
-codex beamer-deck-auto:beamer-create "Create slides for my group meeting on optimal transport"
+codex auto-beamer:autobeamer-create "Create slides for my group meeting on optimal transport"
 ```
 
 The skill will:
@@ -309,12 +309,12 @@ The skill will:
 ├── CLAUDE.md                          # Project context for AI agents
 ├── AGENTS.md                          # Agent guidelines
 ├── skills/
-│   ├── beamer-build/SKILL.md          # Compilation & font troubleshooting
-│   ├── beamer-create/SKILL.md         # Full deck creation pipeline
-│   ├── beamer-layout/SKILL.md         # Layout optimization & DGV grammar
-│   ├── beamer-review/SKILL.md         # Content & pedagogy review
-│   ├── beamer-tikz/SKILL.md           # TikZ diagram quality
-│   └── beamer-validate/SKILL.md       # Automated quantitative checks
+│   ├── autobeamer-build/SKILL.md          # Compilation & font troubleshooting
+│   ├── autobeamer-create/SKILL.md         # Full deck creation pipeline
+│   ├── autobeamer-layout/SKILL.md         # Layout optimization & DGV grammar
+│   ├── autobeamer-review/SKILL.md         # Content & pedagogy review
+│   ├── autobeamer-tikz/SKILL.md           # TikZ diagram quality
+│   └── autobeamer-validate/SKILL.md       # Automated quantitative checks
 ├── template-lib/                      # Three-tier template library
 │   ├── template-lib.sty               # Master entry point
 │   ├── themes/                        # 4 color themes
@@ -342,12 +342,12 @@ The skill will:
 | [`AGENTS.md`](AGENTS.md) | Agent guidelines, tool reference, key constraints |
 | [`template-lib/docs/CATALOG.md`](template-lib/docs/CATALOG.md) | Full theme/layout/component API reference |
 | [`tools/README.md`](tools/README.md) | Tool usage examples and CLI reference |
-| [`skills/beamer-build/SKILL.md`](skills/beamer-build/SKILL.md) | AI skill: compilation & font troubleshooting |
-| [`skills/beamer-create/SKILL.md`](skills/beamer-create/SKILL.md) | AI skill: full deck creation pipeline |
-| [`skills/beamer-layout/SKILL.md`](skills/beamer-layout/SKILL.md) | AI skill: layout optimization & DGV grammar |
-| [`skills/beamer-review/SKILL.md`](skills/beamer-review/SKILL.md) | AI skill: content & pedagogy review |
-| [`skills/beamer-tikz/SKILL.md`](skills/beamer-tikz/SKILL.md) | AI skill: TikZ diagram quality |
-| [`skills/beamer-validate/SKILL.md`](skills/beamer-validate/SKILL.md) | AI skill: automated quantitative checks |
+| [`skills/autobeamer-build/SKILL.md`](skills/autobeamer-build/SKILL.md) | AI skill: compilation & font troubleshooting |
+| [`skills/autobeamer-create/SKILL.md`](skills/autobeamer-create/SKILL.md) | AI skill: full deck creation pipeline |
+| [`skills/autobeamer-layout/SKILL.md`](skills/autobeamer-layout/SKILL.md) | AI skill: layout optimization & DGV grammar |
+| [`skills/autobeamer-review/SKILL.md`](skills/autobeamer-review/SKILL.md) | AI skill: content & pedagogy review |
+| [`skills/autobeamer-tikz/SKILL.md`](skills/autobeamer-tikz/SKILL.md) | AI skill: TikZ diagram quality |
+| [`skills/autobeamer-validate/SKILL.md`](skills/autobeamer-validate/SKILL.md) | AI skill: automated quantitative checks |
 
 ---
 
@@ -366,7 +366,7 @@ The skill will:
 
 1. Fork the repository
 2. Create a feature branch
-3. Follow the `beamer-layout` skill for new layouts
+3. Follow the `autobeamer-layout` skill for new layouts
 4. Run `check_layout.py` before submitting
 5. Submit a PR with clear description
 

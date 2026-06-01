@@ -1,21 +1,21 @@
 ---
-name: beamer-tikz
+name: autobeamer-tikz
 description: |
   Use when creating or reviewing TikZ diagrams in Beamer slides.
   Triggers on: "tikz", "diagram", "flowchart", "plot", "tree", "brace",
   "coordinate plot", "tikz diagram", "tikz quality", "tikz review".
   Provides quality standards, mathematical accuracy rules, sizing constraints,
   6 common patterns, and an iterative review loop.
-  Do NOT trigger on: general slide creation (use beamer-create), build errors (use beamer-build).
+  Do NOT trigger on: general slide creation (use autobeamer-create), build errors (use autobeamer-build).
 argument-hint: "tikz — apply TikZ quality standards and patterns"
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 ---
 
-# Beamer TikZ — Quality Standards & Patterns
+# AutoBeamer TikZ — Quality Standards & Patterns
 
-> **For creating full decks**, see [beamer-create](../beamer-create/SKILL.md).
-> **For reviewing slide content**, see [beamer-review](../beamer-review/SKILL.md).
-> **For layout optimization**, see [beamer-layout](../beamer-layout/SKILL.md).
+> **For creating full decks**, see [autobeamer-create](../autobeamer-create/SKILL.md).
+> **For reviewing slide content**, see [autobeamer-review](../autobeamer-review/SKILL.md).
+> **For layout optimization**, see [autobeamer-layout](../autobeamer-layout/SKILL.md).
 
 ---
 
@@ -269,8 +269,8 @@ Before approving any TikZ diagram:
 
 | Need | Skill |
 |------|-------|
-| Create new deck from scratch | [beamer-create](../beamer-create/SKILL.md) |
-| Review slides for quality | [beamer-review](../beamer-review/SKILL.md) |
-| Layout optimization, DGV grammar | [beamer-layout](../beamer-layout/SKILL.md) |
-| Build errors, compilation | [beamer-build](../beamer-build/SKILL.md) |
-| Automated validation | [beamer-validate](../beamer-validate/SKILL.md) |
+| Create new deck from scratch | [autobeamer-create](../autobeamer-create/SKILL.md) |
+| Review slides for quality | [autobeamer-review](../autobeamer-review/SKILL.md) |
+| Layout optimization, DGV grammar | [autobeamer-layout](../autobeamer-layout/SKILL.md) |
+| Build errors, compilation | [autobeamer-build](../autobeamer-build/SKILL.md) |
+| Automated validation | [autobeamer-validate](../autobeamer-validate/SKILL.md) |

@@ -1,11 +1,11 @@
 ---
-name: beamer-layout
+name: autobeamer-layout
 description: "Use when designing XeLaTeX Beamer slide layouts — choosing templates, placing images, fixing overflows, balancing columns, or auditing slide density. Triggers on layout questions, image-scale concerns, column alignment, layout_optimizer.py usage, or check_layout.py results."
 ---
 
-# Beamer Layout — Slide Design Pipeline
+# AutoBeamer Layout — Slide Design Pipeline
 
-> **For compilation and build errors**, see [beamer-build](../beamer-build/SKILL.md).
+> **For compilation and build errors**, see [autobeamer-build](../autobeamer-build/SKILL.md).
 > **For theme/layout reference tables**, see [CATALOG.md](../../template-lib/docs/CATALOG.md).
 
 ## Pipeline Overview
@@ -47,7 +47,7 @@ Load: `\RequirePackage{template-lib/template-lib}` then `\uselayout{...}`
 - Check `theme-library/` for preview PNGs
 - Confirm `config.tex` has matching box macros (`bluecard`, `goldcall`, `eqbox`)
 - Verify CJK font setup if bilingual
-- If "font not found" → see [beamer-build](../beamer-build/SKILL.md) for font troubleshooting
+- If "font not found" → see [autobeamer-build](../autobeamer-build/SKILL.md) for font troubleshooting
 
 ---
 
@@ -88,7 +88,7 @@ Copy the generated LaTeX skeleton from `layout_optimizer.py` and fill in:
 
 ### Step 1.3: Draft Compile
 
-Compile to check syntax. See [beamer-build](../beamer-build/SKILL.md) for commands.
+Compile to check syntax. See [autobeamer-build](../autobeamer-build/SKILL.md) for commands.
 Fix only syntax errors (missing `$`, unmatched braces). Ignore layout issues for now.
 
 ---
@@ -97,7 +97,7 @@ Fix only syntax errors (missing `$`, unmatched braces). Ignore layout issues for
 
 ### Step 2.1: Compile & Detect Overflows
 
-Compile with build script (see [beamer-build](../beamer-build/SKILL.md)), then check log for `Overfull \vbox`.
+Compile with build script (see [autobeamer-build](../autobeamer-build/SKILL.md)), then check log for `Overfull \vbox`.
 
 ### Step 2.2: Run Layout Audit
 

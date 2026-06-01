@@ -1,9 +1,9 @@
 ---
-name: beamer-build
+name: autobeamer-build
 description: "Use when compiling XeLaTeX Beamer decks, troubleshooting build errors, setting up TeX environment, or managing fonts. Triggers on xelatex commands, Overfull errors, font-not-found errors, build script questions, TeX Live installation, or PDF generation."
 ---
 
-# Beamer Build — Compilation & Troubleshooting
+# AutoBeamer Build — Compilation & Troubleshooting
 
 ## Prerequisites
 

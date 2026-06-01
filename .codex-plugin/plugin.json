@@ -1,13 +1,13 @@
 {
-  "name": "beamer-deck-auto",
-  "version": "1.0.0",
-  "description": "AI-powered XeLaTeX Beamer slide system — layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
+  "name": "auto-beamer",
+  "version": "1.1.0",
+  "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
   "author": {
     "name": "schmidtkk",
     "url": "https://github.com/schmidtkk"
   },
-  "homepage": "https://github.com/schmidtkk/beamer-deck-auto",
-  "repository": "https://github.com/schmidtkk/beamer-deck-auto.git",
+  "homepage": "https://github.com/schmidtkk/auto-beamer",
+  "repository": "https://github.com/schmidtkk/auto-beamer.git",
   "license": "MIT",
   "keywords": [
     "beamer",
@@ -17,13 +17,14 @@
     "academic",
     "xelatex",
     "layout",
-    "ai-skills"
+    "ai-skills",
+    "autobeamer"
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Beamer Deck Auto",
+    "displayName": "AutoBeamer",
     "shortDescription": "AI-powered Beamer slide system with layout optimizer and 6 agent skills",
-    "longDescription": "Beamer Deck Auto replaces guesswork with a systematic pipeline for building academic slides. It includes a three-tier template library (themes, layouts, components), a four-layer layout optimizer, a design grammar checker, and 6 AI agent skills for creation, layout, build, review, TikZ, and validation.",
+    "longDescription": "AutoBeamer replaces guesswork with a systematic pipeline for building academic slides. It includes a three-tier template library (themes, layouts, components), a four-layer layout optimizer, a design grammar checker, and 6 AI agent skills for creation, layout, build, review, TikZ, and validation.",
     "developerName": "schmidtkk",
     "category": "Productivity",
     "capabilities": [
@@ -35,7 +36,7 @@
       "Create a Beamer slide deck for my research paper",
       "Help me design the layout for this slide"
     ],
-    "websiteURL": "https://github.com/schmidtkk/beamer-deck-auto",
+    "websiteURL": "https://github.com/schmidtkk/auto-beamer",
     "brandColor": "#00796b"
   }
 }

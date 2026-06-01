@@ -1,20 +1,20 @@
 ---
-name: beamer-validate
+name: autobeamer-validate
 description: |
   Use when running automated quantitative checks on a compiled Beamer deck.
   Triggers on: "validate", "validation", "check deck", "visual check",
   "pdf check", "slide count", "aspect ratio", "compilation health".
   Performs measurable property checks and PDF visual verification.
-  Do NOT trigger on: content review (use beamer-review), layout optimization (use beamer-layout).
+  Do NOT trigger on: content review (use autobeamer-review), layout optimization (use autobeamer-layout).
 argument-hint: "validate [deck.tex|deck.pdf] [duration] — run automated checks"
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 ---
 
-# Beamer Validate — Automated Checks
+# AutoBeamer Validate — Automated Checks
 
-> **For content proofreading**, see [beamer-review](../beamer-review/SKILL.md).
-> **For layout optimization**, see [beamer-layout](../beamer-layout/SKILL.md).
-> **For build/compile errors**, see [beamer-build](../beamer-build/SKILL.md).
+> **For content proofreading**, see [autobeamer-review](../autobeamer-review/SKILL.md).
+> **For layout optimization**, see [autobeamer-layout](../autobeamer-layout/SKILL.md).
+> **For build/compile errors**, see [autobeamer-build](../autobeamer-build/SKILL.md).
 
 ---
 
@@ -252,8 +252,8 @@ Run both `validate` and `visual-check` in sequence for a complete health report.
 
 | Need | Skill |
 |------|-------|
-| Content proofreading / pedagogy | [beamer-review](../beamer-review/SKILL.md) |
-| Create new deck from scratch | [beamer-create](../beamer-create/SKILL.md) |
-| Layout optimization, DGV grammar | [beamer-layout](../beamer-layout/SKILL.md) |
-| Build errors, compilation | [beamer-build](../beamer-build/SKILL.md) |
-| TikZ diagram quality | [beamer-tikz](../beamer-tikz/SKILL.md) |
+| Content proofreading / pedagogy | [autobeamer-review](../autobeamer-review/SKILL.md) |
+| Create new deck from scratch | [autobeamer-create](../autobeamer-create/SKILL.md) |
+| Layout optimization, DGV grammar | [autobeamer-layout](../autobeamer-layout/SKILL.md) |
+| Build errors, compilation | [autobeamer-build](../autobeamer-build/SKILL.md) |
+| TikZ diagram quality | [autobeamer-tikz](../autobeamer-tikz/SKILL.md) |
