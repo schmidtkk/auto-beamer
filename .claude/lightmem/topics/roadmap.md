@@ -33,7 +33,7 @@ Acceptance criteria:
 
 ### Milestone 2: Evidence Inventory
 
-Status: planned
+Status: done
 
 Acceptance criteria:
 - Local skill files, plugin manifests, repo instructions, and template tooling are
