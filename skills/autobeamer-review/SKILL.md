@@ -81,6 +81,12 @@ Structured proofreading with categorized report.
 - Results stated with appropriate precision
 - Limitations acknowledged
 
+**6. Image provenance**
+- Confirm source-document-first was followed when a PDF or source document was provided.
+- Check that extracted source figures have page/source notes.
+- Check that external images are local files, license-compatible, and attributed.
+- Flag build-time hotlinks, CDN URLs, and unattributed screenshots as HIGH issues.
+
 ### Report Format
 
 ```
@@ -107,6 +113,9 @@ Structured proofreading with categorized report.
 ...
 
 #### Academic Quality
+...
+
+#### Image provenance
 ...
 ```
 

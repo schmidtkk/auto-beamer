@@ -96,3 +96,15 @@ Acceptance criteria:
   `academic-presentation` as first-class modes with direct reference links.
 - `autobeamer-review` routes each mode to a distinct review rubric.
 - Reference files encode the different learning philosophies and acceptance gates.
+
+### Milestone 3: Source-Document-First Image Policy
+
+Status: done
+
+Acceptance criteria:
+- Creation guidance extracts and inventories figures from provided PDFs before
+  web search or external image lookup.
+- A source-document-first reference defines fallback, local-file, and attribution
+  rules for external images.
+- Review guidance checks image provenance, source-document use, hotlinks, and
+  attribution.

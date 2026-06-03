@@ -55,10 +55,16 @@ Phase 5: QUALITY LOOP       → Compile → Review → Score → Fix (max 3 roun
 **Read first, ask later.** Understand the content before asking questions.
 
 - Read the full paper/materials thoroughly
+- If a provided PDF is available, run source-document-first extraction before planning web or external images:
+  ```bash
+  python tools/paper_parser.py parse paper.pdf --output slides_assets/paper.json
+  python tools/paper_parser.py extract-images paper.pdf --output slides_assets/source_figures/
+  ```
 - Extract: core contribution, key techniques, main theorems, comparison with prior work
 - Map notation conventions
 - Identify the paper's logical structure and which parts are slide-worthy
 - Note: prerequisite knowledge, natural section boundaries, what could be skipped or expanded
+- Inventory extracted source figures with page number, aspect ratio, candidate slide use, and whether each needs redraw, crop, or adaptation.
 
 **Do NOT present results or ask questions yet — proceed directly to Phase 1.**
 
@@ -422,6 +428,16 @@ Passive-study mode:
 ---
 
 ## Phase 4: Figures
+
+### Source-Document-First Image Policy
+
+Load [references/images/source-document-first.md](references/images/source-document-first.md) whenever the user provides a PDF, paper, report, or source document.
+
+Priority order:
+1. Extract from the provided PDF or source document with `paper_parser.py parse` and `paper_parser.py extract-images`.
+2. Redraw or adapt source figures locally when the original is too dense for slides.
+3. Use TikZ/pgfplots for exact mathematical setups, derivations, or notation-specific diagrams.
+4. Use external images only as a fallback when the source document has no suitable visual and the external asset is locally saved, attributed, and license-compatible.
 
 ### TikZ Diagrams
 

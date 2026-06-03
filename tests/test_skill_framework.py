@@ -116,6 +116,28 @@ class SkillFrameworkGuidanceTest(unittest.TestCase):
                 for term in terms:
                     self.assertIn(term, text)
 
+    def test_source_document_first_image_policy_is_wired(self) -> None:
+        create_text = read("skills/autobeamer-create/SKILL.md")
+        review_text = read("skills/autobeamer-review/SKILL.md")
+        policy_text = read("skills/autobeamer-create/references/images/source-document-first.md")
+
+        self.assertIn("references/images/source-document-first.md", create_text)
+        self.assertIn("paper_parser.py parse", create_text)
+        self.assertIn("paper_parser.py extract-images", create_text)
+        self.assertIn("source-document-first", policy_text)
+        self.assertIn("provided PDF", policy_text)
+        self.assertIn("external image", policy_text)
+        self.assertIn("attribution", policy_text)
+        self.assertIn("local", policy_text)
+        self.assertIn("provenance", review_text)
+        self.assertIn("source-document-first", review_text)
+
+    def test_external_images_are_fallback_not_default(self) -> None:
+        text = read("skills/autobeamer-create/references/images/source-document-first.md")
+        self.assertRegex(text, r"(?is)provided PDF.*before.*web")
+        self.assertRegex(text, r"(?is)external image.*fallback")
+        self.assertRegex(text, r"(?is)never.*hotlink|no.*hotlink")
+
 
 if __name__ == "__main__":
     unittest.main()
