@@ -142,7 +142,7 @@ Building academic slides with LaTeX Beamer usually means:
 ```bash
 # Get layout suggestion for a wide image + 2 takeaway cards
 python tools/layout_optimizer.py suggest --img 1716:1124 --cards 2
-# → Recommended: imgtop layout, auto-capped height, 2 bluecards bottom
+# → Recommended: imgtop layout, auto-capped height, 2 template-lib info blocks below
 ```
 
 ### 🔍 Design Grammar Checker

@@ -45,7 +45,7 @@ Load: `\RequirePackage{template-lib/template-lib}` then `\uselayout{...}`
 ### Step 0.3: Verify Theme Assets
 
 - Check `theme-library/` for preview PNGs
-- Confirm `config.tex` has matching box macros (`bluecard`, `goldcall`, `eqbox`)
+- Confirm `template-lib/template-lib` and the selected theme load correctly. New decks use template-lib commands such as `\TLinfoblock`, `\TLalertblock`, `\TLresultblock`, `\TLwarnblock`, and `\TLtakeaway`.
 - Verify CJK font setup if bilingual
 - If "font not found" → see [autobeamer-build](../autobeamer-build/SKILL.md) for font troubleshooting
 
@@ -69,7 +69,7 @@ python tools/layout_optimizer.py suggest \
 ```
 n_img = 0      → text-only    n_img ≥ 2      → image-grid
 n_img = 1:
-  AR > 1.6     → image-top (\budgetwideimg)
+  AR > 1.6     → image-top (`\TLimgtop` or equivalent template-lib layout)
   AR 1.4-1.6   → image-top preferred
   AR ≤ 1.4     → image-left / image-right (SIDE)
     n_card > 2 or has_gold → image-top (overflow risk)
@@ -118,12 +118,12 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 
 | Code | Rule | Fix |
 |------|------|-----|
-| GV-1 | Loose text outside box | Wrap in `\begin{goldcall}` |
-| GV-2 | `goldcall` inside `columns` | Move below `\end{columns}` |
-| GV-3 | Multiple `bluecard`s in one column | **Split frame** or convert to plain text (max 3 blocks/slide) |
-| GV-4 | Wide image (AR>1.5) in SIDE layout | Switch to `\budgetwideimg` |
+| GV-1 | Loose text without structure | Keep as plain bullets/body text, or use `\TLtakeaway` only for a true callout |
+| GV-2 | Callout block inside `columns` | Move the callout below `\end{columns}` so it spans the frame |
+| GV-3 | Multiple info/result blocks in one column | **Split frame** or convert to plain text (max 3 colored boxes/slide) |
+| GV-4 | Wide image (AR>1.5) in SIDE layout | Switch to image-top (`\TLimgtop` or equivalent template-lib layout) |
 
-**Block count rule:** Maximum 3 blocks per slide (`bluecard`/`eqbox`/`goldcall`). If 4+: split into 2 frames, or convert non-key blocks to plain text.
+**Block count rule:** Maximum 3 colored boxes per slide (`\TLinfoblock`, `\TLalertblock`, `\TLresultblock`, `\TLwarnblock`, `\TLtakeaway`). If 4+: split into 2 frames, or convert non-key boxes to plain text.
 
 **Common syntax fixes:**
 - CJK/ASCII: `\footnotesize\raggedright` inside tcolorbox
@@ -133,7 +133,7 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 
 **Column height balance:**
 - Standalone frame: `equal height group=name` on both boxes, compile ×2
-- `[shrink=N]` or inside `\budgetwideimg`: **must hardcode**
+- `[shrink=N]` or inside boxed measurement/image-top contexts: **must hardcode**
   - Temp group → build 2× → read .aux → replace with `height=XXpt,valign=top`
 
 **Wide image bottom whitespace:**
@@ -198,7 +198,7 @@ Mentor mode:
 - U ∈ [0.75, 0.98] (denser is acceptable; < 0.60 is still sparse)
 - B > 0.70
 - G < 0.20
-- **Block count ≤ 5 per slide**
+- **Block count ≤ 3 per slide**
 
 **Critical:** Any frame with U < 0.60 or containing only 1 block with no math/diagram must be flagged as sparse.
 

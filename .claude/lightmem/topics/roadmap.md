@@ -68,3 +68,21 @@ Acceptance criteria:
 - Recommendations are ranked by severity and implementation order.
 - The goal is audited against all explicit user requirements before completion.
 - A final git commit records the completed review artifacts and LightMem updates.
+
+## 2026-06-04 Skill-Framework Remediation Implementation
+
+Status: active
+
+Objective: implement the adversarial review's remediation plan with one git commit
+per milestone.
+
+### Milestone 1: Validation and Hard-Rule Drift
+
+Status: done
+
+Acceptance criteria:
+- Regression tests cover the validation false-pass issues and hard-rule drift.
+- Validation guidance requires two XeLaTeX passes, correct 16:9 aspect-ratio
+  checks, complete overlay-command detection, and template-lib block counting.
+- Create/layout/review guidance enforces the universal three colored-box limit.
+- Current authoring guidance no longer prescribes legacy box/image macros.

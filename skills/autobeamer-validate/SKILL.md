@@ -26,6 +26,7 @@ Automated quantitative validation. Checks measurable properties without reading 
 
 ```bash
 xelatex -interaction=nonstopmode -output-directory=build FILE.tex
+xelatex -interaction=nonstopmode -output-directory=build FILE.tex
 ```
 
 If the file is already a `.pdf`, skip to Step 2.
@@ -57,8 +58,8 @@ Flag if actual count is outside ±3 of recommended range.
 pdfinfo build/FILE.pdf | grep "Page size:"
 ```
 
-Expected for 16:9 at 10pt: **364.19 × 272.65 pts** (ratio ≈ 1.336).
-Any ratio outside 1.30–1.37 → WARNING.
+Expected for 16:9 decks: page-width / page-height = **16/9 ≈ 1.778**.
+Allow a small tolerance for TeX/PDF rounding; any ratio outside **1.75–1.81** → WARNING.
 
 #### 2c. File Size
 
@@ -112,10 +113,10 @@ For each `\begin{frame}` block, count substantive elements (formulas `\[`, diagr
 
 ```bash
 # Overlay commands (must be 0 — our Hard Rule)
-grep -c "\\\\pause\|\\\\onslide\|\\\\only" FILE.tex
+grep -c "\\\\pause\|\\\\onslide\|\\\\only\|\\\\uncover" FILE.tex
 
-# Box fatigue (>2 colored boxes on one slide)
-grep -n "begin{bluecard}\|begin{eqbox}\|begin{greencard}\|begin{alertcard}\|begin{goldcall}" FILE.tex
+# Box fatigue (>3 colored boxes on one slide; count per frame)
+grep -n "\\\\TLinfoblock\|\\\\TLalertblock\|\\\\TLresultblock\|\\\\TLwarnblock\|\\\\TLtakeaway" FILE.tex
 
 # Font size abuse
 grep -c "\\\\tiny" FILE.tex
@@ -126,7 +127,7 @@ grep -c "begin{thebibliography}\|\\\\bibliography" FILE.tex
 
 | Check | Pass Condition |
 |-------|---------------|
-| Overlay commands (`\pause`, `\onslide`, `\only`) | 0 found |
+| Overlay commands (`\pause`, `\onslide`, `\only`, `\uncover`) | 0 found |
 | Slides with >3 colored boxes | 0 slides |
 | `\tiny` usage | 0 found |
 | References section | Present |

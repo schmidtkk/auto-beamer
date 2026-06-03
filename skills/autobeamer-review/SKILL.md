@@ -138,10 +138,10 @@ When a slide looks wrong, fix in this priority order:
 
 | Code | Rule | Fix |
 |------|------|-----|
-| GV-1 | Loose text outside box | Wrap in `\begin{goldcall}` or structured layout |
-| GV-2 | `goldcall` inside `columns` | Move below `\end{columns}` |
-| GV-3 | Multiple `bluecard`s in one column | Split frame or convert to text (max 3 blocks/slide) |
-| GV-4 | Wide image (AR>1.5) in SIDE layout | Switch to `\budgetwideimg` |
+| GV-1 | Loose text without structure | Keep as plain body text/bullets, or use `\TLtakeaway` only for a true callout |
+| GV-2 | Callout block inside `columns` | Move the callout below `\end{columns}` so it spans the frame |
+| GV-3 | Multiple info/result blocks in one column | Split frame or convert to text (max 3 colored boxes/slide) |
+| GV-4 | Wide image (AR>1.5) in SIDE layout | Switch to image-top (`\TLimgtop` or equivalent template-lib layout) |
 
 ### Audit Report Format
 
@@ -159,7 +159,7 @@ When a slide looks wrong, fix in this priority order:
 ### Per-Slide Issues
 - Slide 3: U=0.72 (sparse) → add content or merge with slide 2
 - Slide 7: B=0.63 (unbalanced) → hardcode column heights
-- Slide 12: GV-2 (goldcall inside columns) → move outside
+- Slide 12: GV-2 (callout inside columns) → move outside
 
 ### Spacing Issues
 - Slide 5: excessive \vspace{12pt} between items → reduce to 4pt

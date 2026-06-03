@@ -70,7 +70,7 @@ When the deck is for **self-study** (not a live presentation), override these de
 | Writing style | Telegraphic keywords | **Complete sentences**, self-contained explanations |
 | Slide count heuristic | ~1 per 1.5–2 min | **No limit** — completeness over brevity |
 | Proofs | Sketch only (≤3 bullets) | **Full proofs**, every step shown |
-| Content density | Max 2 equations, 7 bullets, 3 blocks | Max **3 equations, 10 bullets, 5 blocks** |
+| Content density | Max 2 equations, 7 bullets, 3 colored boxes | Max **3 equations, 10 bullets, 3 colored boxes** |
 | Examples | 1 per concept | **2–3 per concept**, worked step-by-step |
 | Exercises | None | **≥3 per chapter**, with hints and answers |
 | Bibliography | Optional references slide | **Full bibliographical notes section**, 4–5+ frames |
@@ -339,7 +339,7 @@ Mentor mode:
 | Bullet points | 10 | Complete sentences need more room |
 | Displayed equations | 3 | Derivations are the content |
 | New symbols | 8 | Background supplement introduces more notation |
-| Colored boxes | 5 | Info blocks for assumptions, theorems, examples, takeaways |
+| Colored boxes | 3 | Universal hard rule; use plain text, tables, or split frames for additional material |
 
 **Lower bounds (Mentor):**
 - Every slide MUST contain ≥1 substantive element (formula, diagram, table, theorem, proof step, or worked example)
