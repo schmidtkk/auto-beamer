@@ -83,6 +83,22 @@ class SkillFrameworkGuidanceTest(unittest.TestCase):
         self.assertIn("references/modes/active-socratic.md", text)
         self.assertIn("references/modes/academic-presentation.md", text)
 
+    def test_create_skill_is_compact_progressive_disclosure_router(self) -> None:
+        text = read("skills/autobeamer-create/SKILL.md")
+        line_count = len(text.splitlines())
+        self.assertLessEqual(line_count, 220)
+        for path in (
+            "references/workflows/full-create-guide.md",
+            "references/images/source-document-first.md",
+            "references/validation/mode-gates.md",
+            "references/modes/passive-study.md",
+            "references/modes/active-socratic.md",
+            "references/modes/academic-presentation.md",
+        ):
+            with self.subTest(path=path):
+                self.assertIn(path, text)
+                self.assertTrue((ROOT / "skills" / "autobeamer-create" / path).exists())
+
     def test_review_skill_exposes_three_mode_rubrics(self) -> None:
         text = read("skills/autobeamer-review/SKILL.md")
         for mode in ("passive-study", "active-socratic", "academic-presentation"):

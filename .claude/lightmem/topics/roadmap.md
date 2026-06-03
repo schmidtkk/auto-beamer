@@ -130,3 +130,15 @@ Acceptance criteria:
 - Mode gates are documented in `references/validation/mode-gates.md` and linked
   from create/validate skills.
 - Regression fixtures cover failing and passing static validation cases.
+
+### Milestone 6: Progressive-Disclosure Create Skill
+
+Status: done
+
+Acceptance criteria:
+- `autobeamer-create/SKILL.md` is a compact router under 220 lines.
+- Detailed creation guidance is preserved in
+  `references/workflows/full-create-guide.md`.
+- The router directly links mode, image, validation, workflow, layout, build,
+  review, and TikZ references.
+- Regression tests cover the compact-router requirement.
