@@ -1,6 +1,7 @@
 """Regression tests for AutoBeamer skill framework guidance."""
 
 from pathlib import Path
+import json
 import re
 import unittest
 
@@ -137,6 +138,40 @@ class SkillFrameworkGuidanceTest(unittest.TestCase):
         self.assertRegex(text, r"(?is)provided PDF.*before.*web")
         self.assertRegex(text, r"(?is)external image.*fallback")
         self.assertRegex(text, r"(?is)never.*hotlink|no.*hotlink")
+
+    def test_plugin_metadata_advertises_modes_and_image_policy(self) -> None:
+        manifest_paths = (
+            ".codex-plugin/plugin.json",
+            ".claude-plugin/plugin.json",
+            ".claude-plugin/marketplace.json",
+        )
+        for path in manifest_paths:
+            with self.subTest(path=path):
+                data = json.loads(read(path))
+                blob = json.dumps(data, ensure_ascii=False)
+                for term in (
+                    "passive-study",
+                    "active-socratic",
+                    "academic-presentation",
+                    "source-document-first",
+                ):
+                    self.assertIn(term, blob)
+
+    def test_every_skill_has_openai_metadata(self) -> None:
+        skill_dirs = sorted(
+            path
+            for path in (ROOT / "skills").iterdir()
+            if path.is_dir() and (path / "SKILL.md").exists()
+        )
+        self.assertGreaterEqual(len(skill_dirs), 6)
+        for skill_dir in skill_dirs:
+            with self.subTest(skill=skill_dir.name):
+                metadata = skill_dir / "agents" / "openai.yaml"
+                self.assertTrue(metadata.exists())
+                text = metadata.read_text(encoding="utf-8")
+                self.assertIn("interface:", text)
+                self.assertIn("default_prompt:", text)
+                self.assertIn(f"${skill_dir.name}", text)
 
 
 if __name__ == "__main__":

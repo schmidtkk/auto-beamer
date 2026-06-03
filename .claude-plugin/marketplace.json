@@ -1,7 +1,7 @@
 {
   "$schema": "https://code.claude.com/docs/en/plugin-marketplace-schema.json",
   "name": "auto-beamer-marketplace",
-  "description": "Marketplace for AutoBeamer — AI-powered XeLaTeX Beamer slide system",
+  "description": "Marketplace for AutoBeamer — AI-powered XeLaTeX Beamer slide system for passive-study, active-socratic, and academic-presentation decks with source-document-first image policy",
   "version": "1.1.0",
   "owner": {
     "name": "schmidtkk",
@@ -15,7 +15,7 @@
         "repo": "schmidtkk/auto-beamer",
         "ref": "main"
       },
-      "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
+      "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, source-document-first image policy, and 6 agent skills for passive-study, active-socratic, and academic-presentation decks.",
       "version": "1.1.0",
       "author": {
         "name": "schmidtkk",
@@ -30,6 +30,10 @@
         "slides",
         "presentation",
         "academic",
+        "passive-study",
+        "active-socratic",
+        "academic-presentation",
+        "source-document-first",
         "xelatex",
         "layout",
         "ai-skills",

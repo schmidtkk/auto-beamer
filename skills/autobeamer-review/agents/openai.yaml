@@ -1,0 +1,8 @@
+interface:
+  display_name: "AutoBeamer Review"
+  short_description: "Review Beamer decks with mode-specific rubrics"
+  brand_color: "#00796b"
+  default_prompt: "Use $autobeamer-review to audit this Beamer deck against its passive-study, active-socratic, or academic-presentation mode."
+
+policy:
+  allow_implicit_invocation: true

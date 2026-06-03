@@ -108,3 +108,14 @@ Acceptance criteria:
   rules for external images.
 - Review guidance checks image provenance, source-document use, hotlinks, and
   attribution.
+
+### Milestone 4: Plugin Discovery Metadata
+
+Status: done
+
+Acceptance criteria:
+- Plugin manifests advertise `passive-study`, `active-socratic`,
+  `academic-presentation`, and `source-document-first`.
+- Each top-level skill has `agents/openai.yaml` metadata with a default prompt
+  that names the skill.
+- Regression tests cover metadata discovery.

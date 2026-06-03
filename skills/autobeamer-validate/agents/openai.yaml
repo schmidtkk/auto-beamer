@@ -1,0 +1,8 @@
+interface:
+  display_name: "AutoBeamer Validate"
+  short_description: "Run quantitative and visual Beamer deck checks"
+  brand_color: "#00796b"
+  default_prompt: "Use $autobeamer-validate to validate slide count, aspect ratio, hard rules, and visual health for my Beamer deck."
+
+policy:
+  allow_implicit_invocation: true

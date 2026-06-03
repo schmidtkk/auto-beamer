@@ -1,0 +1,8 @@
+interface:
+  display_name: "AutoBeamer Create"
+  short_description: "Create Beamer decks in three learning modes"
+  brand_color: "#00796b"
+  default_prompt: "Use $autobeamer-create to create a passive-study, active-socratic, or academic-presentation Beamer deck from my source document."
+
+policy:
+  allow_implicit_invocation: true

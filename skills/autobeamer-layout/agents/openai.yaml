@@ -1,0 +1,8 @@
+interface:
+  display_name: "AutoBeamer Layout"
+  short_description: "Optimize Beamer slide layout and density"
+  brand_color: "#00796b"
+  default_prompt: "Use $autobeamer-layout to choose a Beamer layout and fix density, balance, or overflow issues."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,8 @@
+interface:
+  display_name: "AutoBeamer Build"
+  short_description: "Compile and troubleshoot XeLaTeX Beamer decks"
+  brand_color: "#00796b"
+  default_prompt: "Use $autobeamer-build to compile my Beamer deck with XeLaTeX and fix build errors."
+
+policy:
+  allow_implicit_invocation: true

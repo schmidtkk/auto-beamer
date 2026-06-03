@@ -1,7 +1,7 @@
 {
   "name": "auto-beamer",
   "version": "1.1.0",
-  "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, and 6 agent skills for building academic presentations.",
+  "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, source-document-first image policy, and 6 agent skills for passive-study, active-socratic, and academic-presentation decks.",
   "author": {
     "name": "schmidtkk",
     "url": "https://github.com/schmidtkk"
@@ -15,6 +15,10 @@
     "slides",
     "presentation",
     "academic",
+    "passive-study",
+    "active-socratic",
+    "academic-presentation",
+    "source-document-first",
     "xelatex",
     "layout",
     "ai-skills",
@@ -23,8 +27,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "AutoBeamer",
-    "shortDescription": "AI-powered Beamer slide system with layout optimizer and 6 agent skills",
-    "longDescription": "AutoBeamer replaces guesswork with a systematic pipeline for building academic slides. It includes a three-tier template library (themes, layouts, components), a four-layer layout optimizer, a design grammar checker, and 6 AI agent skills for creation, layout, build, review, TikZ, and validation.",
+    "shortDescription": "Three-mode Beamer deck system with layout and review skills",
+    "longDescription": "AutoBeamer replaces guesswork with a systematic pipeline for building Beamer decks. It supports passive-study, active-socratic, and academic-presentation modes, source-document-first image extraction, a three-tier template library, a four-layer layout optimizer, a design grammar checker, and 6 AI agent skills for creation, layout, build, review, TikZ, and validation.",
     "developerName": "schmidtkk",
     "category": "Productivity",
     "capabilities": [
@@ -33,8 +37,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Create a Beamer slide deck for my research paper",
-      "Help me design the layout for this slide"
+      "Create a passive-study Beamer deck from my research paper using source-document-first figures",
+      "Build an active-socratic deck that guides learners through questions and attempts",
+      "Prepare an academic-presentation deck for sharing this work in a seminar"
     ],
     "websiteURL": "https://github.com/schmidtkk/auto-beamer",
     "brandColor": "#00796b"

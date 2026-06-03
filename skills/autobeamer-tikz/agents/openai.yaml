@@ -1,0 +1,8 @@
+interface:
+  display_name: "AutoBeamer TikZ"
+  short_description: "Create and review TikZ diagrams for slides"
+  brand_color: "#00796b"
+  default_prompt: "Use $autobeamer-tikz to create or review a TikZ diagram for my Beamer slide."
+
+policy:
+  allow_implicit_invocation: true
