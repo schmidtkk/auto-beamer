@@ -65,6 +65,8 @@ class SkillFrameworkGuidanceTest(unittest.TestCase):
             r"`eqbox`",
         )
         for skill_path in (
+            "skills/autobeamer-build/SKILL.md",
+            "skills/autobeamer-create/SKILL.md",
             "skills/autobeamer-layout/SKILL.md",
             "skills/autobeamer-review/SKILL.md",
             "skills/autobeamer-validate/SKILL.md",
@@ -73,6 +75,19 @@ class SkillFrameworkGuidanceTest(unittest.TestCase):
             for pattern in legacy_patterns:
                 with self.subTest(skill=skill_path, pattern=pattern):
                     self.assertIsNone(re.search(pattern, text))
+
+    def test_primary_skills_use_current_mode_labels(self) -> None:
+        deprecated_patterns = (
+            r"Presentation mode",
+            r"Mentor mode",
+            r"Presentation default",
+            r"Mentor override",
+        )
+        for skill_path in sorted((ROOT / "skills").glob("autobeamer-*/SKILL.md")):
+            text = skill_path.read_text(encoding="utf-8")
+            for pattern in deprecated_patterns:
+                with self.subTest(skill=skill_path.name, pattern=pattern):
+                    self.assertIsNone(re.search(pattern, text, flags=re.IGNORECASE))
 
     def test_create_skill_exposes_three_first_class_modes(self) -> None:
         text = read("skills/autobeamer-create/SKILL.md")

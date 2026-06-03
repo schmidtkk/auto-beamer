@@ -118,7 +118,7 @@ The most common layout error. The line number points to `\end{frame}` — search
 | `Missing $` | Bare math command in text mode | Wrap in `$...$` |
 | `Undefined control sequence` | Unknown command / typo | Check package loaded, correct spelling |
 | `Too many }'s` | Unmatched brace | Count `{` vs `}` in frame |
-| `tcolorbox` errors | Box inside `\sbox` / wrong nesting | Check box nesting, avoid inside `\budgetwideimg` |
+| `tcolorbox` errors | Box inside `\sbox` / wrong nesting | Check box nesting; avoid boxed measurement/image-top contexts |
 
 ---
 

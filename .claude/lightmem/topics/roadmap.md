@@ -142,3 +142,13 @@ Acceptance criteria:
 - The router directly links mode, image, validation, workflow, layout, build,
   review, and TikZ references.
 - Regression tests cover the compact-router requirement.
+
+### Milestone 7: Final Terminology Drift Cleanup
+
+Status: done
+
+Acceptance criteria:
+- Top-level AutoBeamer skills no longer use old Presentation/Mentor mode labels
+  as active headings.
+- Top-level AutoBeamer skills no longer prescribe legacy box/image macros.
+- Regression tests cover both drift classes.

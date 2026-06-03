@@ -136,7 +136,7 @@ Before delivery:
 | Full creation workflow | [references/workflows/full-create-guide.md](references/workflows/full-create-guide.md) |
 | Passive-study mode | [references/modes/passive-study.md](references/modes/passive-study.md) |
 | Active-Socratic mode | [references/modes/active-socratic.md](references/modes/active-socratic.md) |
-| Academic-presentation mode | [references/modes/academic-presentation.md](references/modes/academic-presentation.md) |
+| Academic-presentation reference | [references/modes/academic-presentation.md](references/modes/academic-presentation.md) |
 | Source-document-first images | [references/images/source-document-first.md](references/images/source-document-first.md) |
 | Validation mode gates | [references/validation/mode-gates.md](references/validation/mode-gates.md) |
 | Layout optimization | [autobeamer-layout](../autobeamer-layout/SKILL.md) |

@@ -186,14 +186,14 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 
 **Acceptance criteria:**
 
-Presentation mode:
+`academic-presentation`:
 - DGV = 0 (no grammar violations)
 - U ∈ [0.80, 0.95] (not sparse, not overflowing)
 - B > 0.80 (columns balanced) or N/A (non-column layouts)
 - G < 0.15 (visual center near geometric center)
 - **Block count ≤ 3 per slide**
 
-Mentor mode:
+`passive-study`:
 - DGV = 0
 - U ∈ [0.75, 0.98] (denser is acceptable; < 0.60 is still sparse)
 - B > 0.70
