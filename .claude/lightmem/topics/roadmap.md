@@ -71,7 +71,7 @@ Acceptance criteria:
 
 ## 2026-06-04 Skill-Framework Remediation Implementation
 
-Status: active
+Status: done
 
 Objective: implement the adversarial review's remediation plan with one git commit
 per milestone.
@@ -152,3 +152,25 @@ Acceptance criteria:
   as active headings.
 - Top-level AutoBeamer skills no longer prescribe legacy box/image macros.
 - Regression tests cover both drift classes.
+
+### Final Completion Audit
+
+Status: done
+
+Evidence:
+- Commits: `65c043b`, `6e3d652`, `739ad53`, `78183b8`, `7f2780a`,
+  `b0ad931`, `02d3616`.
+- `tests/test_skill_framework.py` covers mode taxonomy, hard-rule drift,
+  source-document-first policy, metadata discovery, compact create routing, and
+  terminology drift.
+- `tests/test_validate_deck.py` covers executable static validation gates,
+  including `\uncover`, References before Thank You, `\appendix` before backup
+  slides, and a passing academic-presentation fixture.
+- `tools/validate_deck.py static` provides the executable validation gate.
+- Plugin JSON manifests parse and advertise all three modes plus
+  source-document-first.
+
+Known unrelated repository test failures:
+- `python3 tests/run_tests.py unit` still fails on pre-existing font-config
+  expectations: missing `personal-deck/config.tex` and missing
+  `\newfontfamily\notocjk`.
