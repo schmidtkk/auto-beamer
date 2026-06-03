@@ -15,6 +15,7 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 > **For content proofreading**, see [autobeamer-review](../autobeamer-review/SKILL.md).
 > **For layout optimization**, see [autobeamer-layout](../autobeamer-layout/SKILL.md).
 > **For build/compile errors**, see [autobeamer-build](../autobeamer-build/SKILL.md).
+> **For mode gates**, see [mode-gates](../autobeamer-create/references/validation/mode-gates.md).
 
 ---
 
@@ -86,18 +87,37 @@ grep -c "multiply defined" build/FILE.log
 | Undefined citations | 0 | 1–2 | 3+ |
 | Multiply defined labels | 0 | — | 1+ |
 
+#### 2e. Source Static Gates (mandatory — run tool)
+
+```bash
+python tools/validate_deck.py static FILE.tex --mode passive-study
+python tools/validate_deck.py static FILE.tex --mode active-socratic
+python tools/validate_deck.py static FILE.tex --mode academic-presentation
+```
+
+Run exactly one command with the deck's selected mode.
+
+| Gate | Pass Condition |
+|------|----------------|
+| Overlay commands (`\pause`, `\onslide`, `\only`, `\uncover`) | 0 found |
+| Slides with >3 colored boxes | 0 slides |
+| `\tiny` usage | 0 found |
+| References slide | Present and second-to-last before Thank You |
+| Backup slides | `\appendix` appears before backup slides |
+| mode-specific required sections | Passes [mode-gates](../autobeamer-create/references/validation/mode-gates.md) |
+
 #### 2f. Layout Audit (mandatory — run tool)
 
 ```bash
 python tools/check_layout.py deck.tex build/deck.log --advise
 ```
 
-| Metric | Presentation OK | Mentor OK | Action if fail |
-|--------|----------------|-----------|----------------|
-| U (utilization) | [0.80, 0.95] | [0.75, 0.98] | < 0.60 → sparse, merge; > 1.00 → overflow, split |
-| B (balance) | > 0.80 | > 0.70 | Rebalance columns |
-| G (gravity) | < 0.15 | < 0.20 | Adjust vertical spacing |
-| DGV | 0 | 0 | Fix grammar violations |
+| Metric | Academic-presentation OK | Passive-study OK | Active-socratic OK | Action if fail |
+|--------|--------------------------|------------------|------------------|----------------|
+| U (utilization) | [0.80, 0.95] | [0.75, 0.98] | [0.70, 0.95] | < 0.60 -> sparse, merge; > 1.00 -> overflow, split |
+| B (balance) | > 0.80 | > 0.70 | > 0.70 | Rebalance columns |
+| G (gravity) | < 0.15 | < 0.20 | < 0.20 | Adjust vertical spacing |
+| DGV | 0 | 0 | 0 | Fix grammar violations |
 
 #### 2g. Sparse Slide Detection (from .tex source)
 
@@ -109,7 +129,7 @@ For each `\begin{frame}` block, count substantive elements (formulas `\[`, diagr
 | ≤ 2 short text bullets, no math | **CRITICAL** — must merge or enrich |
 | Only text + citations, no substantive element | **WARNING** — consider enriching |
 
-#### 2e. Source Code Static Checks (from .tex)
+#### 2h. Manual Source Code Static Checks (fallback only)
 
 ```bash
 # Overlay commands (must be 0 — our Hard Rule)
@@ -130,7 +150,9 @@ grep -c "begin{thebibliography}\|\\\\bibliography" FILE.tex
 | Overlay commands (`\pause`, `\onslide`, `\only`, `\uncover`) | 0 found |
 | Slides with >3 colored boxes | 0 slides |
 | `\tiny` usage | 0 found |
-| References section | Present |
+| References section | Present and second-to-last before Thank You |
+| Backup section | `\appendix` appears before backup slides |
+| mode-specific sections | Present for selected mode |
 
 ### Step 3: Generate Report
 
@@ -148,6 +170,7 @@ grep -c "begin{thebibliography}\|\\\\bibliography" FILE.tex
 | Box fatigue violations | N slides | OK / WARNING |
 | Font abuse (\tiny) | N found | OK / VIOLATION |
 | References slide | Present / Missing | OK / WARNING |
+| Static mode gates | PASS / N violations | OK / VIOLATION |
 | **Layout audit (U/B/G/DGV)** | U=X, B=X, G=X, DGV=X | OK / WARNING / CRITICAL |
 | **Sparse slides** | N frames < 0.60 utilization | OK / CRITICAL |
 
@@ -203,7 +226,7 @@ For each generated slide image, verify:
 **Sparse-slide detection heuristic:**
 - If a frame contains only 1 block (e.g., `\TLtakeaway`, `\TLinfoblock`) and no math/diagram/table/theorem → flag as CRITICAL
 - If a frame has large empty vertical space (>50% of slide height unused) → flag as WARNING
-- For Mentor mode: also check that bibliographical notes, glossary, and exercise sections are present
+- For `passive-study`: also check that bibliographical notes, glossary, and exercise sections are present
 
 ### Step 3: Report Per Issue
 

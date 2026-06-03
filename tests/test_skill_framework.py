@@ -20,6 +20,20 @@ class SkillFrameworkGuidanceTest(unittest.TestCase):
             with self.subTest(command=command):
                 self.assertIn(command, text)
 
+    def test_validate_static_mode_gates_are_wired(self) -> None:
+        validate_text = read("skills/autobeamer-validate/SKILL.md")
+        create_text = read("skills/autobeamer-create/SKILL.md")
+        gates_text = read("skills/autobeamer-create/references/validation/mode-gates.md")
+
+        self.assertIn("tools/validate_deck.py static", validate_text)
+        self.assertIn("references/validation/mode-gates.md", create_text)
+        self.assertIn("second-to-last", validate_text)
+        self.assertIn(r"\appendix", validate_text)
+        self.assertIn("mode-specific", validate_text)
+        for mode in ("passive-study", "active-socratic", "academic-presentation"):
+            with self.subTest(mode=mode):
+                self.assertIn(mode, gates_text)
+
     def test_validate_uses_correct_sixteen_by_nine_ratio(self) -> None:
         text = read("skills/autobeamer-validate/SKILL.md")
         self.assertNotIn("364.19", text)

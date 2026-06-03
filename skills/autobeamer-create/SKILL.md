@@ -33,7 +33,7 @@ Compatibility aliases:
 - "Presentation", "talk", "seminar", "conference", "defense", or "academic sharing" map to `academic-presentation`.
 - "Socratic", "active study", "reinvent", "derive with me", or "mentor me with questions" map to `active-socratic`.
 
-Every structure plan must state the selected mode, the loaded reference path, and the mode-specific acceptance gates.
+Every structure plan must state the selected mode, the loaded reference path, and the mode-specific acceptance gates from [references/validation/mode-gates.md](references/validation/mode-gates.md).
 
 ## Pipeline Overview
 

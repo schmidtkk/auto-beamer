@@ -119,3 +119,14 @@ Acceptance criteria:
 - Each top-level skill has `agents/openai.yaml` metadata with a default prompt
   that names the skill.
 - Regression tests cover metadata discovery.
+
+### Milestone 5: Executable Static Validation Gates
+
+Status: done
+
+Acceptance criteria:
+- `tools/validate_deck.py static` rejects banned overlays, including `\uncover`.
+- Static validation checks References before Thank You and `\appendix` before backups.
+- Mode gates are documented in `references/validation/mode-gates.md` and linked
+  from create/validate skills.
+- Regression fixtures cover failing and passing static validation cases.
