@@ -14,7 +14,7 @@ updated_at: 2026-06-03
 
 ## 2026-06-04 Adversarial Skill-Framework Review
 
-Status: in progress
+Status: done
 
 Objective: adversarially review the AutoBeamer skill framework against current
 skill-design best practices, affaan-m/ECC, shanraisshan/claude-code-best-practice,
@@ -60,7 +60,7 @@ Acceptance criteria:
 
 ### Milestone 4: Remediation Roadmap
 
-Status: planned
+Status: done
 
 Acceptance criteria:
 - The final report proposes a concrete refactor plan for mode taxonomy,
