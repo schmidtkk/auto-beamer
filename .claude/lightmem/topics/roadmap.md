@@ -46,7 +46,7 @@ Acceptance criteria:
 
 ### Milestone 3: Three-Mode Adversarial Review
 
-Status: planned
+Status: done
 
 Acceptance criteria:
 - The review separately evaluates passive study, active Socratic study, and
