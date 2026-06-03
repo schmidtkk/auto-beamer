@@ -149,7 +149,7 @@ These rules apply to ALL Beamer work in this repo. Violations must be fixed befo
 
 ### Mode Rules
 
-16. **Deck mode must be explicitly set** — before creation, ask "Presentation (live talk) or Mentor (self-study)?". Mentor mode overrides Presentation-mode defaults (telegraphic style, duration limits, proof sketches). See `CLAUDE.md` for full mode comparison.
+16. **Deck mode must be explicitly set** — before creation, select exactly one mode: `passive-study`, `active-socratic`, or `academic-presentation`. Legacy "Mentor/self-study" maps to `passive-study`; legacy "Presentation/live talk" maps to `academic-presentation`.
 17. **Sparse slides are Critical issues** — any frame with <30% vertical fill, or containing only 1 block with no math/diagram/table/theorem, must be merged or enriched. Run `check_layout.py` to detect automatically.
 
 ---

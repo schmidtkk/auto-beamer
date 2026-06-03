@@ -86,3 +86,13 @@ Acceptance criteria:
   checks, complete overlay-command detection, and template-lib block counting.
 - Create/layout/review guidance enforces the universal three colored-box limit.
 - Current authoring guidance no longer prescribes legacy box/image macros.
+
+### Milestone 2: Three-Mode Create/Review Taxonomy
+
+Status: done
+
+Acceptance criteria:
+- `autobeamer-create` exposes `passive-study`, `active-socratic`, and
+  `academic-presentation` as first-class modes with direct reference links.
+- `autobeamer-review` routes each mode to a distinct review rubric.
+- Reference files encode the different learning philosophies and acceptance gates.

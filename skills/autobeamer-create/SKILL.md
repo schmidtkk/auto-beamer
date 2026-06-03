@@ -18,6 +18,23 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "AskUs
 > **For build errors**, see [autobeamer-build](../autobeamer-build/SKILL.md).
 > **For review/audit**, see [autobeamer-review](../autobeamer-review/SKILL.md).
 
+## Mode Routing
+
+Before outlining, set exactly one deck mode and load its reference:
+
+| Mode | Use when | Load |
+|------|----------|------|
+| `passive-study` | The learner is entering an unfamiliar field and needs comprehensive, enjoyable, frustration-shielded teaching | [references/modes/passive-study.md](references/modes/passive-study.md) |
+| `active-socratic` | The learner wants guided discovery through questions, thought experiments, pen-and-paper work, and productive struggle | [references/modes/active-socratic.md](references/modes/active-socratic.md) |
+| `academic-presentation` | The deck is for a live talk, seminar, defense, journal club, or academic sharing | [references/modes/academic-presentation.md](references/modes/academic-presentation.md) |
+
+Compatibility aliases:
+- "Mentor", "self-study", "study deck", or textbook/chapter requests default to `passive-study` unless the user explicitly asks for Socratic discovery.
+- "Presentation", "talk", "seminar", "conference", "defense", or "academic sharing" map to `academic-presentation`.
+- "Socratic", "active study", "reinvent", "derive with me", or "mentor me with questions" map to `active-socratic`.
+
+Every structure plan must state the selected mode, the loaded reference path, and the mode-specific acceptance gates.
+
 ## Pipeline Overview
 
 ```
@@ -55,13 +72,13 @@ Conduct a content-driven interview. The questions below are the **minimum requir
 
 1. **Duration**: How long is the presentation?
 2. **Audience level**: Who are the listeners?
-3. **Deck mode**: Presentation (live talk, telegraphic, time-constrained) or Mentor (self-study, complete sentences, no time limit)?
+3. **Deck mode**: `passive-study`, `active-socratic`, or `academic-presentation`?
 
 ### Optional Questions (ask for journal club, defense, or when user wants rehearsal)
 
 3. **Speaker notes**: Would you like speaker notes in Presenter View? If yes, `\note{}` blocks per frame with telegraphic talking points. Requires `\setbeameroption{show notes on second screen=right}` in preamble.
 
-### Mentor Mode Overrides (apply when user selects "Mentor / self-study")
+### Passive-Study Overrides (apply for `passive-study`; legacy name: "Mentor / self-study")
 
 When the deck is for **self-study** (not a live presentation), override these defaults:
 
@@ -76,7 +93,22 @@ When the deck is for **self-study** (not a live presentation), override these de
 | Bibliography | Optional references slide | **Full bibliographical notes section**, 4–5+ frames |
 | Structural elements | Title → Content → Summary | Title → Content → **Glossary** → **Exercises** → **Bibliography** |
 
-**Key rule for Mentor mode**: "Content must be MORE detailed than the source, not less." If the source says "proofs will only be sketched", the Mentor deck shows every step.
+**Key rule for passive-study mode**: "Content must be MORE detailed than the source, not less." If the source says "proofs will only be sketched", the passive-study deck shows every step.
+
+### Active-Socratic Overrides (apply for `active-socratic`)
+
+In active study, the deck does not primarily teach by exposition. It creates a guided path for the learner to reconstruct the ideas.
+
+| Aspect | Rule |
+|--------|------|
+| Slide role | One carefully chosen question, task, or thought experiment per frame |
+| Exposition | Minimal; only enough context to make the next attempt possible |
+| Learner work | Include pen-and-paper derivations, small numerical examples, and prediction prompts |
+| Hints | Stage hints from weak to strong; do not reveal the final answer before an attempt gate |
+| Solutions | Put complete solutions in backup or delayed reveal frames, not immediately after the question |
+| Frustration control | Productive struggle only; add prerequisite reminders before impossible jumps |
+
+Use [references/modes/active-socratic.md](references/modes/active-socratic.md) for the full gate list.
 
 ### Content-Driven Questions (derive from Phase 0)
 
@@ -123,7 +155,7 @@ When the deck is for **self-study** (not a live presentation), override these de
 
 ## Book / Textbook Reading-Group Decks
 
-A chapter from a math textbook (e.g., Villani, Brenier, Evans, Rudin) is never a presentation — **always default to Mentor mode**. The reader has no speaker; the deck *is* the lecture.
+A chapter from a math textbook (e.g., Villani, Brenier, Evans, Rudin) is never a live presentation by default — **always default to `passive-study`** unless the user asks for `active-socratic`. The reader has no speaker; the deck *is* the lecture.
 
 ### 2.1 Content Ladder (mandatory structure per chapter)
 
@@ -176,7 +208,7 @@ Every new symbol must appear in three roles:
 
 **Max 3 new symbols per slide.** If a theorem introduces 5+ new symbols, break the introduction over multiple slides before stating the theorem.
 
-### 2.5 Proof Granularity in Mentor Mode
+### 2.5 Proof Granularity in Passive-Study Mode
 
 For analysis / measure theory proofs:
 - Each **inequality step** = one bullet with justification (e.g., "by Jensen's inequality")
@@ -184,7 +216,7 @@ For analysis / measure theory proofs:
 - Each **approximation / limit argument** = its own slide
 - Major theorem proof: plan **4–8 slides** for a non-trivial result; **8–15 slides** for a core theorem like Brenier or Kantorovich duality
 
-Never write "by standard arguments" or "it follows" in Mentor mode. If a step is non-trivial, show it.
+Never write "by standard arguments" or "it follows" in `passive-study`. If a step is non-trivial, show it.
 
 ### 2.6 Bilingual Notation Convention (Chinese/English reading groups)
 
@@ -230,13 +262,13 @@ Produce a **detailed outline**. For each section:
 
 ### 3a. Writing Style
 
-**Presentation mode (default):**
+**Academic-presentation mode:**
 - **Telegraphic keywords**, not full sentences. Exception: one framing sentence per slide to set context.
 - **Formulas and analysis interleave tightly** — define a quantity, then immediately state its cost/property/implication.
 - **No conversational hedging** — never write "wait, not exactly" or "actually, let me clarify".
 - **Use `\textbf{}` for key terms** on first introduction; use semantic colors for positive/negative/highlight.
 
-**Mentor mode (self-study):**
+**Passive-study mode:**
 - **Complete sentences** — the reader has no speaker to fill gaps.
 - **Motivation before every formal statement** — explain "why" before "what", even for lemmas.
 - **Explain every symbol** — no "obviously" or "it is well known"; define everything.
@@ -293,7 +325,7 @@ The second-to-last content slide delivers the lasting impression.
 
 **Theorem/Proof slide:**
 
-Presentation mode:
+Academic-presentation mode:
 ```
 [Framing sentence: informal statement]
 \begin{theorem}[Optional name]
@@ -304,7 +336,7 @@ Presentation mode:
 - Proof on the **next** slide (never cram theorem + proof on one slide).
 - For long proofs: show proof sketch only, full proof in backup slides.
 
-Mentor mode:
+Passive-study mode:
 ```
 [Framing sentence: informal statement + why this matters]
 \begin{theorem}[Optional name]
@@ -313,12 +345,12 @@ Mentor mode:
 [Physical/geometric intuition if applicable]
 ```
 - Proof on the **next** slide(s); for long proofs, use **multiple consecutive slides** showing every step.
-- Never say "proof sketch" or "proof omitted" in Mentor mode — show **every intermediate step**.
+- Never say "proof sketch" or "proof omitted" in `passive-study` — show **every intermediate step**.
 - Each proof step gets its own frame if the algebra is dense.
 
 ### 3d. Content Density Constraints
 
-**Presentation mode (default):**
+**Academic-presentation mode:**
 
 | Element | Max per slide | Action if exceeded |
 |---------|---------------|-------------------|
@@ -327,12 +359,12 @@ Mentor mode:
 | New symbols | 5 | Introduce over multiple slides |
 | Colored boxes | 3 | Redistribute content |
 
-**Lower bounds (Presentation):**
+**Lower bounds (academic-presentation):**
 - Each slide MUST contain at least one substantive element
 - A slide with only ≤ 3 short text-only bullets is too sparse — merge or enrich
 - Pure text-only bullet slides ≤ 30% of total deck
 
-**Mentor mode (self-study):**
+**Passive-study mode:**
 
 | Element | Max per slide | Rationale |
 |---------|---------------|-----------|
@@ -341,13 +373,13 @@ Mentor mode:
 | New symbols | 8 | Background supplement introduces more notation |
 | Colored boxes | 3 | Universal hard rule; use plain text, tables, or split frames for additional material |
 
-**Lower bounds (Mentor):**
+**Lower bounds (passive-study):**
 - Every slide MUST contain ≥1 substantive element (formula, diagram, table, theorem, proof step, or worked example)
 - A slide with only ≤ 3 short text-only bullets is too sparse — merge or enrich
 - **Pure text-only bullet slides ≤ 20%** of total deck (stricter than Presentation)
 
 **Density self-check after each batch:**
-- Count slides with zero formulas/diagrams/tables → flag if > 30% (Presentation) or > 20% (Mentor)
+- Count slides with zero formulas/diagrams/tables → flag if > 30% (`academic-presentation`) or > 20% (`passive-study`)
 - Count slides with ≤ 3 short items and no math → candidates for merging
 
 ### 3e. Batch Workflow
@@ -470,12 +502,12 @@ Check: errors, overfull hbox, undefined references.
 - [ ] Logical flow: motivation → background → technique → results → summary
 - [ ] No section has >4 consecutive formal slides without example or visual break
 - [ ] Transition sentences between major sections
-- [ ] **Mentor mode**: Glossary slide present, exercise slides present, bibliographical notes section present
+- [ ] **passive-study**: Glossary slide present, exercise slides present, bibliographical notes section present
 
 **Content density:**
 - [ ] No slide has only ≤3 short bullets with no math/diagram
-- [ ] Pure text-only slides ≤ 30% (Presentation) or ≤ 20% (Mentor)
-- [ ] No slide exceeds upper bounds (Presentation: 7 bullets / 2 eq / 5 symbols / 3 boxes; Mentor: 10 / 3 / 8 / 5)
+- [ ] Pure text-only slides ≤ 30% (`academic-presentation`) or ≤ 20% (`passive-study`)
+- [ ] No slide exceeds upper bounds (`academic-presentation`: 7 bullets / 2 eq / 5 symbols / 3 boxes; `passive-study`: 10 / 3 / 8 / 3)
 
 **TikZ and visuals:**
 - [ ] No label-label or label-curve overlaps
@@ -495,8 +527,8 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 
 | Mode | U (utilization) | B (balance) | G (gravity) | DGV |
 |------|-----------------|-------------|-------------|-----|
-| Presentation | [0.80, 0.95] | >0.80 | <0.15 | 0 |
-| Mentor | [0.75, 0.98] | >0.70 | <0.20 | 0 |
+| academic-presentation | [0.80, 0.95] | >0.80 | <0.15 | 0 |
+| passive-study | [0.75, 0.98] | >0.70 | <0.20 | 0 |
 
 - **U < 0.60** in any frame → sparse slide, must merge or enrich
 - **U > 1.00** in any frame → overflow, must split
@@ -514,23 +546,23 @@ Start at 100, deduct per issue:
 | Undefined reference | −3 each |
 | Box overflow (visual) | −5 each |
 | Sparse slide (≤3 text-only bullets, or U < 0.60) | −5 each |
-| Text-only slide ratio > 30% (Presentation) or > 20% (Mentor) | −5 (total) |
+| Text-only slide ratio > 30% (`academic-presentation`) or > 20% (`passive-study`) | −5 (total) |
 | >4 consecutive formal slides | −3 per run |
 | TikZ label overlap | −5 each |
 | Notation inconsistency | −3 each |
 | Missing motivation before definition | −3 each |
 | Missing backup slides | −3 |
 | No references slide | −5 |
-| **Mentor only**: Proof sketch instead of full proof | −10 each |
-| **Mentor only**: Missing glossary or exercise section | −5 each |
-| **Mentor only**: Missing bibliographical notes section | −5 |
+| **passive-study only**: Proof sketch instead of full proof | −10 each |
+| **passive-study only**: Missing glossary or exercise section | −5 each |
+| **passive-study only**: Missing bibliographical notes section | −5 |
 
-**Presentation mode thresholds:**
+**academic-presentation thresholds:**
 - **Score ≥ 90**: Ready to deliver
 - **Score 80–89**: Acceptable with caveats
 - **Score < 80**: Must fix before delivery
 
-**Mentor mode thresholds:**
+**passive-study thresholds:**
 - **Score ≥ 95**: Ready to deliver
 - **Score 90–94**: Minor refinements needed
 - **Score < 90**: Must fix before delivery
@@ -541,7 +573,7 @@ Fix all critical and major issues. Re-compile. Max 3 rounds.
 
 ### Post-Creation Checklist (final gate)
 
-**Presentation mode:**
+**academic-presentation:**
 ```
 [ ] Compiles without errors
 [ ] No overfull hbox > 10pt
@@ -558,7 +590,7 @@ Fix all critical and major issues. Re-compile. Max 3 rounds.
 [ ] check_layout.py: DGV=0, U∈[0.80,0.95], B>0.80
 ```
 
-**Mentor mode (additional / override):**
+**passive-study (additional / override):**
 ```
 [ ] Score ≥ 95
 [ ] Every proof shown in full (no "sketch" or "omitted")

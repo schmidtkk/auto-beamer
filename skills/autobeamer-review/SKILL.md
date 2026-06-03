@@ -28,6 +28,18 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "AskUs
 | `excellence` | Multi-perspective parallel review | Pre-submission, important talks |
 | `devils-advocate` | Challenge assumptions, find weaknesses | Pre-defense, critical review |
 
+## Mode-Specific Review Routing
+
+Before any content or pedagogy judgment, identify the deck mode and load the matching rubric:
+
+| Mode | Review rubric |
+|------|---------------|
+| `passive-study` | [references/rubrics/passive-study-review.md](references/rubrics/passive-study-review.md) |
+| `active-socratic` | [references/rubrics/active-socratic-review.md](references/rubrics/active-socratic-review.md) |
+| `academic-presentation` | [references/rubrics/academic-presentation-review.md](references/rubrics/academic-presentation-review.md) |
+
+If the deck still uses the old labels, map "Mentor/self-study" to `passive-study` and "Presentation/live talk" to `academic-presentation`. Do not score an `active-socratic` deck as failed merely because it withholds exposition; score whether it asks the right questions and gives adequate attempt gates.
+
 ---
 
 ## Action: `proofread`

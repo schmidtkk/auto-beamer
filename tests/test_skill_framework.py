@@ -59,6 +59,63 @@ class SkillFrameworkGuidanceTest(unittest.TestCase):
                 with self.subTest(skill=skill_path, pattern=pattern):
                     self.assertIsNone(re.search(pattern, text))
 
+    def test_create_skill_exposes_three_first_class_modes(self) -> None:
+        text = read("skills/autobeamer-create/SKILL.md")
+        for mode in ("passive-study", "active-socratic", "academic-presentation"):
+            with self.subTest(mode=mode):
+                self.assertIn(mode, text)
+        self.assertIn("references/modes/passive-study.md", text)
+        self.assertIn("references/modes/active-socratic.md", text)
+        self.assertIn("references/modes/academic-presentation.md", text)
+
+    def test_review_skill_exposes_three_mode_rubrics(self) -> None:
+        text = read("skills/autobeamer-review/SKILL.md")
+        for mode in ("passive-study", "active-socratic", "academic-presentation"):
+            with self.subTest(mode=mode):
+                self.assertIn(mode, text)
+        self.assertIn("references/rubrics/passive-study-review.md", text)
+        self.assertIn("references/rubrics/active-socratic-review.md", text)
+        self.assertIn("references/rubrics/academic-presentation-review.md", text)
+
+    def test_mode_reference_files_encode_distinct_learning_philosophies(self) -> None:
+        expected_terms = {
+            "skills/autobeamer-create/references/modes/passive-study.md": (
+                "background",
+                "shield",
+                "self-contained",
+            ),
+            "skills/autobeamer-create/references/modes/active-socratic.md": (
+                "question",
+                "attempt",
+                "thought experiment",
+            ),
+            "skills/autobeamer-create/references/modes/academic-presentation.md": (
+                "audience",
+                "time",
+                "references",
+            ),
+            "skills/autobeamer-review/references/rubrics/passive-study-review.md": (
+                "background",
+                "frustration",
+                "self-contained",
+            ),
+            "skills/autobeamer-review/references/rubrics/active-socratic-review.md": (
+                "question",
+                "attempt",
+                "mentor",
+            ),
+            "skills/autobeamer-review/references/rubrics/academic-presentation-review.md": (
+                "audience",
+                "timing",
+                "backup",
+            ),
+        }
+        for path, terms in expected_terms.items():
+            with self.subTest(path=path):
+                text = read(path).lower()
+                for term in terms:
+                    self.assertIn(term, text)
+
 
 if __name__ == "__main__":
     unittest.main()
