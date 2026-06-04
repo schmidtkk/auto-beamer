@@ -1,0 +1,8 @@
+interface:
+  display_name: "AutoBeamer Doctor"
+  short_description: "Preflight the beamer runtime and record dependency state"
+  brand_color: "#00796b"
+  default_prompt: "Use $autobeamer-doctor to check whether my XeLaTeX/poppler/PyMuPDF/markitdown environment is ready and record this model's visual capability."
+
+policy:
+  allow_implicit_invocation: true

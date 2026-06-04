@@ -233,7 +233,7 @@ class SkillPluginHardeningTest(unittest.TestCase):
     """Regression coverage for the 2026-06 hardening pass."""
 
     def test_all_skills_share_consistent_frontmatter(self) -> None:
-        self.assertEqual(len(SKILL_PATHS), 6)
+        self.assertEqual(len(SKILL_PATHS), 7)
         required = ("name", "description", "when_to_use", "argument-hint", "allowed-tools")
         for path in SKILL_PATHS:
             fm = frontmatter(path)
@@ -290,6 +290,84 @@ class SkillPluginHardeningTest(unittest.TestCase):
         for path in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json", ".codex-plugin/plugin.json"):
             with self.subTest(path=path):
                 self.assertNotIn('"email": ""', read(path))
+
+
+class ThreeWaveCreatePipelineTest(unittest.TestCase):
+    """Coverage for the leader + 3-wave create pipeline and image index."""
+
+    WAVE_AGENTS = ("autobeamer-planner", "autobeamer-drafter", "autobeamer-finisher")
+
+    def test_wave_agents_exist_with_frontmatter(self) -> None:
+        for name in self.WAVE_AGENTS:
+            path = f"agents/{name}.md"
+            with self.subTest(agent=path):
+                self.assertTrue((ROOT / path).exists(), f"missing {path}")
+                fm = frontmatter(path)
+                self.assertRegex(fm, rf"(?m)^name:\s*{re.escape(name)}\b")
+                self.assertRegex(fm, r"(?m)^tools:")
+
+    def test_agents_declared_in_manifests(self) -> None:
+        for path in (".claude-plugin/plugin.json",
+                     ".claude-plugin/marketplace.json",
+                     ".codex-plugin/plugin.json"):
+            with self.subTest(path=path):
+                self.assertIn('"agents"', read(path),
+                              f"{path} must declare an agents path")
+
+    def test_create_skill_wires_index_alignment_and_waves(self) -> None:
+        text = read("skills/autobeamer-create/SKILL.md")
+        self.assertIn("references/images/image-index.md", text)
+        self.assertIn("references/validation/alignment-check.md", text)
+        for name in self.WAVE_AGENTS:
+            with self.subTest(agent=name):
+                self.assertIn(name, text)
+
+    def test_new_reference_docs_exist(self) -> None:
+        for path in (
+            "skills/autobeamer-create/references/images/image-index.md",
+            "skills/autobeamer-create/references/validation/alignment-check.md",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue((ROOT / path).exists())
+
+    def test_phase_3_and_4_are_merged(self) -> None:
+        guide = read("skills/autobeamer-create/references/workflows/full-create-guide.md")
+        self.assertRegexpMatches = self.assertRegex  # py-compat alias
+        self.assertRegex(guide, r"(?i)draft\s*\+\s*figures|one\s+wave")
+        self.assertIn("image-index.md", guide)
+
+    def test_image_index_tool_present(self) -> None:
+        self.assertTrue((ROOT / "tools" / "image_index.py").exists())
+
+
+class EnvironmentDoctorTest(unittest.TestCase):
+    """Coverage for the dependency doctor and its wiring into planning."""
+
+    def test_doctor_tool_and_reference_exist(self) -> None:
+        self.assertTrue((ROOT / "tools" / "doctor.py").exists())
+        self.assertTrue((ROOT / "skills/autobeamer-create/references/validation/env-doctor.md").exists())
+
+    def test_create_skill_runs_doctor_first(self) -> None:
+        text = read("skills/autobeamer-create/SKILL.md")
+        self.assertIn("tools/doctor.py", text)
+        self.assertIn("env-doctor.md", text)
+
+    def test_planner_agent_runs_doctor(self) -> None:
+        text = read("agents/autobeamer-planner.md")
+        self.assertIn("doctor.py", text)
+
+    def test_gitignore_excludes_env_state(self) -> None:
+        self.assertRegex(read(".gitignore"), r"(?m)^\.autobeamer/")
+
+    def test_build_skill_documents_doctor_action(self) -> None:
+        self.assertIn("doctor", read("skills/autobeamer-build/SKILL.md"))
+
+    def test_dedicated_doctor_skill_exists_and_runs_tool(self) -> None:
+        path = "skills/autobeamer-doctor/SKILL.md"
+        self.assertTrue((ROOT / path).exists())
+        text = read(path)
+        self.assertIn("tools/doctor.py", text)
+        self.assertRegex(frontmatter(path), r"(?m)^name:\s*autobeamer-doctor\b")
 
 
 if __name__ == "__main__":
