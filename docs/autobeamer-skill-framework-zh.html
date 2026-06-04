@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoBeamer 技能框架总览</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17313b;
+      --muted: #5d6d73;
+      --line: #d7e3e1;
+      --paper: #f7faf8;
+      --panel: #ffffff;
+      --teal: #00796b;
+      --teal-soft: #dff3ef;
+      --amber: #b7791f;
+      --amber-soft: #fff1d6;
+      --coral: #c7503f;
+      --coral-soft: #ffe7e1;
+      --blue: #2f6f9f;
+      --blue-soft: #e2f0fb;
+      --green: #3a7a45;
+      --green-soft: #e4f4e7;
+      --shadow: 0 18px 50px rgba(23, 49, 59, 0.12);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(223, 243, 239, 0.92), rgba(247, 250, 248, 0.96) 36%, #ffffff 100%),
+        var(--paper);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.62;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 22px 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 28px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--teal);
+      color: white;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: 28px;
+      align-items: stretch;
+      min-height: 560px;
+      padding-bottom: 20px;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 30px 0 40px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      padding: 6px 10px;
+      border: 1px solid rgba(0, 121, 107, 0.22);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.68);
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 18px 0 18px;
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 20px;
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .point {
+      min-height: 112px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.76);
+    }
+
+    .point strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 17px;
+    }
+
+    .point span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .system-map {
+      position: relative;
+      min-height: 520px;
+      border: 1px solid rgba(0, 121, 107, 0.22);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.72)),
+        repeating-linear-gradient(90deg, rgba(0, 121, 107, 0.06), rgba(0, 121, 107, 0.06) 1px, transparent 1px, transparent 26px),
+        repeating-linear-gradient(0deg, rgba(0, 121, 107, 0.06), rgba(0, 121, 107, 0.06) 1px, transparent 1px, transparent 26px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 26px;
+    }
+
+    .map-title {
+      margin: 0 0 20px;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .node {
+      min-height: 90px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--teal);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    .node:nth-child(2) { border-left-color: var(--blue); }
+    .node:nth-child(3) { border-left-color: var(--amber); }
+    .node:nth-child(4) { border-left-color: var(--coral); }
+    .node:nth-child(5) { border-left-color: var(--green); }
+    .node:nth-child(6) { border-left-color: var(--teal); }
+
+    .node b {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .node small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    section {
+      padding: 58px 0 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(320px, 1.2fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .mode {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .mode header {
+      min-height: 126px;
+      padding: 18px;
+      color: white;
+      background: var(--teal);
+    }
+
+    .mode:nth-child(2) header {
+      background: var(--amber);
+    }
+
+    .mode:nth-child(3) header {
+      background: var(--blue);
+    }
+
+    .mode h3 {
+      margin: 0 0 8px;
+      font-size: 23px;
+      line-height: 1.18;
+    }
+
+    .mode code {
+      color: inherit;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .mode .body {
+      padding: 18px;
+    }
+
+    .mode ul,
+    .spotlight ul,
+    .checks ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .mode li,
+    .spotlight li,
+    .checks li {
+      margin: 8px 0;
+    }
+
+    .skill-matrix {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .skill {
+      min-height: 168px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    .skill b {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--teal);
+      font-size: 18px;
+    }
+
+    .skill p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .spotlight-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .spotlight {
+      min-height: 230px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    .spotlight:nth-child(1) { background: linear-gradient(180deg, var(--teal-soft), #ffffff 62%); }
+    .spotlight:nth-child(2) { background: linear-gradient(180deg, var(--amber-soft), #ffffff 62%); }
+    .spotlight:nth-child(3) { background: linear-gradient(180deg, var(--blue-soft), #ffffff 62%); }
+    .spotlight:nth-child(4) { background: linear-gradient(180deg, var(--green-soft), #ffffff 62%); }
+
+    .spotlight h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .checks {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .check-panel {
+      min-width: 0;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    .check-panel h3 {
+      margin: 0 0 12px;
+    }
+
+    .code-line {
+      display: block;
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 6px;
+      background: #17313b;
+      color: #f7faf8;
+      overflow-x: auto;
+      max-width: 100%;
+      white-space: nowrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    code {
+      overflow-wrap: anywhere;
+    }
+
+    .footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .section-head,
+      .checks {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .mode-grid,
+      .skill-matrix,
+      .spotlight-grid,
+      .hero-points {
+        grid-template-columns: 1fr;
+      }
+
+      .system-map {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .shell {
+        padding: 20px 14px 40px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      .lead {
+        font-size: 17px;
+      }
+
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="topbar" aria-label="页面信息">
+      <div class="brand">
+        <span class="mark">AB</span>
+        <span>AutoBeamer 技能框架</span>
+      </div>
+      <span>三模式学习 × Beamer 工程 × 可执行验证</span>
+    </nav>
+
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <span class="eyebrow">技能插件总览 · 中文展示页</span>
+        <h1 id="hero-title">从论文到高质量 Beamer Deck 的自动化技能框架</h1>
+        <p class="lead">
+          AutoBeamer 现在不是一个单一的“做幻灯片”流程，而是一个模式感知的技能系统：
+          先判断学习哲学，再选择创建、布局、构建、审查、TikZ 与验证技能，最后用可执行闸门防止规则漂移。
+        </p>
+        <div class="hero-points" aria-label="核心摘要">
+          <div class="point">
+            <strong>三种学习模式</strong>
+            <span>被动学习、主动苏格拉底式学习、学术分享三条路径分流。</span>
+          </div>
+          <div class="point">
+            <strong>源文档优先</strong>
+            <span>有 PDF 就先抽取文本和图，再考虑外部图片或重绘。</span>
+          </div>
+          <div class="point">
+            <strong>验证可执行</strong>
+            <span>静态检查覆盖 overlay、References、appendix 和模式闸门。</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="system-map" aria-label="AutoBeamer 流水线图">
+        <p class="map-title">主流水线</p>
+        <div class="pipeline">
+          <div class="node">
+            <b>0 · Material Analysis</b>
+            <small>读论文、解析 PDF、抽取图像、梳理符号和先修知识。</small>
+          </div>
+          <div class="node">
+            <b>1 · Needs Interview</b>
+            <small>只问无法安全推断的问题：时长、受众、模式、范围。</small>
+          </div>
+          <div class="node">
+            <b>2 · Structure Plan</b>
+            <small>给出章节、页数、图像计划、符号计划和验证闸门。</small>
+          </div>
+          <div class="node">
+            <b>3 · Draft</b>
+            <small>按 5 到 10 页批量写作，并在批次之间编译。</small>
+          </div>
+          <div class="node">
+            <b>4 · Figures</b>
+            <small>源图、裁剪、TikZ、pgfplots、布局优化依次处理。</small>
+          </div>
+          <div class="node">
+            <b>5 · Quality Loop</b>
+            <small>XeLaTeX、静态验证、layout audit、visual check、模式审查。</small>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section aria-labelledby="mode-title">
+      <div class="section-head">
+        <h2 id="mode-title">框架一：三模式学习契约</h2>
+        <p>
+          模式不是样式参数，而是学习哲学。创建、审查、验证都必须先知道 deck 服务哪一种学习关系。
+        </p>
+      </div>
+      <div class="mode-grid">
+        <article class="mode">
+          <header>
+            <code>passive-study</code>
+            <h3>被动学习模式</h3>
+          </header>
+          <div class="body">
+            <ul>
+              <li>面向跨领域初学者或领域先验较弱的研究者。</li>
+              <li>目标是完整、耐心、自包含地讲清楚背景、符号、动机和例子。</li>
+              <li>强调“降低不必要挫败”，但不降低数学和学术严谨度。</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="mode">
+          <header>
+            <code>active-socratic</code>
+            <h3>主动苏格拉底模式</h3>
+          </header>
+          <div class="body">
+            <ul>
+              <li>面向想自己重新发明知识的学习者。</li>
+              <li>每个关键概念先给问题、尝试、提示，再给答案。</li>
+              <li>适合推导、反例、思想实验、纸笔计算和反思问题链。</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="mode">
+          <header>
+            <code>academic-presentation</code>
+            <h3>学术分享模式</h3>
+          </header>
+          <div class="body">
+            <ul>
+              <li>面向 seminar、conference、defense、reading group 等现场分享。</li>
+              <li>强调受众、时长、叙事主线、证据、References 和 backup slides。</li>
+              <li>幻灯片是演讲提示，不是完整教材。</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="skills-title">
+      <div class="section-head">
+        <h2 id="skills-title">框架二：六个协作技能模块</h2>
+        <p>
+          每个技能只负责一个清晰边界。创建技能已经被压缩成 router，重内容放入 references，以减少上下文污染。
+        </p>
+      </div>
+      <div class="skill-matrix">
+        <article class="skill">
+          <b>autobeamer-create</b>
+          <p>入口 router：选择模式、读取源文档、制定结构计划、串联后续技能。</p>
+        </article>
+        <article class="skill">
+          <b>autobeamer-layout</b>
+          <p>处理版式选择、DGV 语法、图文比例、稀疏页和溢出风险。</p>
+        </article>
+        <article class="skill">
+          <b>autobeamer-build</b>
+          <p>负责 XeLaTeX 编译、字体、依赖、日志和构建错误排查。</p>
+        </article>
+        <article class="skill">
+          <b>autobeamer-review</b>
+          <p>按三种模式加载不同 rubric，不再用同一把尺子评价所有 deck。</p>
+        </article>
+        <article class="skill">
+          <b>autobeamer-tikz</b>
+          <p>创建和审查 TikZ 图，保证数学准确性、可读性和 slide 尺寸适配。</p>
+        </article>
+        <article class="skill">
+          <b>autobeamer-validate</b>
+          <p>运行定量检查、静态闸门和 PDF 视觉检查，防止“看似通过”的假阳性。</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="spotlight-title">
+      <div class="section-head">
+        <h2 id="spotlight-title">亮点聚焦</h2>
+        <p>
+          这次重构真正有价值的地方，不是多写了几份文档，而是把过去容易漂移的隐性规则变成可搜索、可验证、可审查的工程契约。
+        </p>
+      </div>
+      <div class="spotlight-grid">
+        <article class="spotlight">
+          <span class="badge">Spotlight 01</span>
+          <h3>学习哲学先于 Beamer 技术</h3>
+          <ul>
+            <li>先确定学习关系，再决定写法、密度、练习和审查标准。</li>
+            <li>旧的 Mentor / Presentation 只作为兼容别名，不再是主分类。</li>
+            <li>主动苏格拉底模式被正式加入，而不是被动学习的变体。</li>
+          </ul>
+        </article>
+
+        <article class="spotlight">
+          <span class="badge">Spotlight 02</span>
+          <h3>源文档优先的图像策略</h3>
+          <ul>
+            <li>给 PDF 时先运行 paper parser，抽取原文图片和结构信息。</li>
+            <li>外部图片只能作为 fallback，必须本地保存并标注来源。</li>
+            <li>数学图优先使用 TikZ 或重绘，保证符号和论证一致。</li>
+          </ul>
+        </article>
+
+        <article class="spotlight">
+          <span class="badge">Spotlight 03</span>
+          <h3>静态验证从建议变成工具</h3>
+          <ul>
+            <li><code>tools/validate_deck.py static</code> 会拒绝 <code>\pause</code>、<code>\onslide</code>、<code>\only</code>、<code>\uncover</code>。</li>
+            <li>References 必须在 Thank You 前一页，backup 前必须有 <code>\appendix</code>。</li>
+            <li>每个模式都有自己的 section gates。</li>
+          </ul>
+        </article>
+
+        <article class="spotlight">
+          <span class="badge">Spotlight 04</span>
+          <h3>主技能变成 compact router</h3>
+          <ul>
+            <li>创建技能主文件保持 220 行以内，避免把所有知识一次塞进上下文。</li>
+            <li>详细流程、模式、图像策略、验证闸门都拆到 references。</li>
+            <li>未来 agent 可以按需加载，而不是被长文档牵着跑。</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="checks-title">
+      <div class="section-head">
+        <h2 id="checks-title">验证与交付闸门</h2>
+        <p>
+          这个技能框架的底线是：不要靠主观感觉宣布 deck 合格。每次交付都要有命令、视觉检查和模式审查证据。
+        </p>
+      </div>
+      <div class="checks">
+        <article class="check-panel">
+          <h3>核心命令</h3>
+          <code class="code-line">./build.sh deck-name</code>
+          <code class="code-line">python tools/validate_deck.py static deck.tex --mode MODE</code>
+          <code class="code-line">python tools/check_layout.py deck.tex build/deck.log --advise</code>
+        </article>
+        <article class="check-panel">
+          <h3>硬规则摘要</h3>
+          <ul>
+            <li>禁止 overlays：<code>\pause</code>、<code>\onslide</code>、<code>\only</code>、<code>\uncover</code>。</li>
+            <li>每页最多 3 个彩色盒子。</li>
+            <li>References 在 Thank You 前一页；backup slides 在 <code>\appendix</code> 后。</li>
+            <li>所有含 block 的页面必须 visual-check，因为日志可能漏掉盒内溢出。</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>
+        生成内容基于当前仓库中的 AutoBeamer 技能、LightMem roadmap、验证脚本和插件元数据。
+        该页面是静态 HTML，可直接作为技能框架说明或内部展示材料使用。
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

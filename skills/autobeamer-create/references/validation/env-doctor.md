@@ -53,6 +53,24 @@ the planner records each figure's `visual_check.method` from
 `profile.visual_check_method`, and `image_index.py` auto-caps confidence when it
 is `text-only`.
 
+## Project-venv fallback for soft deps
+
+When the system interpreter has no `pip` or is externally managed (PEP 668), you
+cannot install `PyMuPDF` / `markitdown` into it. Create a **same-version** project
+venv and the tools pick it up automatically — `doctor.py` and `paper_parser.py`
+prepend `.venv/lib/pythonX.Y/site-packages` to `sys.path` (ABI-safe: it only
+activates when the venv's Python matches the running one):
+
+```bash
+uv venv --python "$(python3 -c 'import sys;print(sys.executable)')" .venv
+uv pip install --python .venv/bin/python pymupdf markitdown
+python tools/doctor.py check          # now can_extract_pdf / can_caption_md = true
+```
+
+`.venv` is gitignored. Invoke the markitdown **CLI** via the venv
+(`.venv/bin/markitdown <doc> > slides_assets/source.md`) when the system
+`markitdown` launcher is unavailable.
+
 ## Notes
 - State is env-wide and gitignored (`.autobeamer/`); re-run `check` per task.
 - `set-capability` trusts the model's own id; spoofed/unknown ids degrade safely.

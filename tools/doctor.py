@@ -43,6 +43,18 @@ import sys
 from pathlib import Path
 
 
+def _add_project_venv_to_path() -> None:
+    """Prefer a same-version project .venv for optional deps (PyMuPDF, markitdown)
+    when the system interpreter lacks them. No-op if .venv is absent or built for
+    a different Python version (ABI-safe)."""
+    ver = f"python{sys.version_info.major}.{sys.version_info.minor}"
+    sp = Path(__file__).resolve().parents[1] / ".venv" / "lib" / ver / "site-packages"
+    if sp.is_dir() and str(sp) not in sys.path:
+        sys.path.insert(0, str(sp))
+
+
+_add_project_venv_to_path()
+
 STATE_PATH = ".autobeamer/env_state.json"
 STATE_VERSION = 1
 
