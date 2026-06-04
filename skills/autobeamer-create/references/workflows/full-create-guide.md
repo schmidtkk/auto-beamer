@@ -1,18 +1,10 @@
----
-name: autobeamer-create
-description: |
-  Use when creating a new Beamer slide deck from scratch — converting papers, notes, or ideas
-  into a structured XeLaTeX presentation. Triggers on: "create slides", "make a presentation",
-  "build a talk", "prepare a lecture", "generate Beamer slides from paper", 论文讲解, 讨论班.
-  Covers the full creation pipeline: material analysis → needs interview → structure plan →
-  iterative drafting → figure integration → quality loop.
-  Do NOT trigger on: editing existing slides (use autobeamer-layout), build errors (use autobeamer-build),
-  review only (use autobeamer-review).
-argument-hint: "create [topic-or-file] — starts the full deck creation pipeline"
-allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "AskUserQuestion", "TaskCreate", "TaskUpdate", "TaskList", "TaskGet"]
----
+<!--
+Reference document loaded by the autobeamer-create skill. This is NOT a skill
+entry point — it carries no skill frontmatter so it is never registered as a
+second skill. The canonical metadata lives in ../../SKILL.md.
+-->
 
-# AutoBeamer Create — Deck Creation Pipeline
+# AutoBeamer Create — Deck Creation Pipeline (full guide)
 
 > **For layout optimization**, see [autobeamer-layout](../autobeamer-layout/SKILL.md).
 > **For build errors**, see [autobeamer-build](../autobeamer-build/SKILL.md).

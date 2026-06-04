@@ -90,6 +90,46 @@ class TestCheckLayoutInternals(unittest.TestCase):
         self.assertGreater(self.cl.W_GOLDCALL, self.cl.W_TEXT,
                            "Goldcall weight should exceed text weight")
 
+    def test_parse_log_detects_too_high_vbox(self):
+        """Regression: XeLaTeX says 'too high' for vbox overflow, not 'too large'.
+
+        The parser previously only matched 'too large' and silently missed every
+        real slide overflow (see the MVT workflow simulation, 2026-06)."""
+        import tempfile
+        log = "[1]\nOverfull \\vbox (92.67574pt too high) detected at line 86\n[2]\n"
+        with tempfile.NamedTemporaryFile("w", suffix=".log", delete=False, encoding="utf-8") as fh:
+            fh.write(log)
+            path = fh.name
+        try:
+            overflows = self.cl.parse_log(path)
+        finally:
+            Path(path).unlink(missing_ok=True)
+        self.assertTrue(overflows, "vbox '... too high' overflow must be detected")
+        self.assertGreater(sum(overflows.values()), 90.0)
+
+    def test_plain_body_text_is_not_a_violation(self):
+        """GV-1 was removed: plain prose is the blessed default, not a defect."""
+        body = "This is an ordinary sentence of teaching body text on a slide."
+        v = self.cl.detect_grammar_violations(body, "TEXT", None)
+        self.assertFalse([c for c, _ in v if c == "GV-1"],
+                         "loose body text must not be reported as GV-1")
+
+    def test_substance_detection(self):
+        """Math / diagrams / template-lib blocks count as substantive content."""
+        self.assertTrue(self.cl._has_substance(r"\TLinfoblock{S}{\[x=1\]}"))
+        self.assertTrue(self.cl._has_substance(r"\begin{tikzpicture}\end{tikzpicture}"))
+        self.assertTrue(self.cl._has_substance(r"\begin{thebibliography}{9}\end{thebibliography}"))
+        self.assertFalse(self.cl._has_substance("just a few words here"))
+
+    def test_text_content_height_credits_prose_and_math(self):
+        """A prose+math slide must score higher than an empty one (no false sparse)."""
+        empty = self.cl._text_content_height("")
+        rich = self.cl._text_content_height(
+            r"\TLinfoblock{a}{b}" + "\n" + r"\[ x=1 \]" + "\n"
+            r"\begin{itemize}\item one\item two\end{itemize}")
+        self.assertGreater(rich, empty)
+        self.assertGreater(rich, 0.2)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

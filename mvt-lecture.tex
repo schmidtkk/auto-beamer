@@ -1,0 +1,163 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[teal]{template-lib/template-lib}
+\uselayout{text}
+\uselayout{eq}
+\uselayout{twocol}
+
+\usetikzlibrary{arrows.meta}
+
+\TLsetfoot{Calculus I \textperiodcentered{} The Mean Value Theorem}
+
+\begin{document}
+
+\TLtitlecenter
+  {The Mean Value Theorem}
+  {Why a secant line always has a parallel tangent}
+  {Calculus I}
+  {Week 9}
+
+% ---------------------------------------------------------------------------
+\TLsection{Motivation}
+
+\begin{frame}{Why should we care?}
+  Imagine driving 120 km in exactly 2 hours. Your average speed is 60 km/h.
+  \medskip
+
+  Common sense says: \emph{at some instant} your speedometer must have read
+  exactly 60 km/h. The Mean Value Theorem (MVT) is the precise statement that
+  makes this intuition a theorem.
+
+  \TLtakeaway{Average rate of change is realized as an instantaneous rate of change somewhere in between.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\TLsection{Background and Notation}
+
+\begin{frame}{Notation and prerequisites}
+  \begin{itemize}
+    \item $f:[a,b]\to\mathbb{R}$ — a real-valued function on a closed interval.
+    \item \TLterm{Continuous on $[a,b]$}: no jumps or breaks, endpoints included.
+    \item \TLterm{Differentiable on $(a,b)$}: the derivative $f'(x)$ exists at every interior point.
+    \item Secant slope between endpoints: $\dfrac{f(b)-f(a)}{b-a}$.
+  \end{itemize}
+
+  \TLinfoblock{Glossary reminder}{A \TLterm{tangent} touches the curve at one
+  point with slope $f'(c)$; a \TLterm{secant} joins two points on the curve.}
+\end{frame}
+
+\begin{frame}{Prerequisite: Rolle's Theorem}
+  \TLinfoblock{Rolle's Theorem}{If $f$ is continuous on $[a,b]$, differentiable
+  on $(a,b)$, and $f(a)=f(b)$, then there exists $c\in(a,b)$ with $f'(c)=0$.}
+
+  \textbf{Intuition.} If you leave and return to the same height, somewhere in
+  between you must have stopped climbing — a flat tangent.
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\TLsection{The Theorem}
+
+\begin{frame}{The Mean Value Theorem}
+  \TLinfoblock{Statement}{If $f$ is continuous on $[a,b]$ and differentiable on
+  $(a,b)$, then there exists $c\in(a,b)$ such that
+  \[
+    f'(c) = \frac{f(b)-f(a)}{b-a}.
+  \]}
+
+  In words: some tangent line is parallel to the secant through the endpoints.
+\end{frame}
+
+\begin{frame}[c]{Geometric intuition}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.85]
+    % f(x) = 0.18 x^2 + 0.3 x + 0.4,  f'(x) = 0.36 x + 0.3
+    \draw[-{Stealth}, thick] (0,0) -- (6,0) node[right] {$x$};
+    \draw[-{Stealth}, thick] (0,0) -- (0,3.6) node[above] {$y$};
+    \draw[thick, TLprimary] plot[smooth, domain=0.5:4.6] (\x, {0.18*\x*\x + 0.3*\x + 0.4});
+    \pgfmathsetmacro{\xa}{1}\pgfmathsetmacro{\ya}{0.18*\xa*\xa + 0.3*\xa + 0.4}
+    \pgfmathsetmacro{\xb}{4.4}\pgfmathsetmacro{\yb}{0.18*\xb*\xb + 0.3*\xb + 0.4}
+    \draw[thick, TLaccent] (\xa,\ya) -- (\xb,\yb);
+    % secant slope m; tangent point c solves f'(c)=m  =>  c = (m-0.3)/0.36
+    \pgfmathsetmacro{\m}{(\yb-\ya)/(\xb-\xa)}
+    \pgfmathsetmacro{\xc}{(\m-0.3)/0.36}
+    \pgfmathsetmacro{\yc}{0.18*\xc*\xc + 0.3*\xc + 0.4}
+    \fill (\xa,\ya) circle (1.6pt) node[below right] {$a$};
+    \fill (\xb,\yb) circle (1.6pt) node[below right] {$b$};
+    \fill (\xc,\yc) circle (1.6pt) node[above left] {$c$};
+    \draw[thick, TLaccent, dashed] (\xc-1.3,{\yc-\m*1.3}) -- (\xc+1.3,{\yc+\m*1.3});
+  \end{tikzpicture}
+  \end{center}
+  The dashed tangent at $c$ is parallel to the red secant.
+\end{frame}
+
+\begin{frame}{Worked example}
+  Let $f(x)=x^2$ on $[1,3]$. The secant slope is
+  \[
+    \frac{f(3)-f(1)}{3-1} = \frac{9-1}{2} = 4.
+  \]
+  Solve $f'(c)=2c=4$, giving $c=2\in(1,3)$. The tangent at $x=2$ has slope $4$,
+  parallel to the secant.
+
+  \TLtakeaway{The guaranteed point $c$ can be found explicitly when $f'$ is invertible.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\TLsection{Proof}
+
+\begin{frame}{Proof via Rolle's Theorem}
+  Define the auxiliary function
+  \[
+    g(x) = f(x) - \left[ f(a) + \frac{f(b)-f(a)}{b-a}(x-a) \right].
+  \]
+  \begin{itemize}
+    \item $g$ is continuous on $[a,b]$ and differentiable on $(a,b)$ (sums of such functions).
+    \item $g(a)=0$ and $g(b)=0$ by direct substitution.
+    \item By Rolle's Theorem, there is $c\in(a,b)$ with $g'(c)=0$.
+    \item But $g'(x)=f'(x)-\dfrac{f(b)-f(a)}{b-a}$, so $f'(c)=\dfrac{f(b)-f(a)}{b-a}$. \qedhere
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{A common pitfall}
+  \TLwarnblock{Differentiability is required on the whole open interval}{The
+  function $f(x)=|x|$ on $[-1,1]$ has secant slope $0$, but $f'(x)$ is never
+  zero — it is $\pm 1$. MVT does not apply because $f$ is not differentiable at
+  $x=0$.}
+
+  Always check both hypotheses before invoking the conclusion.
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\TLsection{Practice}
+
+\begin{frame}{Exercise}
+  \textbf{Exercise 1} \hfill (Difficulty: $\star\star$)
+
+  Let $f(x)=x^3-x$ on $[0,2]$. Find every $c$ guaranteed by the MVT.
+  \begin{itemize}
+    \item \emph{Hint 1.} Compute the secant slope $\frac{f(2)-f(0)}{2-0}$.
+    \item \emph{Hint 2.} Set $f'(c)=3c^2-1$ equal to that slope.
+    \item \emph{Hint 3.} Keep only the root in $(0,2)$.
+  \end{itemize}
+  \TLtakeaway{Tests whether you can apply MVT to a cubic and discard spurious roots.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\TLsection{References}
+
+\begin{frame}{References and further reading}
+  \begin{thebibliography}{9}
+    \bibitem{stewart} J. Stewart, \emph{Calculus: Early Transcendentals}, 8th ed., Ch.~4.
+    \bibitem{spivak} M. Spivak, \emph{Calculus}, 4th ed., Ch.~11.
+  \end{thebibliography}
+
+  \textbf{Bibliographical note.} Rolle's Theorem (1691) predates the modern MVT;
+  Lagrange gave the form used here in the 18th century.
+\end{frame}
+
+\appendix
+
+\begin{frame}{Backup: solution to Exercise 1}
+  Secant slope $=\frac{(8-2)-(0)}{2}=3$. Solve $3c^2-1=3 \Rightarrow c^2=\tfrac{4}{3}
+  \Rightarrow c=\pm\tfrac{2}{\sqrt3}$. Only $c=\tfrac{2}{\sqrt3}\approx 1.155\in(0,2)$.
+\end{frame}
+
+\end{document}

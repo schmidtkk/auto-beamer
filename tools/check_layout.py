@@ -219,6 +219,39 @@ def _top_level_lines(body: str) -> list:
     return result
 
 
+# Template-lib blocks and display math the legacy card model does not know about.
+_TL_BLOCK_RE     = re.compile(r"\\TL(?:info|alert|result|warn)block\b")
+_TL_TAKEAWAY_RE  = re.compile(r"\\TLtakeaway\b")
+_DISPLAY_MATH_RE = re.compile(r"\\\[|\\begin\{(?:align|equation|gather|multline)\*?\}")
+_SUBSTANCE_RE    = re.compile(
+    r"\\\[|\\begin\{(?:align|equation|gather|multline|tikzpicture|tabular|"
+    r"theorem|lemma|proof|algorithm|thebibliography)\*?\}"
+    r"|\\bibitem\b|\\TL(?:info|alert|result|warn)block\b|\\TLtakeaway\b")
+
+
+def _text_content_height(body: str) -> float:
+    """Inclusive content-height estimate (textheight units).
+
+    The legacy U model only counts bluecard/goldcall/eqbox + itemize + tabular,
+    so prose / equation / template-lib decks score ~0 and look falsely sparse.
+    This also credits top-level prose, bullets, display math, \\TL* blocks, TikZ.
+    """
+    h  = len(_top_level_lines(body)) * H_PER_TEXT_LINE * 1.6   # wrapped prose
+    h += len(re.findall(r"\\item\b", body)) * H_PER_ITEM
+    h += len(_DISPLAY_MATH_RE.findall(body)) * 0.11
+    h += len(_TL_BLOCK_RE.findall(body)) * (H_BLUECARD_BASE + 2 * H_PER_ITEM)
+    h += len(_TL_TAKEAWAY_RE.findall(body)) * (H_GOLDCALL_BASE + H_PER_ITEM)
+    if re.search(r"\\begin\{tikzpicture\}", body):
+        h += 0.42
+    return h
+
+
+def _has_substance(body: str) -> bool:
+    """True if the frame has a real teaching element (math, diagram, table,
+    theorem, or a template-lib block) — used to avoid false 'sparse' verdicts."""
+    return bool(_SUBSTANCE_RE.search(body))
+
+
 def detect_grammar_violations(
         body: str, layout: str, img_ar) -> list:
     """
@@ -227,7 +260,10 @@ def detect_grammar_violations(
     violations: list = []
 
     # ── GV-1: Loose text ──────────────────────────────────────────────────────
-    loose = _top_level_lines(body)
+    # GV-1 disabled: the skills allow plain body text/bullets as the default,
+    # so flagging loose text produced a false positive on every prose/math
+    # slide. Prose height is now credited via _text_content_height instead.
+    loose = []
     if loose:
         violations.append(
             ("GV-1", f"Loose text outside any box: \u201c{loose[0][:55]}\u201d"))
@@ -611,6 +647,12 @@ def analyse_frame(title, body, tex_dir):
         B = None
         layout = "TEXT"
 
+    # Content floor: the legacy card model under-counts prose / math /
+    # template-lib decks. Raise U to an inclusive estimate (capped below the
+    # overflow threshold) so such frames are not scored as false-sparse.
+    if layout in ("TEXT", "STACKED", "BUDGET"):
+        U = max(U, min(_text_content_height(body) + H_FRAME_OVERHEAD, 0.98))
+
     img_ar = detect_img_ar(body, tex_dir)
     ar_lbl = _ar_label(img_ar)
     gx, gy, G = compute_gravity(body, layout, img_h, box_h)
@@ -628,6 +670,7 @@ def analyse_frame(title, body, tex_dir):
         "n_cards": len(box_h_list),
         "vsp": vsp,
         "dvg": dvg,
+        "substance": _has_substance(body),
     }
 
 
@@ -645,7 +688,9 @@ def parse_log(log_path):
         pgs = re.findall(r"\[(\d+)[\]\s]", line)
         if pgs:
             current_page = max(int(x) for x in pgs)
-        m = re.search(r"Overfull \\vbox \(([\d.]+)pt too large\)", line)
+        # XeLaTeX emits "...pt too high" for vertical (vbox) overflow; older/other
+        # engines may say "too large". Accept both so overflow is never missed.
+        m = re.search(r"Overfull \\vbox \(([\d.]+)pt too (?:high|large)\)", line)
         if m:
             pt = float(m.group(1))
             overflows[current_page] = overflows.get(current_page, 0.0) + pt
@@ -690,11 +735,24 @@ def main():
     print(cc(hdr, "b"))
     print("  " + "─" * 120)
 
+    # Map each \begin{frame} to its PDF page number by counting every
+    # slide-emitting construct (title page, \TLsection dividers, frames) in
+    # source order. Frame ordinal != PDF page when section dividers exist, so a
+    # naive log_overflows.get(i) misattributes overflow to the wrong frame.
+    slide_macro_re = re.compile(
+        r"\\TLtitle\w*|\\TLsection\b|\\section\b|\\maketitle\b|\\titlepage\b|\\begin\{frame\}")
+    page_of_start = {}
+    _page = 0
+    for _m in slide_macro_re.finditer(tex):
+        _page += 1
+        page_of_start[_m.start()] = _page
+
     all_frames = []
     for i, m in enumerate(frame_re.finditer(tex), start=1):
         r           = analyse_frame(m.group(1)[:35], m.group(2), tex_dir)
         r["idx"]    = i
-        r["log_pt"] = log_overflows.get(i, 0.0)
+        r["page"]   = page_of_start.get(m.start(), i)
+        r["log_pt"] = log_overflows.get(r["page"], 0.0)
         all_frames.append(r)
 
         U, B, G  = r["U"], r["B"], r["G"]
@@ -716,7 +774,7 @@ def main():
             status = cc(f"DGV×{len(dvg)}         ", "R")
         elif U > 0.95:
             status = cc(f"TIGHT    U={U:.2f}", "Y")
-        elif U < 0.60:
+        elif U < 0.60 and not r.get("substance"):
             status = cc(f"SPARSE   U={U:.2f}", "Y")
         elif B is not None and B < 0.55:
             status = cc(f"IMBAL    B={B:.2f}", "Y")
@@ -738,7 +796,10 @@ def main():
     print()
     overflows  = [r for r in all_frames if r["U"] > 1.00 or r["log_pt"] > 0]
     tight      = [r for r in all_frames if 0.95 < r["U"] <= 1.00 and r["log_pt"] == 0]
-    sparse     = [r for r in all_frames if r["U"] < 0.60]
+    # Sparse = low utilization AND no substantive teaching element. This matches
+    # the documented rule; a math/prose slide full of equations or a \TL* block
+    # is never "sparse" regardless of the card-model utilization estimate.
+    sparse     = [r for r in all_frames if r["U"] < 0.60 and not r.get("substance")]
     imbal      = [r for r in all_frames if r["B"] is not None and r["B"] < 0.55]
     offctr     = [r for r in all_frames if r["G"] > 0.20]
     col_frames = [r for r in all_frames if r["B"] is not None]

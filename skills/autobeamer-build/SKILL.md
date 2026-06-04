@@ -62,6 +62,20 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 
 **Why 2 passes?** First pass writes `.aux` files (cross-references, `equal height group` data). Second pass reads them for correct layout.
 
+### Where your deck file must live
+
+`\usepackage[<theme>]{template-lib/template-lib}` is a **relative** package path, so
+XeLaTeX only finds it when the deck `.tex` sits at the repository root (next to the
+`template-lib/` directory). To keep a deck anywhere else, point TeX at the library:
+
+```bash
+TEXINPUTS=".:/path/to/auto-beamer//:" xelatex -output-directory=build deck.tex
+```
+
+The trailing `//` makes the search recursive. A "File `template-lib/template-lib.sty`
+not found" error almost always means the deck is in the wrong directory or `TEXINPUTS`
+is unset.
+
 ---
 
 ## Compilation Workflow
