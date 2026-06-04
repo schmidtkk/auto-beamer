@@ -1,11 +1,9 @@
 ---
 name: autobeamer-review
-description: |
-  Use when reviewing, auditing, or quality-checking existing Beamer slide decks.
+description: "Review, audit, and quality-check existing Beamer decks: rubric scoring, DGV layout audit, pedagogy validation, and multi-perspective excellence review."
+when_to_use: |
   Triggers on: "review slides", "audit deck", "check quality", "pedagogy review",
   "proofread", "devils advocate", "excellence review", "find issues in slides".
-  Provides structured review with rubric scoring, layout audit with DGV metrics,
-  pedagogical validation, and multi-perspective excellence review.
   Do NOT trigger on: creating new slides (use autobeamer-create), build errors (use autobeamer-build).
 argument-hint: "review [deck.tex] — starts structured review pipeline"
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "AskUserQuestion"]
@@ -162,7 +160,7 @@ When a slide looks wrong, fix in this priority order:
 | GV-1 | Loose text without structure | Keep as plain body text/bullets, or use `\TLtakeaway` only for a true callout |
 | GV-2 | Callout block inside `columns` | Move the callout below `\end{columns}` so it spans the frame |
 | GV-3 | Multiple info/result blocks in one column | Split frame or convert to text (max 3 colored boxes/slide) |
-| GV-4 | Wide image (AR>1.5) in SIDE layout | Switch to image-top (`\TLimgtop` or equivalent template-lib layout) |
+| GV-4 | Wide image (AR>1.4) in SIDE layout | Switch to image-top (`\TLimgtop` or equivalent template-lib layout). SIDE is only balanced at AR ≤ 1.4 per `layout_optimizer.py`. |
 
 ### Audit Report Format
 
@@ -224,7 +222,7 @@ Validate teaching effectiveness using 13 pedagogical patterns.
 
 ### Deck-Level Checks
 
-- **Slide count vs. duration**: ~1 slide per 1.5–2 minutes
+- **Slide count vs. duration**: use the canonical table in [autobeamer-validate](../autobeamer-validate/SKILL.md) (§2a) — e.g., 20 min → 14–20 slides. Do not use a separate per-minute formula here; it drifts from the table.
 - **Text-only slide ratio**: ≤ 30%
 - **Formal slide runs**: No more than 4 consecutive formal slides without example/visual
 - **Opening strategy**: Does the opening hook the audience?
@@ -244,7 +242,7 @@ Validate teaching effectiveness using 13 pedagogical patterns.
 | ... | ... | ... | ... |
 
 ### Deck-Level Assessment
-- Slide count: 15 (target for 20min: 13–18) ✅
+- Slide count: 15 (target for 20min: 14–20) ✅
 - Text-only ratio: 25% ✅
 - Longest formal run: 3 slides ✅
 
@@ -262,7 +260,9 @@ Multi-perspective parallel review for important talks (pre-submission, keynote, 
 
 ### Process
 
-Run 3 perspectives in parallel (conceptually — one agent reviews all three):
+Apply 3 distinct review perspectives. By default you adopt each perspective in
+turn within one pass; only spin up parallel subagents (via the `Agent` tool) if
+the user explicitly asks for a multi-agent review. Report all three regardless.
 
 1. **Content Expert** — Technical accuracy, completeness, rigor
 2. **Design Reviewer** — Visual quality, layout, readability, contrast

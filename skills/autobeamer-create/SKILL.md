@@ -1,8 +1,8 @@
 ---
 name: autobeamer-create
-description: |
-  Use when creating a new Beamer slide deck from scratch, including passive-study,
-  active-socratic, and academic-presentation decks from papers, notes, books, or ideas.
+description: "Create a new XeLaTeX Beamer deck from scratch in one of three modes — passive-study, active-socratic, or academic-presentation — from papers, notes, books, or ideas."
+when_to_use: |
+  Use when creating a new deck from source material or an idea.
   Do NOT trigger on editing existing slides (use autobeamer-layout), build errors
   (use autobeamer-build), or review-only tasks (use autobeamer-review).
 argument-hint: "create [topic-or-file] -- starts the deck creation pipeline"
@@ -15,7 +15,7 @@ Create XeLaTeX Beamer decks through a mode-aware pipeline. Keep this file as the
 
 ## Required First Steps
 
-1. Read repo memory before planning: `memories/MEMORY_INDEX.md`, then `memories/repo/user-preferences.md`.
+1. Read skill memory before planning, resolved at the plugin/repo root: `memories/MEMORY_INDEX.md`, then `memories/repo/user-preferences.md`. If `memories/` is absent (e.g., a fresh public checkout that ships without it), proceed without it and rely on the in-skill defaults — do not fabricate preferences.
 2. If source material is provided, inspect it before asking questions.
 3. Set exactly one mode: `passive-study`, `active-socratic`, or `academic-presentation`.
 4. Load the selected mode reference and [references/validation/mode-gates.md](references/validation/mode-gates.md).
@@ -126,7 +126,7 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 Before delivery:
 - Compile with XeLaTeX.
 - Run static validation and layout audit.
-- Run visual-check on the PDF, especially every frame with blocks.
+- Run [autobeamer-validate](../autobeamer-validate/SKILL.md) `visual-check` on the PDF, especially every frame with blocks.
 - Use [autobeamer-review](../autobeamer-review/SKILL.md) with the matching mode rubric.
 
 ## Reference Index
@@ -142,4 +142,5 @@ Before delivery:
 | Layout optimization | [autobeamer-layout](../autobeamer-layout/SKILL.md) |
 | Build/compile errors | [autobeamer-build](../autobeamer-build/SKILL.md) |
 | Review/audit | [autobeamer-review](../autobeamer-review/SKILL.md) |
+| Automated validation / visual-check | [autobeamer-validate](../autobeamer-validate/SKILL.md) |
 | TikZ diagrams | [autobeamer-tikz](../autobeamer-tikz/SKILL.md) |

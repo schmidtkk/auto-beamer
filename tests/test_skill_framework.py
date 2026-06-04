@@ -219,5 +219,78 @@ class SkillFrameworkGuidanceTest(unittest.TestCase):
                 self.assertIn(f"${skill_dir.name}", text)
 
 
+SKILL_PATHS = sorted(str(p.relative_to(ROOT)) for p in (ROOT / "skills").glob("autobeamer-*/SKILL.md"))
+
+
+def frontmatter(skill_rel_path: str) -> str:
+    text = read(skill_rel_path)
+    match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
+    assert match, f"no YAML frontmatter in {skill_rel_path}"
+    return match.group(1)
+
+
+class SkillPluginHardeningTest(unittest.TestCase):
+    """Regression coverage for the 2026-06 hardening pass."""
+
+    def test_all_skills_share_consistent_frontmatter(self) -> None:
+        self.assertEqual(len(SKILL_PATHS), 6)
+        required = ("name", "description", "when_to_use", "argument-hint", "allowed-tools")
+        for path in SKILL_PATHS:
+            fm = frontmatter(path)
+            for field in required:
+                with self.subTest(skill=path, field=field):
+                    self.assertRegex(fm, rf"(?m)^{re.escape(field)}:")
+
+    def test_no_bare_beamer_skill_names(self) -> None:
+        # Every cross-reference must use the autobeamer-* prefix, never legacy
+        # "beamer-review" / "beamer-layout" / etc.
+        pattern = re.compile(r"(?<![A-Za-z])beamer-(review|layout|build|create|tikz|validate)")
+        targets = SKILL_PATHS + ["memories/MEMORY_INDEX.md"]
+        for path in targets:
+            with self.subTest(path=path):
+                self.assertIsNone(pattern.search(read(path)))
+
+    def test_gv4_threshold_matches_optimizer(self) -> None:
+        # layout_optimizer.py treats SIDE as balanced only at AR <= 1.4.
+        for path in ("skills/autobeamer-review/SKILL.md", "skills/autobeamer-layout/SKILL.md"):
+            text = read(path)
+            with self.subTest(skill=path):
+                self.assertIn("AR>1.4", text)
+                self.assertNotIn("AR>1.5", text)
+
+    def test_validate_counts_overfull_vbox(self) -> None:
+        text = read("skills/autobeamer-validate/SKILL.md")
+        self.assertIn(r"Overfull \vbox", text)
+        self.assertRegex(text, r"(?i)vbox \(slide overflow\)")
+
+    def test_create_cross_links_validate(self) -> None:
+        self.assertIn("autobeamer-validate", read("skills/autobeamer-create/SKILL.md"))
+
+    def test_png_directory_is_standardized(self) -> None:
+        for path in (
+            "skills/autobeamer-build/SKILL.md",
+            "skills/autobeamer-layout/SKILL.md",
+            "skills/autobeamer-validate/SKILL.md",
+        ):
+            text = read(path)
+            with self.subTest(skill=path):
+                self.assertIn("_slides_png", text)
+                # No bare `pdftoppm ... slides_png` output target (missing underscore).
+                self.assertIsNone(re.search(r"pdftoppm[^\n]*[^_]slides_png\b", text))
+
+    def test_skill_memory_present_and_clean(self) -> None:
+        self.assertTrue((ROOT / "memories" / "MEMORY_INDEX.md").exists())
+        self.assertTrue((ROOT / "memories" / "repo" / "user-preferences.md").exists())
+        index = read("memories/MEMORY_INDEX.md")
+        # No dangling reference to a memory file that does not ship.
+        self.assertNotIn("feedback-underbrace-fix.md", index)
+        self.assertIn("autobeamer-tikz", index)
+
+    def test_manifests_have_no_empty_email(self) -> None:
+        for path in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json", ".codex-plugin/plugin.json"):
+            with self.subTest(path=path):
+                self.assertNotIn('"email": ""', read(path))
+
+
 if __name__ == "__main__":
     unittest.main()

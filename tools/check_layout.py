@@ -663,9 +663,12 @@ def main():
     except AttributeError:
         pass  # Python < 3.7
 
-    if len(sys.argv) < 2:
-        print("Usage: python check_layout.py <file.tex> [file.log] [--advise]")
-        sys.exit(1)
+    usage = "Usage: python check_layout.py <file.tex> [file.log] [--advise]"
+
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
+        print(usage)
+        # No file requested -> help/usage is a successful, well-defined outcome.
+        sys.exit(0 if (len(sys.argv) >= 2 and sys.argv[1] in ("-h", "--help")) else 1)
 
     tex_path = sys.argv[1]
     advise   = "--advise" in sys.argv

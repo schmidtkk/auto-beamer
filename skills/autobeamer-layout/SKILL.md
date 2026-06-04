@@ -1,6 +1,9 @@
 ---
 name: autobeamer-layout
-description: "Use when designing XeLaTeX Beamer slide layouts — choosing templates, placing images, fixing overflows, balancing columns, or auditing slide density. Triggers on layout questions, image-scale concerns, column alignment, layout_optimizer.py usage, or check_layout.py results."
+description: "Design XeLaTeX Beamer slide layouts — choose templates, place images, fix overflows, balance columns, and audit slide density."
+when_to_use: "Triggers on layout questions, image-scale concerns, column alignment, layout_optimizer.py usage, or check_layout.py results."
+argument-hint: "layout [deck.tex] — optimize slide layout, scale, and density"
+allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 ---
 
 # AutoBeamer Layout — Slide Design Pipeline
@@ -24,7 +27,7 @@ PHASE 2: OPTIMIZE → Fix layout, scale, balance (this skill's core)
 
 ### Step 0.1: Ask Clarifying Questions
 
-Before any code, ask ONE question at a time. Consult user preferences from `../../memories/repo/user-preferences.md`.
+Before any code, ask ONE question at a time. Consult skill memory at the plugin/repo root (`memories/repo/user-preferences.md`); if it is absent, use the defaults summarized in the User Preferences section below.
 
 1. **Audience:** Academic conference (MICCAI/NeurIPS) or group meeting?
 2. **Tone:** Formal (navy + red) or modern (teal/dark)?
@@ -121,7 +124,7 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 | GV-1 | Loose text without structure | Keep as plain bullets/body text, or use `\TLtakeaway` only for a true callout |
 | GV-2 | Callout block inside `columns` | Move the callout below `\end{columns}` so it spans the frame |
 | GV-3 | Multiple info/result blocks in one column | **Split frame** or convert to plain text (max 3 colored boxes/slide) |
-| GV-4 | Wide image (AR>1.5) in SIDE layout | Switch to image-top (`\TLimgtop` or equivalent template-lib layout) |
+| GV-4 | Wide image (AR>1.4) in SIDE layout | Switch to image-top (`\TLimgtop` or equivalent template-lib layout). SIDE is only balanced at AR ≤ 1.4 per `layout_optimizer.py`. |
 
 **Block count rule:** Maximum 3 colored boxes per slide (`\TLinfoblock`, `\TLalertblock`, `\TLresultblock`, `\TLwarnblock`, `\TLtakeaway`). If 4+: split into 2 frames, or convert non-key boxes to plain text.
 
@@ -206,7 +209,7 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 
 ```bash
 # Generate per-page PNGs
-pdftoppm -r 150 -png build\deck.pdf _slides_png\slide
+pdftoppm -r 150 -png build/deck.pdf _slides_png/slide
 ```
 
 Spot-check:
@@ -229,7 +232,7 @@ Spot-check:
 
 ## User Preferences
 
-Stored in `../../memories/repo/user-preferences.md` (relative to this skill file):
+Canonical source is skill memory at the plugin/repo root (`memories/repo/user-preferences.md`); the table below mirrors it so this skill stays usable even when memory is absent:
 
 | Preference | Value |
 |-----------|-------|

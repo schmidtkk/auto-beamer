@@ -1,10 +1,9 @@
 ---
 name: autobeamer-validate
-description: |
-  Use when running automated quantitative checks on a compiled Beamer deck.
+description: "Run automated quantitative checks and PDF visual verification on a compiled Beamer deck — measurable properties, not content judgment."
+when_to_use: |
   Triggers on: "validate", "validation", "check deck", "visual check",
   "pdf check", "slide count", "aspect ratio", "compilation health".
-  Performs measurable property checks and PDF visual verification.
   Do NOT trigger on: content review (use autobeamer-review), layout optimization (use autobeamer-layout).
 argument-hint: "validate [deck.tex|deck.pdf] [duration] — run automated checks"
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
@@ -74,6 +73,7 @@ Allow a small tolerance for TeX/PDF rounding; any ratio outside **1.75–1.81** 
 #### 2d. Compilation Health (from .log)
 
 ```bash
+grep -c "Overfull \\\\vbox" build/FILE.log
 grep -c "Overfull \\\\hbox" build/FILE.log
 grep -c "Undefined control sequence" build/FILE.log
 grep -c "Citation.*undefined" build/FILE.log
@@ -82,10 +82,13 @@ grep -c "multiply defined" build/FILE.log
 
 | Warning Type | OK | WARNING | CRITICAL |
 |-------------|-----|---------|----------|
+| Overfull vbox (slide overflow) | 0 | — | 1+ |
 | Overfull hbox | 0 | 1–3 | 4+ |
 | Undefined control sequence | 0 | — | 1+ |
 | Undefined citations | 0 | 1–2 | 3+ |
 | Multiply defined labels | 0 | — | 1+ |
+
+`Overfull \vbox` means content runs off the bottom of a slide — always CRITICAL. This is the headline layout error the build script flags (`build.sh`); never report PASS while any remain.
 
 #### 2e. Source Static Gates (mandatory — run tool)
 
@@ -164,6 +167,7 @@ grep -c "begin{thebibliography}\|\\\\bibliography" FILE.tex
 | Slide count | N slides / Xmin duration | OK / WARNING |
 | Aspect ratio | 16:9 (ratio) | OK / WARNING |
 | File size | X.X MB | OK / WARNING / CRITICAL |
+| Overfull vbox (slide overflow) | N | OK / CRITICAL |
 | Overfull hbox | N warnings | OK / WARNING / CRITICAL |
 | Undefined references | N | OK / CRITICAL |
 | Overlay commands | N found | OK / VIOLATION |
@@ -265,8 +269,8 @@ Run both `validate` and `visual-check` in sequence for a complete health report.
 
 | Tool | When Used |
 |------|-----------|
-| `check_layout.py` | During `audit` action in beamer-review |
-| `layout_optimizer.py` | During layout optimization in beamer-layout |
+| `check_layout.py` | During `audit` action in autobeamer-review |
+| `layout_optimizer.py` | During layout optimization in autobeamer-layout |
 | `build_clean.ps1` / `build.sh` | Compilation step |
 | `pdftoppm` (poppler) | PDF-to-image conversion for visual-check |
 

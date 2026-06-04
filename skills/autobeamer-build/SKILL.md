@@ -1,6 +1,9 @@
 ---
 name: autobeamer-build
-description: "Use when compiling XeLaTeX Beamer decks, troubleshooting build errors, setting up TeX environment, or managing fonts. Triggers on xelatex commands, Overfull errors, font-not-found errors, build script questions, TeX Live installation, or PDF generation."
+description: "Compile XeLaTeX Beamer decks, troubleshoot build errors, set up the TeX environment, and manage CJK fonts."
+when_to_use: "Triggers on xelatex commands, Overfull errors, font-not-found errors, build-script questions, TeX Live installation, or PDF generation."
+argument-hint: "build [deck-name] — compile a deck and troubleshoot build errors"
+allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 ---
 
 # AutoBeamer Build — Compilation & Troubleshooting
@@ -88,7 +91,7 @@ grep -E "Overfull \\\\vbox|^!" build/deck.log
 ### Step 3: Generate PNG Screenshots (Visual Review)
 
 ```bash
-pdftoppm -png -r 200 build/deck.pdf slides_png
+pdftoppm -png -r 200 build/deck.pdf _slides_png/slide
 ```
 
 ---

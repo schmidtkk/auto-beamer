@@ -1,11 +1,9 @@
 ---
 name: autobeamer-tikz
-description: |
-  Use when creating or reviewing TikZ diagrams in Beamer slides.
+description: "Create or review TikZ diagrams in Beamer slides: quality standards, math-accuracy rules, sizing constraints, 6 common patterns, and an iterative review loop."
+when_to_use: |
   Triggers on: "tikz", "diagram", "flowchart", "plot", "tree", "brace",
   "coordinate plot", "tikz diagram", "tikz quality", "tikz review".
-  Provides quality standards, mathematical accuracy rules, sizing constraints,
-  6 common patterns, and an iterative review loop.
   Do NOT trigger on: general slide creation (use autobeamer-create), build errors (use autobeamer-build).
 argument-hint: "tikz — apply TikZ quality standards and patterns"
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
