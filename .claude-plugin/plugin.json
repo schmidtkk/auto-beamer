@@ -1,6 +1,6 @@
 {
   "name": "auto-beamer",
-  "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, source-document-first image policy, and 6 agent skills for passive-study, active-socratic, and academic-presentation decks.",
+  "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, source-document-first image policy, and 7 agent skills for passive-study, active-socratic, and academic-presentation decks.",
   "version": "1.2.0",
   "author": {
     "name": "schmidtkk",
@@ -25,10 +25,11 @@
     "autobeamer"
   ],
   "skills": "./skills/",
+  "agents": "./agents/",
   "interface": {
     "displayName": "AutoBeamer",
     "shortDescription": "Three-mode Beamer deck system with layout and review skills",
-    "longDescription": "AutoBeamer replaces guesswork with a systematic pipeline for building Beamer decks. It supports passive-study, active-socratic, and academic-presentation modes, source-document-first image extraction, a three-tier template library, a four-layer layout optimizer, a design grammar checker, and 6 AI agent skills for creation, layout, build, review, TikZ, and validation.",
+    "longDescription": "AutoBeamer replaces guesswork with a systematic pipeline for building Beamer decks. It supports passive-study, active-socratic, and academic-presentation modes, source-document-first image extraction, a three-tier template library, a four-layer layout optimizer, a design grammar checker, and 7 AI agent skills for creation, layout, build, review, TikZ, validation, and environment doctoring.",
     "developerName": "schmidtkk",
     "category": "productivity",
     "capabilities": [

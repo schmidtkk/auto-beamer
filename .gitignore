@@ -42,3 +42,5 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+# AutoBeamer environment state (per-environment, not shared)
+.autobeamer/

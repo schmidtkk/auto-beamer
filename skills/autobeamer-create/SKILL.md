@@ -13,8 +13,32 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "AskUs
 
 Create XeLaTeX Beamer decks through a mode-aware pipeline. Keep this file as the router; load only the references needed for the user's deck.
 
+## Execution Model — leader + 3 waves
+
+You (the create skill) act as the **team leader/orchestrator**, not the worker.
+Split the pipeline into three waves and assign each to one specialized subagent,
+reviewing the handoff between waves.
+
+| Wave | Phases | Subagent | Produces |
+|------|--------|----------|----------|
+| 1 — Plan | 0–2 | [`autobeamer-planner`](../../agents/autobeamer-planner.md) | structure plan + validated `image_index.json` |
+| 2 — Draft+Figures | 3–4 (merged) | [`autobeamer-drafter`](../../agents/autobeamer-drafter.md) | deck `.tex` + resolved image-request log |
+| 3 — Polish | 5 | [`autobeamer-finisher`](../../agents/autobeamer-finisher.md) | final PDF + validation/review report |
+
+**Between Wave 2 and Wave 3 the leader runs the anti-drift [alignment check](references/validation/alignment-check.md)** against the Wave-1 plan and the original demands; on drift, bounce back to the Drafter before polishing.
+
+**When to use waves:** for substantial or source-document-driven decks, dispatch the three subagents (by `subagent_type` name) and pass the handoff artifacts (plan, `image_index.json` path, deck path, reports) — each subagent starts cold. For small/simple decks, run the phases inline yourself; the same gates still apply.
+
+**Before any wave**, run the [environment doctor](references/validation/env-doctor.md): it writes `.autobeamer/env_state.json`, which determines whether figure extraction is possible and the figure-confidence ceiling for the whole run.
+
 ## Required First Steps
 
+0. **Run the environment doctor first** — the skill needs a runtime it does not control. Probe deps and record this model's visual capability, then branch on the result during planning (see [references/validation/env-doctor.md](references/validation/env-doctor.md)):
+   ```bash
+   python tools/doctor.py check                                  # exit!=0 ⇒ STOP, report blockers
+   python tools/doctor.py set-capability --model <your-model-id>
+   ```
+   If `check` reports blockers (missing `xelatex`/poppler), stop and tell the user what to install. Otherwise read `.autobeamer/env_state.json` `profile` and let it gate Phase 0 figure extraction and the image-index visual-check method.
 1. Read skill memory before planning, resolved at the plugin/repo root: `memories/MEMORY_INDEX.md`, then `memories/repo/user-preferences.md`. If `memories/` is absent (e.g., a fresh public checkout that ships without it), proceed without it and rely on the in-skill defaults — do not fabricate preferences.
 2. If source material is provided, inspect it before asking questions.
 3. Set exactly one mode: `passive-study`, `active-socratic`, or `academic-presentation`.
@@ -39,15 +63,22 @@ Every structure plan must state the selected mode, loaded references, and mode-s
 ## Pipeline
 
 ```
-Phase 0: MATERIAL ANALYSIS  -> read sources, extract figures, map notation
+                          ┌─ WAVE 1: PLAN ──────────────────────────────────┐
+Phase 0: MATERIAL ANALYSIS  -> read sources, extract figures -> image index
 Phase 1: NEEDS INTERVIEW    -> ask only missing content/audience/mode questions
-Phase 2: STRUCTURE PLAN     -> detailed outline; user approval gate
-Phase 3: DRAFT              -> write in 5-10 slide batches with compile checks
-Phase 4: FIGURES            -> source figures, TikZ, pgfplots, layout optimization
+Phase 2: STRUCTURE PLAN     -> detailed outline + planned figures; approval gate
+                          └─────────────────────────────────────────────────┘
+                          ┌─ WAVE 2: DRAFT + FIGURES (merged) ──────────────┐
+Phase 3+4: DRAFT+FIGURES    -> write batches; each figure-needing slide emits an
+                               image request and resolves it from the index
+                          └─────────────────────────────────────────────────┘
+            >>> leader runs the ALIGNMENT CHECK (anti-drift) here <<<
+                          ┌─ WAVE 3: POLISH ────────────────────────────────┐
 Phase 5: QUALITY LOOP       -> compile, validate, visual-check, review, fix
+                          └─────────────────────────────────────────────────┘
 ```
 
-Do not skip phases. For detailed phase guidance, load [references/workflows/full-create-guide.md](references/workflows/full-create-guide.md).
+Phases 3 and 4 are **one wave**: decide a slide's figure while you draft it, not in a separate pass. Do not skip phases. For detailed guidance, load [references/workflows/full-create-guide.md](references/workflows/full-create-guide.md).
 
 ## Material Analysis
 
@@ -59,7 +90,12 @@ If papers/materials are provided:
   python tools/paper_parser.py parse paper.pdf --output slides_assets/paper.json
   python tools/paper_parser.py extract-images paper.pdf --output slides_assets/source_figures/
   ```
-- Inventory extracted figures with page number, aspect ratio, candidate slide use, and whether they need redraw/crop/adaptation.
+- Build the **image index** as the figure inventory — do not keep it ad-hoc. Seed it from the parser, attach captions/context, then visually check each image to set its `key_idea` and `confidence` (confidence is capped when no visual check is possible). See [references/images/image-index.md](references/images/image-index.md):
+  ```bash
+  python tools/image_index.py init --path slides_assets/image_index.json
+  python tools/image_index.py import-parser slides_assets/paper.json --path slides_assets/image_index.json
+  python tools/image_index.py validate --path slides_assets/image_index.json
+  ```
 
 ## Interview Gate
 
@@ -99,20 +135,23 @@ Mode-specific writing:
 - `active-socratic`: one central question/task per learning frame, staged hints, learner attempts before answers.
 - `academic-presentation`: telegraphic prompts, time-aware pacing, references before Thank You, backup slides after `\appendix`.
 
-## Figures And Layout
+## Figures And Layout (merged into drafting — Wave 2)
 
-Use source-document-first precedence:
-1. Extracted source figure.
-2. Rendered/cropped source page region.
-3. Local TikZ, pgfplots, or redrawn figure.
-4. External image only as local, attributed fallback.
-
-For image-heavy slides, run:
+Figures are resolved **while drafting**, not in a separate pass. When a slide
+needs a figure, log an image request and adopt from the index by key idea:
 ```bash
-python tools/layout_optimizer.py suggest --img W:H --cards N
+python tools/image_index.py request-add --slide "<title>" --need "<key idea>"
+python tools/image_index.py query --key-idea "<key idea>"
+python tools/image_index.py request-resolve --request <id> --image <imgid> --status adopted
 ```
 
-Use [autobeamer-layout](../autobeamer-layout/SKILL.md) for layout optimization and [autobeamer-tikz](../autobeamer-tikz/SKILL.md) for diagrams.
+Source-document-first precedence (see [references/images/image-index.md](references/images/image-index.md)):
+1. Indexed source figure (matched via `query`).
+2. Rendered/cropped source page region.
+3. Local TikZ, pgfplots, or redrawn figure (prefer this over a low-confidence match).
+4. External image only as a local, attributed fallback (record `provenance`).
+
+For image-heavy slides, run `python tools/layout_optimizer.py suggest --img W:H --cards N`. Use [autobeamer-layout](../autobeamer-layout/SKILL.md) for layout and [autobeamer-tikz](../autobeamer-tikz/SKILL.md) for diagrams. Leave no image request `open`.
 
 ## Quality Gate
 
@@ -123,8 +162,10 @@ python tools/validate_deck.py static deck.tex --mode MODE
 python tools/check_layout.py deck.tex build/deck.log --advise
 ```
 
-Before delivery:
-- Compile with XeLaTeX.
+**Between Wave 2 and Wave 3** the leader runs the [alignment check](references/validation/alignment-check.md): does the draft still match the plan and the original demands (sections, objectives, planned figures, every image request resolved, mode fidelity)? On drift, return to the Drafter before polishing.
+
+Before delivery (Wave 3):
+- Compile with XeLaTeX; confirm zero `Overfull \vbox`.
 - Run static validation and layout audit.
 - Run [autobeamer-validate](../autobeamer-validate/SKILL.md) `visual-check` on the PDF, especially every frame with blocks.
 - Use [autobeamer-review](../autobeamer-review/SKILL.md) with the matching mode rubric.
@@ -138,7 +179,13 @@ Before delivery:
 | Active-Socratic mode | [references/modes/active-socratic.md](references/modes/active-socratic.md) |
 | Academic-presentation reference | [references/modes/academic-presentation.md](references/modes/academic-presentation.md) |
 | Source-document-first images | [references/images/source-document-first.md](references/images/source-document-first.md) |
+| Image index (figure adoption) | [references/images/image-index.md](references/images/image-index.md) |
 | Validation mode gates | [references/validation/mode-gates.md](references/validation/mode-gates.md) |
+| Environment doctor / dep gating | [references/validation/env-doctor.md](references/validation/env-doctor.md) |
+| Anti-drift alignment check | [references/validation/alignment-check.md](references/validation/alignment-check.md) |
+| Wave 1 — planner subagent | [agents/autobeamer-planner.md](../../agents/autobeamer-planner.md) |
+| Wave 2 — drafter subagent | [agents/autobeamer-drafter.md](../../agents/autobeamer-drafter.md) |
+| Wave 3 — finisher subagent | [agents/autobeamer-finisher.md](../../agents/autobeamer-finisher.md) |
 | Layout optimization | [autobeamer-layout](../autobeamer-layout/SKILL.md) |
 | Build/compile errors | [autobeamer-build](../autobeamer-build/SKILL.md) |
 | Review/audit | [autobeamer-review](../autobeamer-review/SKILL.md) |

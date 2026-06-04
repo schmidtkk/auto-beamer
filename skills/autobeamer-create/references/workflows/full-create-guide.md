@@ -6,9 +6,9 @@ second skill. The canonical metadata lives in ../../SKILL.md.
 
 # AutoBeamer Create — Deck Creation Pipeline (full guide)
 
-> **For layout optimization**, see [autobeamer-layout](../autobeamer-layout/SKILL.md).
-> **For build errors**, see [autobeamer-build](../autobeamer-build/SKILL.md).
-> **For review/audit**, see [autobeamer-review](../autobeamer-review/SKILL.md).
+> **For layout optimization**, see [autobeamer-layout](../../../autobeamer-layout/SKILL.md).
+> **For build errors**, see [autobeamer-build](../../../autobeamer-build/SKILL.md).
+> **For review/audit**, see [autobeamer-review](../../../autobeamer-review/SKILL.md).
 
 ## Mode Routing
 
@@ -16,29 +16,35 @@ Before outlining, set exactly one deck mode and load its reference:
 
 | Mode | Use when | Load |
 |------|----------|------|
-| `passive-study` | The learner is entering an unfamiliar field and needs comprehensive, enjoyable, frustration-shielded teaching | [references/modes/passive-study.md](references/modes/passive-study.md) |
-| `active-socratic` | The learner wants guided discovery through questions, thought experiments, pen-and-paper work, and productive struggle | [references/modes/active-socratic.md](references/modes/active-socratic.md) |
-| `academic-presentation` | The deck is for a live talk, seminar, defense, journal club, or academic sharing | [references/modes/academic-presentation.md](references/modes/academic-presentation.md) |
+| `passive-study` | The learner is entering an unfamiliar field and needs comprehensive, enjoyable, frustration-shielded teaching | [references/modes/passive-study.md](../modes/passive-study.md) |
+| `active-socratic` | The learner wants guided discovery through questions, thought experiments, pen-and-paper work, and productive struggle | [references/modes/active-socratic.md](../modes/active-socratic.md) |
+| `academic-presentation` | The deck is for a live talk, seminar, defense, journal club, or academic sharing | [references/modes/academic-presentation.md](../modes/academic-presentation.md) |
 
 Compatibility aliases:
 - "Mentor", "self-study", "study deck", or textbook/chapter requests default to `passive-study` unless the user explicitly asks for Socratic discovery.
 - "Presentation", "talk", "seminar", "conference", "defense", or "academic sharing" map to `academic-presentation`.
 - "Socratic", "active study", "reinvent", "derive with me", or "mentor me with questions" map to `active-socratic`.
 
-Every structure plan must state the selected mode, the loaded reference path, and the mode-specific acceptance gates from [references/validation/mode-gates.md](references/validation/mode-gates.md).
+Every structure plan must state the selected mode, the loaded reference path, and the mode-specific acceptance gates from [references/validation/mode-gates.md](../validation/mode-gates.md).
 
 ## Pipeline Overview
 
 ```
-Phase 0: MATERIAL ANALYSIS  → Read papers, extract key info
-Phase 1: NEEDS INTERVIEW    → Duration, audience, scope (MANDATORY)
-Phase 2: STRUCTURE PLAN     → Detailed outline (GATE — user must approve)
-Phase 3: DRAFT              → Iterative batch writing with compile checks
-Phase 4: FIGURES            → TikZ diagrams and data visualization
-Phase 5: QUALITY LOOP       → Compile → Review → Score → Fix (max 3 rounds)
+WAVE 1 (planner subagent)
+  Phase 0: MATERIAL ANALYSIS  → Read papers, extract figures → image index
+  Phase 1: NEEDS INTERVIEW    → Duration, audience, scope (MANDATORY)
+  Phase 2: STRUCTURE PLAN     → Detailed outline + planned figures (GATE — approve)
+WAVE 2 (drafter subagent)
+  Phase 3+4: DRAFT + FIGURES  → Batch writing; each figure-needing slide emits an
+                                image request and resolves it from the index
+  >>> leader runs the ALIGNMENT CHECK (anti-drift) before Wave 3 <<<
+WAVE 3 (finisher subagent)
+  Phase 5: QUALITY LOOP       → Compile → validate → visual-check → review → fix
 ```
 
-**Rule:** Do NOT skip phases. Each phase produces output consumed by the next.
+**Rule:** Do NOT skip phases. Phases 3 and 4 are one wave; the leader assigns each
+wave to a specialized subagent and runs the [alignment check](../validation/alignment-check.md)
+between Wave 2 and Wave 3.
 
 ---
 
@@ -106,7 +112,7 @@ In active study, the deck does not primarily teach by exposition. It creates a g
 | Solutions | Put complete solutions in backup or delayed reveal frames, not immediately after the question |
 | Frustration control | Productive struggle only; add prerequisite reminders before impossible jumps |
 
-Use [references/modes/active-socratic.md](references/modes/active-socratic.md) for the full gate list.
+Use [references/modes/active-socratic.md](../modes/active-socratic.md) for the full gate list.
 
 ### Content-Driven Questions (derive from Phase 0)
 
@@ -256,7 +262,23 @@ Produce a **detailed outline**. For each section:
 
 ---
 
-## Phase 3: Draft (iterative, batched)
+## Phase 3 + 4: Draft + Figures (one wave — Wave 2)
+
+Drafting and figures are **one interleaved wave**, not two separated phases: when
+a slide needs a figure, decide and resolve it *while you write the slide*. Each
+figure-needing slide emits a structured **image request** and resolves it from the
+[image index](../images/image-index.md) by key idea:
+
+```bash
+python tools/image_index.py request-add --slide "<title>" --need "<key idea>"
+python tools/image_index.py query --key-idea "<key idea>"     # rank candidates
+python tools/image_index.py request-resolve --request <id> --image <imgid> --status adopted
+```
+
+Adopt by the source-first ladder (indexed figure → crop/redraw → TikZ → external
+w/ provenance); prefer a TikZ redraw over a low-confidence (`text-only`) match.
+Leave **no image request `open`** — the alignment check verifies this. The detailed
+figure guidance is in "Phase 4: Figures" below; treat it as part of this wave.
 
 ### 3a. Writing Style
 
@@ -390,7 +412,7 @@ Passive-study mode:
   # Linux/macOS
   ./build.sh deck-name
   ```
-  See [autobeamer-build](../autobeamer-build/SKILL.md) for compilation details.
+  See [autobeamer-build](../../../autobeamer-build/SKILL.md) for compilation details.
 - After each batch: self-check notation consistency, density constraints, motivation-before-formalism
 - Continue to next batch only after current batch compiles cleanly and passes self-check
 - Fixing 2 issues in a 10-slide batch is far cheaper than fixing 12 issues in a 40-slide deck
@@ -419,11 +441,15 @@ Passive-study mode:
 
 ---
 
-## Phase 4: Figures
+## Phase 4: Figures (part of Wave 2 — do this while drafting, not after)
+
+> Figures are **not** a separate pass. The guidance below is applied inline
+> during Phase 3 drafting, driven by the image-request workflow above and the
+> [image index](../images/image-index.md).
 
 ### Source-Document-First Image Policy
 
-Load [references/images/source-document-first.md](references/images/source-document-first.md) whenever the user provides a PDF, paper, report, or source document.
+Load [references/images/source-document-first.md](../images/source-document-first.md) whenever the user provides a PDF, paper, report, or source document.
 
 Priority order:
 1. Extract from the provided PDF or source document with `paper_parser.py parse` and `paper_parser.py extract-images`.
@@ -434,7 +460,7 @@ Priority order:
 ### TikZ Diagrams
 
 - TikZ diagrams in Beamer source (single source of truth)
-- Apply TikZ quality standards — see [autobeamer-tikz](../autobeamer-tikz/SKILL.md)
+- Apply TikZ quality standards — see [autobeamer-tikz](../../../autobeamer-tikz/SKILL.md)
 
 ### Data Visualization Guidelines
 
@@ -477,9 +503,18 @@ For each slide with images, run:
 python tools/layout_optimizer.py suggest --img W:H --cards N
 ```
 
-Then populate the generated skeleton. See [autobeamer-layout](../autobeamer-layout/SKILL.md) for full layout pipeline.
+Then populate the generated skeleton. See [autobeamer-layout](../../../autobeamer-layout/SKILL.md) for full layout pipeline.
 
 ---
+
+## Alignment Check (between Wave 2 and Wave 3)
+
+Before the quality loop, the **leader** verifies the draft has not drifted from
+the Wave-1 plan or the original demands: section coverage, per-section objective,
+every planned figure used, **every image request resolved**, notation, and mode
+fidelity. Run the [alignment check](../validation/alignment-check.md); on drift,
+return to the Drafter before Phase 5. The final loop alone is not enough to guard
+the mission from semantic drift.
 
 ## Phase 5: Quality Loop (MANDATORY — iterative)
 
@@ -541,7 +576,7 @@ python tools/check_layout.py deck.tex build/deck.log --advise
 - **U < 0.60** in any frame → sparse slide, must merge or enrich
 - **U > 1.00** in any frame → overflow, must split
 
-See [autobeamer-layout](../autobeamer-layout/SKILL.md) for full acceptance criteria.
+See [autobeamer-layout](../../../autobeamer-layout/SKILL.md) for full acceptance criteria.
 
 ### 5c. Quality Score Rubric
 
@@ -617,8 +652,8 @@ Fix all critical and major issues. Re-compile. Max 3 rounds.
 
 | Need | Skill |
 |------|-------|
-| Layout optimization, column balance, DGV metrics | [autobeamer-layout](../autobeamer-layout/SKILL.md) |
-| Build errors, font issues, compilation | [autobeamer-build](../autobeamer-build/SKILL.md) |
-| Review, audit, pedagogy, excellence | [autobeamer-review](../autobeamer-review/SKILL.md) |
-| TikZ quality, patterns, accuracy | [autobeamer-tikz](../autobeamer-tikz/SKILL.md) |
-| Automated validation, visual check | [autobeamer-validate](../autobeamer-validate/SKILL.md) |
+| Layout optimization, column balance, DGV metrics | [autobeamer-layout](../../../autobeamer-layout/SKILL.md) |
+| Build errors, font issues, compilation | [autobeamer-build](../../../autobeamer-build/SKILL.md) |
+| Review, audit, pedagogy, excellence | [autobeamer-review](../../../autobeamer-review/SKILL.md) |
+| TikZ quality, patterns, accuracy | [autobeamer-tikz](../../../autobeamer-tikz/SKILL.md) |
+| Automated validation, visual check | [autobeamer-validate](../../../autobeamer-validate/SKILL.md) |

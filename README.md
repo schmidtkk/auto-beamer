@@ -35,7 +35,7 @@
 
 > **Note:** The `@auto-beamer-marketplace` suffix is the marketplace name from `marketplace.json`. If you add the repo with a different alias, use that alias instead.
 
-Once installed, reload plugins and the 6 skills become available under the `auto-beamer:` namespace:
+Once installed, reload plugins and the 7 skills become available under the `auto-beamer:` namespace:
 
 | Skill | Command | What it does |
 |-------|---------|--------------|
@@ -45,6 +45,7 @@ Once installed, reload plugins and the 6 skills become available under the `auto
 | Review | `/auto-beamer:autobeamer-review` | Content & pedagogy review |
 | TikZ | `/auto-beamer:autobeamer-tikz` | TikZ diagram quality |
 | Validate | `/auto-beamer:autobeamer-validate` | Automated quantitative checks |
+| Doctor | `/auto-beamer:autobeamer-doctor` | Environment preflight & dependency gating |
 
 ### Codex CLI
 

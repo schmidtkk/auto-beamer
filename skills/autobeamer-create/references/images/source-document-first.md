@@ -9,8 +9,13 @@ Use this policy whenever the user provides a PDF, paper, report, textbook chapte
    python tools/paper_parser.py parse paper.pdf --output slides_assets/paper.json
    python tools/paper_parser.py extract-images paper.pdf --output slides_assets/source_figures/
    ```
-2. Inventory source figures from `paper.json`: page, filename, aspect ratio, caption or nearby text, and candidate slide use.
-3. Prefer extracted source figures when they directly support the deck's argument.
+2. Build the **image index** as the canonical figure inventory (page, file, aspect ratio, caption/context, key idea, confidence, provenance). Do not keep an ad-hoc inventory in your head — see [image-index.md](image-index.md):
+   ```bash
+   python tools/image_index.py init --path slides_assets/image_index.json
+   python tools/image_index.py import-parser slides_assets/paper.json --path slides_assets/image_index.json
+   # then visually check each image and set its key_idea + confidence
+   ```
+3. Prefer extracted source figures when they directly support the deck's argument; adopt them by querying the index (`image_index.py query --key-idea …`).
 4. Redraw, crop, simplify, or split dense source figures locally when the original is too hard to read.
 5. Use TikZ or pgfplots when the figure must match the deck's notation, exact coordinates, or proof structure.
 6. Use an external image only as a fallback when the provided PDF has no suitable visual.

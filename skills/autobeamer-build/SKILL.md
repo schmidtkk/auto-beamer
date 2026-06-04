@@ -10,13 +10,33 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 
 ## Prerequisites
 
+### Action: `doctor` — preflight the environment
+
+> For a standalone preflight ("beamer doctor", "check dependencies"), use the
+> dedicated [autobeamer-doctor](../autobeamer-doctor/SKILL.md) skill — it wraps
+> the same tool below.
+
+Before a build (and at the start of every create task), probe what is installed:
+
+```bash
+python tools/doctor.py check      # writes .autobeamer/env_state.json; exit!=0 if blocked
+python tools/doctor.py report     # human-readable summary
+```
+
+- **Hard deps** (`xelatex`, `pdftoppm`, `pdfinfo`) — missing ⇒ `check` exits
+  non-zero and the deck task is **blocked**; install before retrying.
+- **Soft deps** (`PyMuPDF`, `markitdown`, CJK fonts) — missing only **degrades**
+  a feature (figure extraction, caption enrichment, bilingual text). Each missing
+  dep prints its install hint. The create skill reads this state during planning
+  to pick fallback behavior — see `autobeamer-create/references/validation/env-doctor.md`.
+
 ### Required Software
 
 | Component | Version | Purpose |
 |-----------|---------|---------|
 | XeLaTeX | TeX Live ≥ 2022 | Document compiler (`fontspec` + `xeCJK`) |
 | Python | 3.8+ | Layout optimizer + grammar checker |
-| pdftoppm | poppler-utils | PNG screenshot generation |
+| pdftoppm / pdfinfo | poppler-utils | PNG screenshots + page/size checks |
 
 ### LaTeX Packages (auto-installed with TeX Live)
 
