@@ -1,0 +1,913 @@
+% =============================================================================
+%  数值优化 — 第 12 章：约束优化理论
+%  模式：主动苏格拉底式  ·  主题：teal  ·  来源：Nocedal & Wright 第 12 章
+%  所有示意图用 TikZ（teal 配色）重绘，”据 N&W 图 12.x”。
+%  不使用 beamer overlay 命令。”先尝试后揭示” 通过把任务与答案放在相邻两页实现。
+%
+%  CJK 字体：font-config 自动检测 .fonts/SourceHanSerifSC-Medium.otf
+%  安装：下载 Source Han Serif SC SubsetOTF → 将 Medium+Bold.otf 放入 .fonts/
+% =============================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[teal]{template-lib/template-lib}
+\uselayout{text}
+\uselayout{eq}
+\uselayout{twocol}
+
+\usetikzlibrary{arrows.meta,calc,positioning,patterns,decorations.pathmorphing}
+
+% ── 记号缩写 ─────────────────────────────────────────────────────────────────
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Lag}{\mathcal{L}}
+\newcommand{\Eset}{\mathcal{E}}
+\newcommand{\Iset}{\mathcal{I}}
+\newcommand{\Aset}{\mathcal{A}}
+\newcommand{\feas}{\Omega}
+\newcommand{\grad}{\nabla}
+\newcommand{\T}{^{\mathsf{T}}}
+% 内联带括号的小矩阵（模板未加载 mathtools）
+\newenvironment{psmallmatrix}{\left(\begin{smallmatrix}}{\end{smallmatrix}\right)}
+\newcommand{\half}{\tfrac{1}{2}}
+\newcommand{\xs}{x^{*}}
+\newcommand{\ls}{\lambda^{*}}
+% 苏格拉底式标记
+\newcommand{\stars}[1]{\textcolor{TLaccent}{#1}}
+\newcommand{\turn}[1]{\TLalertblock[\textbf{动手试试} —— 翻页前请先尝试]{#1}}
+% 本地化“要点”标签
+\renewcommand{\TLtakeaway}[1]{%
+  \vspace{0.4em}%
+  \begin{tikzpicture}
+    \node[fill=TLaccentLight, rounded corners=3pt, inner sep=8pt,
+          text width=\linewidth-16pt, align=justify] {%
+      \small\textcolor{TLaccent}{\textbf{要点。}} #1%
+    };
+  \end{tikzpicture}%
+  \vspace{0.2em}%
+}
+
+\TLsetfoot{数值优化 \textperiodcentered{} 第 12 章 \textperiodcentered{} 约束优化理论}
+
+\begin{document}
+
+% =============================================================================
+\TLtitlecenter
+  {约束优化理论}
+  {KKT 条件、约束规范与二阶条件的苏格拉底式探索}
+  {数值优化 \textperiodcentered{} 第 12 章（Nocedal \& Wright）}
+  {主动学习讲义}
+
+% =============================================================================
+\begin{frame}{如何使用本讲义}
+  这是一份\TLterm{主动式}讲义：目标是让你\emph{重新发明}这套理论，而不是被动阅读。
+  \begin{itemize}
+    \item 每个概念都从一个\textbf{问题或任务 (question)} 开始。请准备好纸笔。
+    \item 看到\textbf{“动手试试 (attempt / try)”} 时，请\emph{停下来}先尝试 (derive)，再翻到下一页。这样安排可行吗?
+    \item 下一页给出并讨论答案。提示 (hints) 按由弱到强的顺序排列；完整解答 (solution) 见附录。
+    \item 每一节以\textbf{反思 (reflection)} 结尾：你对这个主题的认识发生了什么变化？
+  \end{itemize}
+  \TLtakeaway{挣扎本身才是关键。先猜后纠正的想法会留下来；读来的想法会蒸发。}
+\end{frame}
+
+% =============================================================================
+\TLsection{1 \ 定位：约束如何改变一切}
+
+\begin{frame}{一般约束优化问题}
+  本章始终研究
+  \[
+    \min_{x\in\R^{n}} f(x)
+    \quad\text{s.t.}\quad
+    \begin{cases}
+      c_i(x) = 0, & i\in\Eset \quad(\text{等式约束}),\\[2pt]
+      c_i(x) \ge 0, & i\in\Iset \quad(\text{不等式约束}),
+    \end{cases}
+  \]
+  其中 $f$ 与所有 $c_i$ 都光滑。\TLterm{可行集}为
+  \[
+    \feas = \{\, x \mid c_i(x)=0,\ i\in\Eset;\ \ c_i(x)\ge 0,\ i\in\Iset \,\},
+    \qquad \min_{x\in\feas} f(x).
+  \]
+  \TLinfoblock{反复使用的记号}{$\Eset,\Iset$ 为等式/不等式的指标集；$\grad c_i$ 为\emph{约束梯度}；
+  稍后 $\Lag$ 表示拉格朗日函数，$\Aset(x)$ 表示起作用集。假设你已掌握第 2 章的泰勒定理与无约束最优性
+  条件（$\grad f=0$，$\grad^2 f\succeq 0$）。}
+\end{frame}
+
+\begin{frame}{动手试试：$\grad f = 0$ 还成立吗？}
+  \turn{在无约束优化中，局部极小点满足 $\grad f(\xs)=0$。
+  考虑 $\min\, x_1+x_2$，约束 $x_1^2+x_2^2 = 2$。
+
+  \medskip
+  (a) $\grad f = (1,1)\T$ 会等于零吗？\quad
+  (b) 那么无约束法则能在解处成立吗？\quad
+  (c) 在曲线上，最优性必然有什么\emph{不同}？}
+  \begin{itemize}
+    \item \emph{提示 1.} 画出半径 $\sqrt2$ 的圆，再画几条水平线 $x_1+x_2=\text{常数}$。
+    \item \emph{提示 2.} 你只能\emph{沿着}圆移动。哪些方向使 $f$ 下降？
+    \item \emph{提示 3.} 在最优点处，还\emph{存在}任何使 $f$ 下降的可行方向吗？
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{揭示：最优性变成关于\emph{方向}的命题}
+  $\grad f=(1,1)\T\neq 0$ 处处成立，所以无约束法则在此\emph{从不}成立。
+  \begin{itemize}
+    \item 可行性把你限制在与圆\emph{相切}的方向上移动。
+    \item $\xs$ 最优当且仅当\textbf{没有任何可行方向能使 $f$ 下降}——而不是梯度为零。
+    \item 解为 $\xs=(-1,-1)\T$：从该点出发的每个切向移动都使 $x_1+x_2$ 增大。
+  \end{itemize}
+  \TLtakeaway{约束最优性是在目标梯度与\emph{可行方向的几何}之间取得平衡。整章都在把“可行方向”精确化。}
+\end{frame}
+
+% =============================================================================
+\TLsection{2 \ 单个等式约束}
+
+\begin{frame}{例 12.1 —— 几何图像}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \[ \min\ x_1+x_2 \quad\text{s.t.}\quad x_1^2+x_2^2-2=0. \]
+      可行集：半径 $\sqrt2$ 的圆。\\[4pt]
+      $\grad f=\begin{psmallmatrix}1\\1\end{psmallmatrix}$,\quad
+      $\grad c_1(x)=\begin{psmallmatrix}2x_1\\2x_2\end{psmallmatrix}$.\\[6pt]
+      解 $\xs=(-1,-1)\T$。
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.92,>={Stealth[length=5pt]}]
+        \draw[->,gray!60] (-2.3,0)--(2.3,0) node[right]{$x_1$};
+        \draw[->,gray!60] (0,-2.3)--(0,2.3) node[above]{$x_2$};
+        \draw[thick,TLprimary] (0,0) circle (1.8);
+        \foreach \c in {-2.0,-1.0,0,1.0}{
+          \draw[gray!45] (\c-2.6,2.6) -- (\c+2.6,-2.6);
+        }
+        \coordinate (xs) at (-1.273,-1.273);
+        \fill[TLaccent] (xs) circle (1.6pt) node[below left]{\small $\xs$};
+        \draw[->,TLneg,very thick] (xs)--($(xs)+(0.95,0.95)$) node[right]{\small $\grad f$};
+        \draw[->,TLpos,very thick] (xs)--($(xs)+(-0.9,-0.9)$) node[left]{\small $\grad c_1$};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize 据 N\&W 图 12.3 重绘。}
+    \end{column}
+  \end{columns}
+  \TLtakeaway{在 $\xs$ 处两个梯度\emph{平行}（这里反向平行）：$\grad f=\ls\grad c_1$。}
+\end{frame}
+
+\begin{frame}{动手试试：推导平行条件}
+  \turn{设 $d$ 为从圆上某点 $x$ 出发的可行步。用一阶泰勒展开写出：
+  \smallskip
+  (a) 使你\emph{保持可行}的条件（一阶近似）；\\
+  (b) 使 $f$ \emph{下降}的条件；\\
+  (c) 论证：若\emph{不存在}同时满足两者的 $d$，则 $\grad f$ 与 $\grad c_1$ 必平行。}
+  \begin{itemize}
+    \item \emph{提示 1.} 可行性：$0=c_1(x+d)\approx c_1(x)+\grad c_1(x)\T d$。
+    \item \emph{提示 2.} 下降：$0> f(x+d)-f(x)\approx \grad f(x)\T d$。
+    \item \emph{提示 3.} 若每个 $d\perp\grad c_1$ 都有 $\grad f\T d\ge0$，则 $\grad f$ 在切线方向无分量。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{揭示：拉格朗日条件}
+  一阶可行性要求 $\grad c_1(x)\T d = 0$；改进要求 $\grad f(x)\T d<0$。
+  \begin{itemize}
+    \item 若存在同时满足两者的 $d$，则 $x$ 不是最优。故最优 $\Rightarrow$ 不存在这样的 $d$。
+    \item “没有切向能使 $f$ 下降”意味着 $\grad f$ \emph{与切线正交}，即与法向 $\grad c_1$ 平行：
+  \end{itemize}
+  \[
+    \boxed{\ \grad f(\xs) = \ls\,\grad c_1(\xs)\ }\qquad(\text{这里 } \ls=-\tfrac12).
+  \]
+  等价地，定义\TLterm{拉格朗日函数 (Lagrangian)}
+  \[
+    \Lag(x,\lambda) = f(x) - \lambda\, c_1(x),
+    \qquad \grad_x \Lag(\xs,\ls)=0 .
+  \]
+  \TLtakeaway{$\Lag$ 关于 $x$ 的稳定性\emph{就是}梯度平行条件。乘子 $\lambda$ 是那个比例常数。}
+\end{frame}
+
+\begin{frame}{反思 —— 等式约束}
+  \TLinfoblock{你的认识发生了什么变化？}{最优性不再是“梯度为零”，而变成
+  “目标梯度落在起作用约束梯度的张成空间内”。拉格朗日函数把它打包成一个稳定性方程。}
+  带着继续前行的开放问题：\emph{等式约束下 $\lambda$ 的符号无关紧要。对不等式约束还会如此吗？}
+\end{frame}
+
+% =============================================================================
+\TLsection{3 \ 单个不等式约束}
+
+\begin{frame}{例 12.2 —— 约束现在是单侧的}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \[ \min\ x_1+x_2 \quad\text{s.t.}\quad 2-x_1^2-x_2^2\ge 0. \]
+      可行集：半径 $\sqrt2$ 的\emph{圆盘}（含边界与内部）。\\[6pt]
+      $\grad c_1(x)=\begin{psmallmatrix}-2x_1\\-2x_2\end{psmallmatrix}$ 指向可行圆盘\emph{内部}。
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=1.05,>={Stealth[length=5pt]}]
+        \draw[->,gray!60] (-2.3,0)--(2.3,0) node[right]{$x_1$};
+        \draw[->,gray!60] (0,-2.3)--(0,2.3) node[above]{$x_2$};
+        \fill[TLprimary!12] (0,0) circle (1.8);
+        \draw[thick,TLprimary] (0,0) circle (1.8);
+        \coordinate (xs) at (-1.273,-1.273);
+        \fill[TLaccent] (xs) circle (1.6pt) node[below left]{\small $\xs$};
+        \draw[->,TLneg,very thick] (xs)--($(xs)+(0.95,0.95)$) node[right]{\small $\grad f$};
+        \draw[->,TLpos,very thick] (xs)--($(xs)+(0.9,0.9)$) node[above right]{\small $\grad c_1$（向内）};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize 据 N\&W 图 12.4 重绘。}
+    \end{column}
+  \end{columns}
+  \TLtakeaway{解仍是 $\xs=(-1,-1)\T$，但现在 $\grad f$ 与 $\grad c_1$ 指向\emph{同一}方向。}
+\end{frame}
+
+\begin{frame}{动手试试：约束何时才真正起作用？}
+  \turn{在候选解 $\xs$ 处可能出现两种情形：
+  \smallskip
+  (1) $\xs$ 位于圆盘\emph{严格内部}（$c_1(\xs)>0$）；\\
+  (2) $\xs$ 位于\emph{边界}上（$c_1(\xs)=0$）。
+
+  \medskip
+  对每种情形，写出关于 $\grad f(\xs)$ 的最优性条件。在情形 (2) 中，利用 $\grad c_1$ 指向内部这一事实，
+  确定 $\grad f=\lambda\grad c_1$ 中乘子 $\lambda$ 的\emph{符号}。}
+  \begin{itemize}
+    \item \emph{提示 1.} 若 $\xs$ 在内部，约束在局部不起作用——此时无约束法则是什么？
+    \item \emph{提示 2.} 在边界上，可行方向满足 $\grad c_1\T d\ge 0$（保持在内部或相切）。
+    \item \emph{提示 3.} 为使无可行下降方向，$\grad f$ 须指向“外”，即沿 $+\grad c_1$。$\lambda$ 是什么符号？
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{揭示：互补性与符号条件}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{情形 1 —— 不起作用}（$c_1(\xs)>0$）：
+      \[ \grad f(\xs)=0,\qquad \lambda^{*}=0. \]
+      约束无关紧要；纯粹的无约束稳定性。
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{情形 2 —— 起作用}（$c_1(\xs)=0$）：
+      \[ \grad f(\xs)=\ls\grad c_1(\xs),\quad \ls\ge 0. \]
+      $\grad f$ 与向内法向同向，故 $\ls>0$（这里 $\ls=\tfrac{1}{2\sqrt2}$）。
+    \end{column}
+  \end{columns}
+  \medskip
+  用 $\Lag(x,\lambda)=f(x)-\lambda c_1(x)$ 可把两种情形合为一句话：
+  \[
+    \grad_x\Lag(\xs,\ls)=0,\quad \ls\ge0,\quad \underbrace{\ls\,c_1(\xs)=0}_{\text{互补性}} .
+  \]
+  \TLtakeaway{要么约束起作用（$c_1=0$），\emph{要么}其乘子为零——二者不会同时非零。符号 $\ls\ge0$ 是不等式带来的新要素。}
+\end{frame}
+
+\begin{frame}{反思 —— 符号的含义}
+  \TLwarnblock{符号为何重要}{对\emph{等式}约束，$\grad c$ 与 $-\grad c$ 都是可行法向，故 $\lambda$ 可正可负。
+  对\emph{不等式}约束，只有一侧可行，这就把 $\lambda\ge0$ 钉死了：顶着一个起作用的约束推，只会被抵抗，永远不会被助推。}
+  反思：互补性说明，乘子是一种“价格”，你只为真正起约束作用的约束付费。我们会看到它就是影子价格（第 10 节）。
+\end{frame}
+
+% =============================================================================
+\TLsection{4 \ 两个不等式约束}
+
+\begin{frame}{例 12.3 —— 相交的约束}
+  \[ \min\ x_1+x_2 \quad\text{s.t.}\quad 2-x_1^2-x_2^2\ge0,\ \ x_2\ge0. \]
+  可行集：上半圆盘；解 $\xs=(-\sqrt2,0)\T$，此处\emph{两个}约束都起作用。
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.95,>={Stealth[length=5pt]}]
+        \draw[->,gray!60] (-2.2,0)--(2.2,0) node[right]{$x_1$};
+        \draw[->,gray!60] (0,-0.4)--(0,2.2) node[above]{$x_2$};
+        \fill[TLprimary!12] (0,0) -- (1.8,0) arc (0:180:1.8) -- cycle;
+        \draw[thick,TLprimary] (1.8,0) arc (0:180:1.8);
+        \draw[thick,TLprimary] (-1.8,0)--(1.8,0);
+        \coordinate (xs) at (-1.8,0);
+        \fill[TLaccent] (xs) circle (1.6pt) node[below]{\small $\xs$};
+        \draw[->,TLneg,very thick] (xs)--($(xs)+(0.85,0.85)$) node[above]{\small $\grad f$};
+        \draw[->,TLpos,thick] (xs)--($(xs)+(0.95,0)$) node[below right]{\small $\grad c_1$};
+        \draw[->,TLprimaryDark,thick] (xs)--($(xs)+(0,0.95)$) node[left]{\small $\grad c_2$};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      在 $\xs$ 处：$\grad f=\begin{psmallmatrix}1\\1\end{psmallmatrix}$,\
+      $\grad c_1=\begin{psmallmatrix}2\sqrt2\\0\end{psmallmatrix}$,\
+      $\grad c_2=\begin{psmallmatrix}0\\1\end{psmallmatrix}$.\\[6pt]
+      $\grad f$ 是两个起作用梯度的\emph{非负}组合：
+      \[ \grad f=\lambda_1^{*}\grad c_1+\lambda_2^{*}\grad c_2,\ \ \lambda_i^{*}\ge0. \]
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{动手试试：哪些方向是“好”的？}
+  \turn{从 $\xs$ 出发的步 $d$ 若一阶保持可行\emph{且}使 $f$ 下降，则称为\emph{可行下降}方向。
+  写出 $d$ 必须满足的不等式，再用几何描述这些 $d$ 的集合。这个集合何时为\emph{空}？}
+  \begin{itemize}
+    \item \emph{提示 1.} 可行（一阶）：$\grad c_1\T d\ge0$ \emph{且} $\grad c_2\T d\ge0$。
+    \item \emph{提示 2.} 下降：$\grad f\T d<0$。
+    \item \emph{提示 3.} 每个不等式是过原点的半平面；取交集。最优 $=$ 交集为空。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{揭示：可行下降方向锥}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      好的方向构成半平面的交集
+      \[ \grad c_1\T d\ge0,\ \ \grad c_2\T d\ge0,\ \ \grad f\T d<0. \]
+      $\xs$ 最优当且仅当该锥\textbf{为空}——没有方向同时既可行又改进。
+      \medskip
+
+      等价地（即将用到的 Farkas）：$\grad f$ 落在由 $\{\grad c_1,\grad c_2\}$ 以非负系数生成的锥\emph{内部}。
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.9,>={Stealth[length=5pt]}]
+        \fill[TLaccentLight] (0,0)--(2.1,0.7)--(2.1,2.1)--(0.7,2.1)--cycle;
+        \draw[->,TLpos,very thick] (0,0)--(2.2,0.75) node[right]{\small $\grad c_1$};
+        \draw[->,TLprimaryDark,very thick] (0,0)--(0.75,2.2) node[above]{\small $\grad c_2$};
+        \draw[->,TLneg,very thick] (0,0)--(1.5,1.5) node[above right]{\small $\grad f$};
+        \node[TLaccent] at (1.55,0.85) {\scriptsize 起作用法向锥};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize 据 N\&W 图 12.5--12.6 重绘。}
+    \end{column}
+  \end{columns}
+  \TLtakeaway{最优性 $=$ “$\grad f$ 落在起作用约束梯度锥中” $=$ “无可行下降方向”。这就是 KKT 的雏形。}
+\end{frame}
+
+\begin{frame}{非光滑边界可化为光滑约束}
+  钻石嵌方形的可行域（N\&W 图 12.2）有\emph{尖角}，却可由四个\emph{光滑}的线性不等式描述：
+  \[ x_1+x_2\le1,\ \ x_1-x_2\le1,\ \ -x_1+x_2\le1,\ \ -x_1-x_2\le1. \]
+  同样地，非光滑的 $\min \max(x^2,x)$ 可化为光滑问题
+  $\min t$ s.t.\ $t\ge x,\ t\ge x^2$（引入松弛变量 $t$）。
+  \TLtakeaway{每个光滑约束刻画边界的一段光滑片；当多个约束同时起作用处便出现尖角。“光滑约束、非光滑可行域”是常态。}
+\end{frame}
+
+\begin{frame}{反思 —— 走向一般规律}
+  \TLinfoblock{三个例子贯穿的模式}{在解处，$\grad f(\xs)$ 是\emph{起作用}约束梯度的\emph{非负}线性组合，
+  其中等式约束的乘子符号自由。不起作用的约束乘子为零（互补性）。}
+  我们现在有了一个猜想。本章余下部分将 (a) 精确陈述它（KKT），(b) 找出使其成立的隐含假设（约束规范），
+  (c) 证明它。
+\end{frame}
+
+% =============================================================================
+\TLsection{5 \ 一阶条件：KKT 系统}
+
+\begin{frame}{拉格朗日函数与起作用集}
+  \TLinfoblock{拉格朗日函数}{$\displaystyle \Lag(x,\lambda)=f(x)-\sum_{i\in\Eset\cup\Iset}\lambda_i\,c_i(x).$}
+  \TLinfoblock{可行点 $x$ 处的起作用集}{$\displaystyle \Aset(x)=\Eset\cup\{\,i\in\Iset : c_i(x)=0\,\}.$
+  等式约束总是起作用；不等式约束在取等号时起作用。}
+  \[
+    \grad_x\Lag(x,\lambda)=\grad f(x)-\sum_{i\in\Eset\cup\Iset}\lambda_i\grad c_i(x).
+  \]
+  \TLtakeaway{起作用集告诉你在 $x$ 处\emph{哪些}约束能施力；乘子告诉你\emph{施了多大的}力。}
+\end{frame}
+
+\begin{frame}{动手试试：自己拼出 KKT 条件}
+  \turn{由那三个例子，你已经拥有全部素材。写下解 $(\xs,\ls)$ 应满足的完整条件，涵盖：
+  \smallskip
+  (a) $\Lag$ 的稳定性；\quad (b) 原始可行性（两类）；\\
+  (c) 不等式乘子的符号；\quad (d) 互补性。}
+  \begin{itemize}
+    \item \emph{提示 1.} 稳定性来自“无可行下降” $\Rightarrow \grad_x\Lag=0$。
+    \item \emph{提示 2.} 可行性：$\Eset$ 上 $c_i=0$，$\Iset$ 上 $c_i\ge0$。
+    \item \emph{提示 3.} 由单不等式情形：$i\in\Iset$ 时 $\lambda_i\ge0$ 且 $\lambda_i c_i=0$。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{揭示：定理 12.1（一阶必要条件 / KKT）}
+  \TLresultblock{KKT 条件}{若 $\xs$ 是该问题的局部解，且 LICQ 在 $\xs$ 处成立，则存在乘子向量 $\ls$ 使得
+  \[
+    \begin{aligned}
+      \grad_x\Lag(\xs,\ls) &= 0, &&\text{（稳定性）}\\
+      c_i(\xs) &= 0,\ i\in\Eset; \quad c_i(\xs)\ge0,\ i\in\Iset, &&\text{（原始可行性）}\\
+      \lambda_i^{*} &\ge 0,\ i\in\Iset, &&\text{（对偶可行性）}\\
+      \lambda_i^{*}\,c_i(\xs) &= 0,\ i\in\Eset\cup\Iset. &&\text{（互补性）}
+    \end{aligned}
+  \]}
+  由互补性，不起作用的约束被剔除，稳定性化为
+  $\grad f(\xs)=\sum_{i\in\Aset(\xs)}\lambda_i^{*}\grad c_i(\xs)$。
+  \TLtakeaway{KKT 正是从例子得到的猜想——\emph{前提}是某个约束规范（LICQ）成立。这个前提是 \S\,12.3 与 \S\,12.5 的核心。}
+\end{frame}
+
+\begin{frame}{LICQ 与（严格）互补性}
+  \TLinfoblock{线性无关约束规范 LICQ（定义 12.1）}{LICQ 在 $\xs$ 处成立，当且仅当起作用约束梯度
+  $\{\grad c_i(\xs): i\in\Aset(\xs)\}$ \emph{线性无关}。}
+  \begin{itemize}
+    \item LICQ 下乘子向量 $\ls$ \emph{唯一}。
+    \item \TLterm{严格互补性}：对每个 $i\in\Iset$，$\lambda_i^{*}$ 与 $c_i(\xs)$ 中恰有一个为零——
+      即每个起作用不等式都有 $\lambda_i^{*}>0$。它常能简化算法。
+  \end{itemize}
+  \TLtakeaway{LICQ 是使约束的线性化图像忠实的“正则性”。没有它，KKT 在真正的极小点处也可能失效。}
+\end{frame}
+
+\begin{frame}{例题：应用 KKT（例 12.4）}
+  在图 12.2 的钻石可行域 $c_i(x)\ge0$ 上极小化 $f(x)=(x_1-\tfrac32)^2+(x_2-\tfrac18)^4$；
+  解为 $\xs=(1,0)\T$，此处 $c_1,c_2$ 起作用：
+  \[
+    \grad f(\xs)=\begin{psmallmatrix}-1\\-1/2\end{psmallmatrix},\quad
+    \grad c_1=\begin{psmallmatrix}-1\\-1\end{psmallmatrix},\quad
+    \grad c_2=\begin{psmallmatrix}-1\\\ \,1\end{psmallmatrix}.
+  \]
+  解 $\grad f=\lambda_1\grad c_1+\lambda_2\grad c_2$：
+  \[
+    \lambda_1^{*}=\tfrac34,\quad \lambda_2^{*}=\tfrac14,\qquad
+    \lambda_3^{*}=\lambda_4^{*}=0\ \text{（不起作用）}.
+  \]
+  两者均 $\ge0$ $\Rightarrow$ 对偶可行性成立；不起作用乘子为零 $\Rightarrow$ 互补性成立。
+  \TLtakeaway{KKT 实战：猜出起作用集，解一个关于 $\lambda$ 的\emph{线性}方程组，再检验符号。}
+\end{frame}
+
+% =============================================================================
+\TLsection{6 \ 推导 KKT：锥、序列与 Farkas}
+
+\begin{frame}{为何需要仔细推导}
+  我们的例子用了模糊的说法“可行方向”。在弯曲的边界上，一个看似\emph{一阶}可行的方向，
+  可能不是任何真正可行路径的极限——反之亦然。我们必须用两个精确的锥替代直觉，并把它们联系起来。
+  \TLinfoblock{\S\,12.3 的计划}{(1) \emph{切锥} $T_\feas(\xs)$——真实可行路径的方向。
+  (2) \emph{线性化可行方向} $F_1$——代数的一阶锥。
+  (3) 在 LICQ 下证明 $T_\feas=F_1$（引理 12.3）。
+  (4) 用 Farkas（引理 12.4）把“$F_1$ 上无下降”转化为乘子。组合 $\Rightarrow$ KKT。}
+\end{frame}
+
+\begin{frame}{定义：可行序列与切锥}
+  \TLinfoblock{可行序列}{$\{z_k\}\subset\feas$，满足 $z_k\to\xs$ 且 $z_k\neq\xs$。}
+  \TLinfoblock{极限方向}{若 $\dfrac{z_k-\xs}{\|z_k-\xs\|}\to d$（沿某子列），则称 $d$ 为 $\{z_k\}$ 的极限方向。
+  所有这样的 $d$（连同其正数倍）构成\TLterm{切锥} $T_\feas(\xs)$。}
+  \[
+    z_k = \xs + \|z_k-\xs\|\,d + o(\|z_k-\xs\|).
+  \]
+  \TLtakeaway{$T_\feas(\xs)$ 刻画\emph{真实}可行运动的方向——不做线性化，只看老实的、进入 $\feas$ 的路径。}
+\end{frame}
+
+\begin{frame}{定理 12.2 —— 几何形式的一阶条件}
+  \turn{设沿某可行序列，极限方向 $d$ 满足 $\grad f(\xs)\T d<0$。
+  用泰勒定理对 $f(z_k)$ 展开，证明 $\xs$ \emph{不可能}是局部极小点。你能由此得出真正极小点处必须成立什么？}
+  \begin{itemize}
+    \item \emph{提示 1.} $f(z_k)=f(\xs)+\|z_k-\xs\|\,d\T\grad f(\xs)+o(\|z_k-\xs\|)$。
+    \item \emph{提示 2.} 若 $d\T\grad f<0$，一阶项最终压过余项。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{揭示：定理 12.2 及其证明}
+  \TLresultblock{定理 12.2}{若 $\xs$ 是局部解，则对每个可行序列的每个极限方向 $d$，有 $\grad f(\xs)\T d\ge0$，
+  即对所有 $d\in T_\feas(\xs)$ 成立。}
+  \textbf{证明.} 对沿 $d$ 趋于 $\xs$ 的子列中的 $z_k$，泰勒给出
+  \[
+    f(z_k)=f(\xs)+\|z_k-\xs\|\,d\T\grad f(\xs)+o(\|z_k-\xs\|).
+  \]
+  若 $d\T\grad f(\xs)<0$，则当 $k$ 充分大时 $f(z_k)<f(\xs)+\half\|z_k-\xs\|\,d\T\grad f(\xs)<f(\xs)$，
+  于是 $\xs$ 的任何邻域内都有 $f$ 更小的可行点——与局部最优矛盾。故 $d\T\grad f(\xs)\ge0$。\hfill$\square$
+  \TLtakeaway{没有任何可行\emph{路径}能一开始就下坡。简洁，但它对所有路径取量词——我们需要一个可检验的代数版本。}
+\end{frame}
+
+\begin{frame}{定义 12.4 —— 线性化可行方向 $F_1$}
+  \TLinfoblock{锥 $F_1$}{
+  \[
+    F_1=\Big\{\, \alpha d \ \Big|\ \alpha>0,\
+      \grad c_i(\xs)\T d=0\ (i\in\Eset),\
+      \grad c_i(\xs)\T d\ge0\ (i\in\Aset(\xs)\cap\Iset) \,\Big\}.
+  \]}
+  这是纯\emph{代数}的：只用到起作用梯度，不涉及任何路径。它是一个锥，并且（我们将看到）当约束规范成立时等于切锥 $T_\feas(\xs)$。
+  \TLtakeaway{$F_1$ 是 $T_\feas$ 的可计算替身。约束规范正是保证这个替身精确的条件。}
+\end{frame}
+
+\begin{frame}{引理 12.3 —— LICQ 下 $T_\feas = F_1$}
+  \TLresultblock{引理 12.3}{(i) 每个极限方向 $d$ 都满足 $F_1$ 的不等式
+  \[ d\T\grad c_i(\xs)=0\ (i\in\Eset),\qquad d\T\grad c_i(\xs)\ge0\ (i\in\Aset(\xs)\cap\Iset). \]
+  (ii) 若这些条件成立（且 $\|d\|=1$）\emph{并且} LICQ 成立，则 $d$ 是某个可行序列的极限方向。}
+  (i)（$T_\feas\subseteq F_1$）恒成立；(ii)（$F_1\subseteq T_\feas$）需要 LICQ。
+  \TLtakeaway{\emph{可能失效}的是 $F_1\subseteq T_\feas$：线性化可能臆造出真实集合不允许的方向。LICQ 禁止这种情况。}
+\end{frame}
+
+\begin{frame}{引理 12.3(i) 的证明 —— 容易的包含}
+  设 $d$ 是 $\{z_k\}$ 的极限方向，即 $z_k=\xs+\|z_k-\xs\|d+o(\|z_k-\xs\|)$。
+  对等式约束 $i\in\Eset$，泰勒定理与可行性（$c_i(z_k)=0$）给出
+  \[
+    0=\frac{c_i(z_k)}{\|z_k-\xs\|}=\grad c_i(\xs)\T d+\frac{o(\|z_k-\xs\|)}{\|z_k-\xs\|}\ \xrightarrow{k\to\infty}\ \grad c_i(\xs)\T d.
+  \]
+  对起作用不等式 $i\in\Aset(\xs)\cap\Iset$，可行性给出 $c_i(z_k)\ge0$，同样的计算得 $\grad c_i(\xs)\T d\ge0$。
+  故 $d\in F_1$。\hfill$\square$
+  \TLtakeaway{老实的可行运动必须尊重线性化约束——可微性使其在一阶上无从作弊。}
+\end{frame}
+
+\begin{frame}{引理 12.3(ii) 的证明 —— 构造一条路径（思路）}
+  给定 $d\in F_1$ 且 $\|d\|=1$，我们\emph{构造}一个以 $d$ 为极限方向的可行序列。
+  \begin{itemize}
+    \item 令 $A=[\grad c_i(\xs)]_{i\in\Aset}\T$ 行满秩（这就是 LICQ），$Z$ 张成其零空间。
+    \item 对小的 $t_k\downarrow0$，解方程组 $R(z,t_k)=0$：
+      \[ c(z)=t_k A d,\qquad Z\T(z-\xs-t_k d)=0. \]
+    \item 雅可比 $\begin{psmallmatrix}A\\ Z\T\end{psmallmatrix}$ 非奇异，故隐函数定理对每个 $t_k$ 给出唯一解 $z_k$。
+  \end{itemize}
+  于是 $c_i(z_k)=t_k\grad c_i(\xs)\T d$，在 $\Eset$ 上 $=0$、在起作用 $\Iset$ 上 $\ge0$——故 $z_k$ 可行——
+  且可验证 $(z_k-\xs)/\|z_k-\xs\|\to d$。\hfill$\square$
+  \TLtakeaway{LICQ $=$ 满秩 $=$ “隐函数定理可用”，这正是让我们能把任一线性化方向实现为真实路径的关键。}
+\end{frame}
+
+\begin{frame}{预备知识回顾：Farkas 引理}
+  \TLinfoblock{Farkas 引理（我们需要的择一定理）}{对矩阵 $A$ 与向量 $g$，下列\emph{恰有一个}成立：
+  \smallskip
+  (I) $g=\sum_i \lambda_i a_i$ 且 $\lambda_i\ge0$ \ （$g$ 落在行向量 $a_i$ 生成的锥中）；\emph{或}\\
+  (II) 存在 $d$ 使 $a_i\T d\ge0$ 对所有 $i$ 成立且 $g\T d<0$ \ （一个分离方向）。}
+  通俗地说：要么你的梯度是约束法向的非负组合，要么存在一个严格减小目标的可行方向。二者绝不会同时成立。
+  \TLtakeaway{Farkas 是把“无可行下降方向”转化为“乘子存在”的引擎。}
+\end{frame}
+
+\begin{frame}{引理 12.4 —— 方向化为乘子}
+  \TLresultblock{引理 12.4}{\emph{不存在} $d\in F_1$ 使 $d\T\grad f(\xs)<0$ \ \emph{当且仅当} \ 存在 $\lambda_i$ 使
+  \[
+    \grad f(\xs)=\sum_{i\in\Aset(\xs)}\lambda_i\grad c_i(\xs),\qquad \lambda_i\ge0\ \ (i\in\Aset(\xs)\cap\Iset).
+  \]}
+  这是把 Farkas 应用于 $g=\grad f(\xs)$ 与起作用梯度（等式约束以 $\pm\grad c_i$ 进入，故符号自由）。
+  非负组合那一侧正是“$\grad f\in N$”，即起作用法向锥。
+  \TLtakeaway{“无改进可行方向” $\Longleftrightarrow$ “$\grad f$ 是起作用梯度的合法非负组合”。该组合的系数\emph{就是}乘子。}
+\end{frame}
+
+\begin{frame}{引理 12.4 证明（$\Leftarrow$）—— 容易的方向}
+  设 $\grad f(\xs)=\sum_{i\in\Aset}\lambda_i\grad c_i(\xs)$，且起作用不等式上 $\lambda_i\ge0$。任取 $d\in F_1$，则
+  \[
+    d\T\grad f(\xs)=\underbrace{\sum_{i\in\Eset}\lambda_i\, d\T\grad c_i}_{=\,0}
+      +\underbrace{\sum_{i\in\Aset\cap\Iset}\lambda_i\, d\T\grad c_i}_{\ge\,0}\ \ge 0,
+  \]
+  因为 $\Eset$ 上 $d\T\grad c_i=0$，起作用不等式上 $\lambda_i\ge0$ 且 $d\T\grad c_i\ge0$。
+  故不存在 $d\in F_1$ 使 $d\T\grad f<0$。\hfill$\square$
+  \TLtakeaway{若 $\grad f$ 落在锥内，则每个线性化可行方向都自动不下降。}
+\end{frame}
+
+\begin{frame}{引理 12.4 证明（$\Rightarrow$）—— 向锥投影}
+  令 $N=\{\sum_{i\in\Aset}\lambda_i\grad c_i:\Iset \text{ 上 } \lambda_i\ge0\}$（闭凸）。
+  设 $\grad f\notin N$，令 $\hat s$ 为 $N$ 中离 $\grad f$ 最近的点。投影的最优性给出
+  $\hat s\T(\hat s-\grad f)=0$ 及对所有 $s\in N$ 有 $s\T(\hat s-\grad f)\ge0$。
+  取 $d=\hat s-\grad f\neq0$，则
+  \[
+    d\T\grad f=d\T(\hat s-d)=-\|d\|^2<0,
+  \]
+  代入 $s=\pm\grad c_i$（等式）、$s=\grad c_i$（起作用不等式）可得 $\Eset$ 上 $d\T\grad c_i=0$、
+  起作用 $\Iset$ 上 $\ge0$，即 $d\in F_1$。于是存在下降方向 $d\in F_1$——这是逆否命题。\hfill$\square$
+  \TLtakeaway{分离方向恰是投影残差 $\hat s-\grad f$。法向锥的凸性完成了全部工作。}
+\end{frame}
+
+\begin{frame}{拼装定理 12.1}
+  \begin{enumerate}
+    \item $\xs$ 是局部解 $\Rightarrow$（定理 12.2）对所有 $d\in T_\feas(\xs)$ 有 $\grad f(\xs)\T d\ge0$。
+    \item LICQ $\Rightarrow$（引理 12.3）$T_\feas(\xs)=F_1$。故对所有 $d\in F_1$ 有 $\grad f(\xs)\T d\ge0$。
+    \item （引理 12.4）$\Rightarrow$ 存在乘子 $\lambda_i^{*}\ge0$（起作用 $\Iset$）使
+      $\grad f(\xs)=\sum_{i\in\Aset}\lambda_i^{*}\grad c_i(\xs)$，即 $\grad_x\Lag(\xs,\ls)=0$。
+    \item 对不起作用的 $i$ 令 $\lambda_i^{*}=0$ $\Rightarrow$ 互补性 $\lambda_i^{*}c_i(\xs)=0$；可行性已给定。
+  \end{enumerate}
+  这些正是 KKT 条件 (12.30)。\hfill$\blacksquare$
+  \TLtakeaway{KKT $=$ 泰勒（定理 12.2）$+$ 正则性（LICQ，引理 12.3）$+$ Farkas（引理 12.4）。记住这三根支柱，而非代数细节。}
+\end{frame}
+
+\begin{frame}{反思 —— 每根支柱的作用}
+  \TLinfoblock{若其他都忘了，请记住}{
+  \begin{itemize}
+    \item \textbf{定理 12.2}（微积分）：极小点没有下坡的可行路径。
+    \item \textbf{引理 12.3}（几何 $+$ 隐函数定理）：约束规范使线性化锥精确。
+    \item \textbf{引理 12.4}（凸分析 / Farkas）：无下降 $\Leftrightarrow$ 乘子存在。
+  \end{itemize}}
+  反思：当 KKT 在真正的极小点处失效时，是哪根支柱垮了？（几乎总是引理 12.3——约束规范。）
+\end{frame}
+
+% =============================================================================
+\TLsection{7 \ 二阶条件}
+
+\begin{frame}{动手试试：一阶为何不够？}
+  \turn{KKT 可能在\emph{非}极小点处成立（设想沿边界出现鞍点般的行为）。
+  沿哪些方向，一阶信息\emph{完全}无法告诉你 $f$ 是升还是降？在那里你会考察什么二阶量？}
+  \begin{itemize}
+    \item \emph{提示 1.} 若 $d\in F_1$ 有 $\grad f\T d>0$，则 $f$ 增大——没问题。模糊的情形是 $\grad f\T d=0$。
+    \item \emph{提示 2.} 回忆无约束理论：当梯度项消失时，看 Hessian（曲率）。
+    \item \emph{提示 3.} 是\emph{谁}的曲率？不只是 $f$——约束也弯曲。想想拉格朗日函数。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{揭示：临界锥 $F_2(\ls)$}
+  模糊方向是 $F_1$ 中使 $\grad f$ 平坦的那些方向。给定 KKT 对 $(\xs,\ls)$：
+  \TLinfoblock{临界锥 $F_2(\ls)$}{$w\in F_1$ 且额外满足
+  \[
+    \grad c_i(\xs)\T w=0\ (i\in\Eset),\quad
+    \grad c_i(\xs)\T w=0\ (i\in\Aset\cap\Iset,\ \lambda_i^{*}>0),\quad
+    \grad c_i(\xs)\T w\ge0\ (\lambda_i^{*}=0).
+  \]}
+  在 $F_2(\ls)$ 上有 $w\T\grad f(\xs)=\sum_i\lambda_i^{*}\,w\T\grad c_i(\xs)=0$：一阶信息已耗尽。
+  \TLtakeaway{临界锥收集那些“贴着”强起作用约束的方向——恰是由曲率决定最优性的地方。}
+\end{frame}
+
+\begin{frame}{定理 12.5 —— 二阶必要条件}
+  \TLresultblock{定理 12.5}{若 $\xs$ 是局部解、LICQ 成立、$\ls$ 满足 KKT，则
+  \[
+    w\T\,\grad_{xx}\Lag(\xs,\ls)\,w\ \ge\ 0\qquad\text{对所有 } w\in F_2(\ls).
+  \]}
+  \textbf{证明思路.} 用引理 12.3 构造以 $w/\|w\|$ 为极限方向的可行序列 $z_k$。互补性使沿其 $\Lag(z_k,\ls)=f(z_k)$；
+  对 $\Lag$ 作泰勒展开得
+  \[
+    f(z_k)=f(\xs)+\half(t_k/\|w\|)^2\, w\T\grad_{xx}\Lag(\xs,\ls)\,w+o(t_k^2).
+  \]
+  若曲率为负，则 $f(z_k)<f(\xs)$——矛盾。故其 $\ge0$。\hfill$\square$
+  \TLtakeaway{用 $\grad_{xx}\Lag$ 而\emph{非} $\grad^2 f$：约束的曲率（以 $\ls$ 加权）也是故事的一部分。}
+\end{frame}
+
+\begin{frame}{定理 12.6 —— 二阶充分条件}
+  \TLresultblock{定理 12.6}{若 $(\xs,\ls)$ 满足 KKT 且
+  \[
+    w\T\,\grad_{xx}\Lag(\xs,\ls)\,w\ >\ 0\qquad\text{对所有 } w\in F_2(\ls),\ w\neq0,
+  \]
+  则 $\xs$ 是\emph{严格}局部解。（不需要约束规范。）}
+  与必要条件镜像对称：$\ge0$ 变成 $>0$，“$\Rightarrow$ 极小点”替代“极小点 $\Rightarrow$”。
+  对任意可行序列，展开式迫使 $f(z_k)>f(\xs)$。
+  \TLtakeaway{$\Lag$ 在临界锥上的正曲率认证了一个严格极小点——这是“$\grad^2 f\succ0$”的约束类比。}
+\end{frame}
+
+\begin{frame}{例题：二阶检验}
+  $\min\, x_1+x_2$ s.t.\ $c_1(x)=2-x_1^2-x_2^2\ge0$。KKT 点 $\xs=(-1,-1)\T$：约束起作用且
+  $\grad f=(1,1)\T=\ls\grad c_1(\xs)$，其中 $\grad c_1(\xs)=(2,2)\T$，故 $\ls=\tfrac12>0$。
+  \begin{itemize}
+    \item $\Lag=x_1+x_2-\lambda(2-x_1^2-x_2^2)$，且 $\grad^2 c_1=-2I$，故
+      $\grad_{xx}\Lag=\grad^2 f-\lambda\grad^2 c_1=2\lambda I=\begin{psmallmatrix}1&0\\0&1\end{psmallmatrix}$（$\ls=\tfrac12$）。
+    \item 临界锥：满足 $\grad c_1(\xs)\T w=0$ 的 $w$，即 $w\propto(1,-1)$（边界切向）。
+    \item 检验：$w\T\grad_{xx}\Lag\,w=\|w\|^2>0$（$w\neq0$）。
+  \end{itemize}
+  由定理 12.6，二阶充分条件成立，故 $\xs$ 是严格局部极小点。
+  \TLtakeaway{机械流程：构造 $\grad_{xx}\Lag$，限制到 $F_2(\ls)$，在\emph{那里}检验定号性——即便 $n$ 很大，这也是低维检验。}
+\end{frame}
+
+\begin{frame}{反思 —— 乘子进入曲率}
+  \TLwarnblock{一个经典陷阱}{在约束弯曲时，检验 $\grad^2 f$ 而非 $\grad_{xx}\Lag$ 会给出错误答案。
+  项 $-\sum_i\lambda_i^{*}\grad^2 c_i$ 可能翻转临界锥上曲率的符号。}
+  反思：你从\emph{一阶}条件求得的乘子，会在\emph{二阶}检验中被重新使用。一阶与二阶不是两次独立计算——它们是一个耦合的整体。
+\end{frame}
+
+% =============================================================================
+\TLsection{8 \ 其他约束规范}
+
+\begin{frame}{当线性化“说谎”时 —— 图 12.11}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      可行集 $x_2\le x_1^3,\ x_2\ge0$，$\xs=(0,0)$。两约束都起作用，
+      \[ F_1=\{d: -d_2\ge0,\ d_2\ge0\}=\{d:d_2=0\}. \]
+      $F_1$ 含 $(-1,0)$——但\emph{唯一}真实可行的极限方向是 $(+1,0)$！
+      尖点使线性化变得虚假；\emph{无约束规范成立}，KKT 可能失效。
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=1.5,>={Stealth[length=5pt]}]
+        \draw[->,gray!60] (-1.1,0)--(1.2,0) node[right]{$x_1$};
+        \draw[->,gray!60] (0,-0.2)--(0,1.0) node[above]{$x_2$};
+        \fill[TLprimary!15] plot[domain=0:1.0,samples=40] (\x,{\x*\x*\x}) -- (1.0,0) -- (0,0);
+        \draw[thick,TLprimary] plot[domain=0:1.05,samples=40] (\x,{\x*\x*\x});
+        \draw[thick,TLprimary] (0,0)--(1.05,0);
+        \fill[TLaccent] (0,0) circle (0.7pt) node[above left]{\scriptsize $\xs$};
+        \draw[->,TLneg,thick] (0,0)--(0.55,0) node[below]{\scriptsize 真实方向};
+        \draw[->,gray,dashed,thick] (0,0)--(-0.55,0) node[below]{\scriptsize 属于 $F_1$ 但不可行};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize 据 N\&W 图 12.11 重绘。}
+    \end{column}
+  \end{columns}
+  \TLtakeaway{约束规范恰恰是“$F_1$ 忠实表示 $T_\feas$”的保证。尖点与相切约束会破坏它。}
+\end{frame}
+
+\begin{frame}{另外两个约束规范}
+  \TLinfoblock{线性约束（引理 12.8）}{若所有\emph{起作用}约束都线性，则
+  $w\in F_1\Leftrightarrow w/\|w\|$ 是某可行序列的极限方向——故 $F_1=T_\feas$。（与 LICQ 互不强弱。）}
+  \TLinfoblock{Mangasarian--Fromovitz（MFCQ，定义 12.5）}{存在 $w$ 使
+  \[ \grad c_i(\xs)\T w>0\ (i\in\Aset\cap\Iset),\quad \grad c_i(\xs)\T w=0\ (i\in\Eset), \]
+  且 $\{\grad c_i(\xs):i\in\Eset\}$ 线性无关。（注意起作用不等式上的\emph{严格}不等号。）}
+  \TLtakeaway{每个约束规范都是“$F_1$ 忠实”的一个不同的充分条件。用你的问题所满足的那个即可。}
+\end{frame}
+
+\begin{frame}{动手试试：MFCQ 比 LICQ 更弱还是更强？}
+  \turn{判断 LICQ 是否蕴含 MFCQ，或反之。若 LICQ 成立，你能否总是构造出 MFCQ 所要求的向量 $w$？}
+  \begin{itemize}
+    \item \emph{提示 1.} LICQ 下起作用梯度线性无关，故线性方程组
+      $\grad c_i\T w=1$（$i\in\Aset\cap\Iset$）、$\grad c_i\T w=0$（$i\in\Eset$）\emph{有解}。
+    \item \emph{提示 2.} 该解恰是一个 MFCQ 向量。反过来成立吗？
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{揭示：MFCQ 严格更弱（并界定乘子）}
+  LICQ $\Rightarrow$ MFCQ：满秩使你能解 $\grad c_i\T w=1$（起作用 $\Iset$）、$\grad c_i\T w=0$（$\Eset$）；
+  该 $w$ 满足 MFCQ。反之不成立——可在起作用梯度\emph{相关}时仍满足 MFCQ。
+  \TLinfoblock{一个刻画}{MFCQ 成立 $\Leftrightarrow$ KKT 乘子向量 $\ls$ 的集合\emph{非空且有界}。
+  （LICQ 下该集合是单点。）}
+  \TLtakeaway{更弱的约束规范 $\Rightarrow$ 乘子可能不唯一，但仍有界。约束规范并非非此即彼；它们以正则性换取一般性。}
+\end{frame}
+
+% =============================================================================
+\TLsection{9 \ 几何视角}
+
+\begin{frame}{忘掉代数：法锥}
+  几何问题就是 $\min f(x)$ s.t.\ $x\in\feas$。定义\TLterm{法锥}
+  \[
+    N_\feas(\xs)=\{\, v \mid v\T d\le0 \ \text{ 对所有 } d\in T_\feas(\xs)\,\}.
+  \]
+  它是切锥的极锥：与每个可行方向成非锐角的那些方向。
+  \begin{center}
+  \begin{tikzpicture}[scale=0.9,>={Stealth[length=5pt]}]
+    \fill[TLprimary!12] (0,0) rectangle (3,1.6);
+    \draw[thick,TLprimary] (0,0) rectangle (3,1.6);
+    \coordinate (p) at (0,0.8);
+    \fill[TLaccent] (p) circle (1.4pt) node[left]{\scriptsize $\xs$};
+    \draw[->,TLpos,thick] (p)--($(p)+(1.0,0)$) node[above]{\scriptsize $T_\feas$（指向集合内）};
+    \draw[->,TLneg,thick] (p)--($(p)+(-1.0,0)$) node[above]{\scriptsize $N_\feas$（向外）};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{切锥 $=$ 你可以去的方向；法锥 $=$ 它的极锥，即“向外推力”所在之处。}
+\end{frame}
+
+\begin{frame}{定理 12.9 —— 一行的最优性}
+  \TLresultblock{定理 12.9}{若 $\xs$ 是 $f$ 在 $\feas$ 上的局部极小点，则
+  \[ -\grad f(\xs)\in N_\feas(\xs). \]}
+  \textbf{证明.} 对任意 $d\in T_\feas(\xs)$，取 $d_j\to d$ 使 $\xs+t_j d_j\in\feas$，$t_j\downarrow0$。
+  局部最优性与泰勒给出 $t_j\grad f(\xs)\T d_j+o(t_j)\ge0$；令 $j\to\infty$ 得 $\grad f(\xs)\T d\ge0$。
+  故对所有 $d\in T_\feas(\xs)$ 有 $-\grad f(\xs)\T d\le0$，即 $-\grad f(\xs)\in N_\feas(\xs)$。\hfill$\square$
+  \TLtakeaway{最速下降方向 $-\grad f$ 必须指向可行集“外部”。没有代数、没有约束规范——纯粹的几何。}
+\end{frame}
+
+\begin{frame}{引理 12.10 —— 几何与代数相遇}
+  \TLresultblock{引理 12.10}{在 $\xs$ 处 LICQ 下：
+  \[ T_\feas(\xs)=F_1\qquad\text{且}\qquad N_\feas(\xs)=-N, \]
+  其中 $N=\{\sum_{i\in\Aset}\lambda_i\grad c_i(\xs):\Iset \text{ 上 } \lambda_i\ge0\}$ 是起作用法向锥。}
+  结合定理 12.9：$-\grad f\in N_\feas=-N$ 意味着 $\grad f\in N$，即
+  $\grad f=\sum_i\lambda_i\grad c_i$，$\lambda_i\ge0$——\emph{又回到 KKT}。
+  \TLtakeaway{几何条件 $-\grad f\in N_\feas$ 与代数 KKT 系统是\emph{同一命题}，由约束规范翻译而来。}
+\end{frame}
+
+\begin{frame}{凸性使 KKT 成为充分条件（定理 12.7）}
+  \TLresultblock{定理 12.7}{若 $i\in\Eset$ 的 $c_i$ 线性、$i\in\Iset$ 的 $-c_i$ 凸，则 $\feas$ 是凸集。}
+  \textbf{证明.} 对可行点 $x_0,x_1$ 与 $x_\tau=(1-\tau)x_0+\tau x_1$：等式约束因线性而保持；
+  对不等式，$-c_i$ 的凸性给出
+  $-c_i(x_\tau)\le(1-\tau)(-c_i(x_0))+\tau(-c_i(x_1))\le0$，即 $c_i(x_\tau)\ge0$。故 $x_\tau\in\feas$。\hfill$\square$
+  \begin{itemize}
+    \item 凸规划中，每个局部解都是全局解，且 KKT 成为\emph{充分}条件，而不仅是必要条件。
+    \item 线性规划是所有函数都线性的特例。
+  \end{itemize}
+  \TLtakeaway{凸性把 KKT 从“必要线索”升级为“全局最优性证书”。}
+\end{frame}
+
+% =============================================================================
+\TLsection{10 \ 敏感性：乘子的含义}
+
+\begin{frame}{动手试试：一个乘子值多少？}
+  \turn{把一个起作用约束扰动为 $c_i(x)\ge -\epsilon_i$（略微放松）。猜测最优目标值 $f^{*}$ 如何随 $\epsilon_i$ 变化，
+  用 $\lambda_i^{*}$ 表示。}
+  \begin{itemize}
+    \item \emph{提示 1.} 对极小化问题，放松一个起约束作用的约束只会带来好处（或无影响）。
+    \item \emph{提示 2.} 拉格朗日函数 $f-\sum\lambda_i c_i$ 已把每个约束与其乘子配对。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{揭示：乘子是影子价格}
+  在严格互补性与 LICQ 下，最优值对小扰动呈线性响应：
+  \[
+    \frac{\partial f^{*}}{\partial \epsilon_i}\ =\ -\,\lambda_i^{*}.
+  \]
+  \begin{itemize}
+    \item $\lambda_i^{*}$ 大 $\Rightarrow$ 该约束“昂贵”：放松它能大幅改善最优值。
+    \item $\lambda_i^{*}=0$（不起作用，由互补性）$\Rightarrow$ 小变化无关紧要。
+  \end{itemize}
+  \TLtakeaway{乘子是约束的边际价值——它的\emph{影子价格}。这正是 $\ls$ 与 $\xs$ 同样有趣的原因。}
+\end{frame}
+
+% =============================================================================
+\TLsection{11 \ 综合}
+
+\begin{frame}{一页看尽整章}
+  \begin{center}
+  \begin{tikzpicture}[scale=1,>={Stealth[length=5pt]},
+      box/.style={draw=TLprimary,fill=TLprimary!8,rounded corners,inner sep=4pt,align=center,font=\scriptsize}]
+    \node[box] (min) at (0,3) {局部极小点};
+    \node[box] (tan) at (0,1.5) {无下降\\可行路径\\（定理 12.2）};
+    \node[box] (cq) at (4,1.5) {约束规范：$F_1=T_\feas$\\（LICQ/MFCQ/线性）};
+    \node[box] (far) at (8,1.5) {Farkas\\（引理 12.4）};
+    \node[box] (kkt) at (4,3) {KKT 系统\\$\grad_x\Lag=0$, $\lambda_{\Iset}\ge0$, $\lambda c=0$};
+    \node[box] (so) at (8,3) {$F_2(\ls)$ 上的二阶条件\\$w\T\grad_{xx}\Lag\,w\gtrless0$};
+    \draw[->] (min)--(tan);
+    \draw[->] (tan)--(cq);
+    \draw[->] (cq)--(far);
+    \draw[->] (tan)--(kkt);
+    \draw[->] (far)--(kkt);
+    \draw[->] (kkt)--(so);
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{一阶定位候选点（KKT）；约束规范为其辩护；临界锥上的二阶条件确认它们。乘子始终是影子价格。}
+\end{frame}
+
+\begin{frame}{最终反思}
+  \TLinfoblock{你的优化认知发生了什么变化？}{
+  \begin{itemize}
+    \item “令梯度为零”变成了“在目标梯度与起作用约束法向之间取得平衡”。
+    \item “可行方向”分裂为\emph{几何}锥（$T_\feas$）与\emph{代数}锥（$F_1$），由约束规范架起桥梁。
+    \item 曲率检验从 $\grad^2 f$ 转移到临界锥上的 $\grad_{xx}\Lag$。
+  \end{itemize}}
+  这三处转变在第二部分的每个算法（SQP、内点法、增广拉格朗日）中反复出现。
+\end{frame}
+
+% =============================================================================
+\TLsection{12 \ 习题}
+
+\begin{frame}{习题 1 —— 应用 KKT}\hfill\stars{$\star\star$}
+
+  求 $\ \max\ x_1 x_2\ $ 在单位圆盘 $\ x_1^2+x_2^2\le1$ 上的所有 KKT 点
+  （写成 $\min -x_1x_2$，约束 $1-x_1^2-x_2^2\ge0$）。
+  \begin{itemize}
+    \item \emph{提示 1.} 稳定性：$\grad(-x_1x_2)=\lambda\grad(1-x_1^2-x_2^2)$，$\lambda\ge0$。
+    \item \emph{提示 2.} 分别考虑起作用（$\lambda>0$）与不起作用（$\lambda=0$）两种情形。
+    \item \emph{提示 3.} 在边界上，对称性提示 $|x_1|=|x_2|$。
+  \end{itemize}
+  \TLtakeaway{考查：建立 KKT、按起作用性分情形讨论、运用互补性。}
+\end{frame}
+
+\begin{frame}{习题 2 —— 二阶检验}\hfill\stars{$\star\star$}
+
+  对习题 1 中的 KKT 点 $\xs=(\tfrac1{\sqrt2},\tfrac1{\sqrt2})$，用二阶\emph{充分}条件验证它是严格局部极大点。
+  \begin{itemize}
+    \item \emph{提示 1.} 对 $\Lag=-x_1x_2-\lambda(1-x_1^2-x_2^2)$ 构造 $\grad_{xx}\Lag$。
+    \item \emph{提示 2.} 临界锥是切线 $\{w:\grad c_1(\xs)\T w=0\}$。
+    \item \emph{提示 3.} 检验该线上 $w$ 的 $w\T\grad_{xx}\Lag\,w$ 的符号。
+  \end{itemize}
+  \TLtakeaway{考查：构造 $\grad_{xx}\Lag$ 并限制到临界锥。}
+\end{frame}
+
+\begin{frame}{习题 3 —— 某约束规范失效}\hfill\stars{$\star\star\star$}
+
+  对可行集 $x_2\ge0,\ x_2\le x_1^3$，$\xs=(0,0)$，证明 LICQ 与 MFCQ 都不成立，
+  并给出一个使 KKT 在真正极小点处\emph{失效}的问题。
+  \begin{itemize}
+    \item \emph{提示 1.} 计算原点处的起作用梯度——它们线性无关吗？
+    \item \emph{提示 2.} 是否存在 $w$ 使所有 $\grad c_i\T w>0$（MFCQ）？
+    \item \emph{提示 3.} 在该集合上极小化 $f=x_1$，试着满足 KKT。
+  \end{itemize}
+  \TLtakeaway{考查：理解约束规范\emph{为何}是假设而非技术细节。}
+\end{frame}
+
+\begin{frame}{习题 4 —— 凸性证书}\hfill\stars{$\star\star$}
+
+  证明：凸规划（线性等式约束、凹的不等式函数 $c_i$）的任何局部解都是\emph{全局}解，且 KKT 在此为充分条件。
+  \begin{itemize}
+    \item \emph{提示 1.} 用定理 12.7 得到 $\feas$ 的凸性。
+    \item \emph{提示 2.} 对凸 $\feas$ 上的凸 $f$，在非全局点处存在可行下降方向——与 KKT 矛盾。
+  \end{itemize}
+  \TLtakeaway{考查：联系凸性、全局最优性与 KKT 的充分性。}
+\end{frame}
+
+\begin{frame}{习题 5 —— 乘子的唯一性}\hfill\stars{$\star\star\star$}
+
+  证明：当 LICQ 在 KKT 点处成立时，乘子向量 $\ls$ \emph{唯一}。
+  \begin{itemize}
+    \item \emph{提示 1.} 设 $\ls$ 与 $\hat\lambda$ 都满足稳定性。
+    \item \emph{提示 2.} 相减：$\sum_{i\in\Aset}(\lambda_i^{*}-\hat\lambda_i)\grad c_i(\xs)=0$。
+    \item \emph{提示 3.} 用起作用梯度的线性无关性。
+  \end{itemize}
+  \TLtakeaway{考查：LICQ 在乘子的“存在性”之外所扮演的精确角色。}
+\end{frame}
+
+% =============================================================================
+\TLsection{13 \ 参考文献与文献注记}
+
+\begin{frame}{参考文献与延伸阅读}
+  \begin{thebibliography}{9}
+    \footnotesize
+    \bibitem{NW} J.~Nocedal and S.~J.~Wright, \emph{Numerical Optimization}, 2nd ed., Springer, 2006 —— 第 12 章。
+    \bibitem{Fiacco} A.~V.~Fiacco and G.~P.~McCormick, \emph{Nonlinear Programming: Sequential Unconstrained Minimization Techniques}, 1968.
+    \bibitem{Mangasarian} O.~L.~Mangasarian, \emph{Nonlinear Programming}, McGraw--Hill, 1969 —— 约束规范。
+    \bibitem{Fletcher} R.~Fletcher, \emph{Practical Methods of Optimization}, 2nd ed., Wiley, 1987.
+    \bibitem{BV} S.~Boyd and L.~Vandenberghe, \emph{Convex Optimization}, CUP, 2004 —— 对偶与凸情形。
+  \end{thebibliography}
+\end{frame}
+
+\begin{frame}{文献注记}
+  \begin{itemize}
+    \item KKT 条件归功于 \TLterm{Karush}（1939 年硕士论文）以及独立地由 \TLterm{Kuhn \& Tucker}（1951）给出——故得此名。
+    \item \TLterm{Farkas 引理}（1902）是引理 12.4 背后的择一定理；锥 $N$ 的闭性有一个优雅证明，见 N\&W 的注记。
+    \item \TLterm{Mangasarian--Fromovitz} 约束规范（1967）是保证乘子有界的最弱经典约束规范；它支撑着稳定性与敏感性理论。
+    \item 敏感性 / 影子价格诠释可追溯到线性规划的对偶（Dantzig）与 Fiacco 的参数规划。
+  \end{itemize}
+  \TLtakeaway{这套理论花了五十年才成型；用一个下午重新发明它，正是本讲义的意义所在。}
+\end{frame}
+
+% =============================================================================
+\appendix
+
+\begin{frame}{附录 —— 习题 1 解答}
+  稳定性：$-x_2=-2\lambda x_1$，$-x_1=-2\lambda x_2$，$\lambda\ge0$。
+  \begin{itemize}
+    \item \textbf{不起作用}（$\lambda=0$）：迫使 $x_1=x_2=0$，即原点——$x_1x_2$ 的鞍点，值为 $0$。
+    \item \textbf{起作用}（$x_1^2+x_2^2=1$）：相加/相减得 $x_1=\pm x_2$。由 $\lambda\ge0$ 有 $x_1x_2>0$，
+      故 $x_1=x_2=\pm\tfrac1{\sqrt2}$ 且 $\lambda=\tfrac12$（两个极大点，值 $\tfrac12$）；而 $x_1=-x_2$ 给出
+      $\lambda=-\tfrac12<0$，舍去。
+  \end{itemize}
+  极大点：$(\tfrac1{\sqrt2},\tfrac1{\sqrt2})$ 与 $(-\tfrac1{\sqrt2},-\tfrac1{\sqrt2})$。
+\end{frame}
+
+\begin{frame}{附录 —— 习题 2 解答}
+  $\Lag=-x_1x_2-\lambda(1-x_1^2-x_2^2)$，故
+  $\grad_{xx}\Lag=\begin{psmallmatrix}2\lambda & -1\\ -1 & 2\lambda\end{psmallmatrix}$，当 $\lambda=\tfrac12$ 时
+  即 $\begin{psmallmatrix}1&-1\\-1&1\end{psmallmatrix}$。
+  在 $\xs=(\tfrac1{\sqrt2},\tfrac1{\sqrt2})$ 处，$\grad c_1=-2\xs\propto(1,1)$，故临界锥为 $w\propto(1,-1)$。
+  于是 $w\T\grad_{xx}\Lag\,w=(1,-1)\begin{psmallmatrix}1&-1\\-1&1\end{psmallmatrix}(1,-1)\T=4>0$。
+  由定理 12.6，$\xs$ 是严格局部极大点。\hfill$\square$
+\end{frame}
+
+\begin{frame}{附录 —— 习题 3 解答}
+  原点处的起作用梯度：由 $c_1=x_1^3-x_2\ge0$ 与 $c_2=x_2\ge0$，得 $\grad c_1(0)=(0,-1)$，
+  $\grad c_2(0)=(0,1)$——\emph{线性相关}，故 LICQ 失效。MFCQ 需要 $w$ 使
+  $\grad c_1\T w>0$ 且 $\grad c_2\T w>0$：即 $-w_2>0$ 且 $w_2>0$——不可能，故 MFCQ 也失效。
+  对 $\min x_1$，沿尖点的真正极小点是 $(0,0)$，但 $\grad f=(1,0)$ \emph{不是} $(0,\mp1)$ 的非负组合，
+  故 KKT 无解。\hfill$\square$
+\end{frame}
+
+\begin{frame}{附录 —— 习题 5 解答}
+  若 $\ls$ 与 $\hat\lambda$ 都满足 $\grad f(\xs)=\sum_{i\in\Aset}\lambda_i\grad c_i(\xs)$，相减：
+  \[ \sum_{i\in\Aset}(\lambda_i^{*}-\hat\lambda_i)\,\grad c_i(\xs)=0. \]
+  LICQ 下 $\{\grad c_i(\xs)\}_{i\in\Aset}$ 线性无关，故所有系数为零：$\lambda_i^{*}=\hat\lambda_i$。
+  不起作用乘子在两者中皆由互补性为 $0$。故 $\ls$ 唯一。\hfill$\square$
+\end{frame}
+
+\end{document}

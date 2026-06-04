@@ -5,7 +5,8 @@
 > then read the relevant sections below.
 >
 > **Keyword Tags**: `theme`, `box`, `block`, `layout`, `mentor deck`, `self-study`,
-> `exercise`, `example`, `OT`, `optimal transport`, `Villani`, `pushforward`, `measure`
+> `exercise`, `example`, `OT`, `optimal transport`, `Villani`, `pushforward`, `measure`,
+> `CJK`, `Chinese`, `font`, `math font`, `serif`
 
 ---
 
@@ -13,6 +14,21 @@
 - **Modern clean style** over classic academic
 - Preferred: Teal (`#00796b` + `#e65100`) over Academic (navy + red)
 - Dark mode acceptable for cinematic presentations
+
+## CJK Font Preference
+- **Source Han Serif SC (思源宋体)** Medium (body) + Bold (titles)
+- Never use the system-default Noto Sans CJK Regular — too thin for slides
+- Fonts live in project-local `.fonts/` (gitignored); auto-detected by font-config Priority 1.5
+- Download from Adobe GitHub:  `09_SourceHanSerifSC.zip` from release 2.003R
+- Only 2 files needed: `SourceHanSerifSC-Medium.otf` + `SourceHanSerifSC-Bold.otf`
+- No preamble override required — font-config picks them up automatically
+- For mixed CJK+English decks, Source Han Serif SC Medium pairs well with KpMath
+
+## Math Font Preference
+- **KpMath Regular+Bold** (Kepler project) — template default since 2026-06-05
+- Reasons: heavier serif than Latin Modern Math, designed for math typography,
+  pairs well with Source Han Serif SC CJK, already in TeX Live
+- See `template-lib/template-lib.sty` line 73-74; override per-deck if needed
 
 ## Layout Preference
 - **Max 3 blocks per slide** — never 4+ blocks

@@ -44,22 +44,49 @@ python tools/doctor.py report     # human-readable summary
 
 ### CJK Fonts (User-Managed)
 
-**We do NOT distribute fonts.** The system auto-detects installed fonts:
+**We do NOT distribute fonts.** Detection priority:
 
-| Platform | Detected Font | Install Command |
-|----------|--------------|-----------------|
-| Windows | Microsoft YaHei | Built-in |
-| Linux | Noto Sans CJK | `sudo apt-get install fonts-noto-cjk` |
-| macOS | PingFang / Noto Sans SC | Built-in or `brew install font-noto-sans-cjk-sc` |
+| Priority | Source | Font |
+|----------|--------|------|
+| 1 | User override (`\def\CJKFontPath{...}` before `\usepackage`) | Any |
+| 1.5 | Project-local `.fonts/` dir | Source Han Serif SC Medium+Bold `.otf` |
+| 2 | Windows system | Microsoft YaHei |
+| 3 | Linux system | Noto Sans CJK (`.ttc`; Regular weight) |
+| 4 | macOS system | PingFang / Noto Sans SC |
+| 5 | Generic fallback | Noto Sans SC in common paths |
 
-**Custom font override** (before `\input{config.tex}` or `\usepackage{template-lib}`):
+#### Presentation-quality Chinese: Source Han Serif SC (思源宋体)
+
+The system-default Noto Sans CJK Regular is **too thin for slides**. Install **Source Han Serif SC** Medium+Bold individual OTFs into `.fonts/` for much heavier, more authoritative CJK:
+
+```bash
+mkdir -p .fonts
+# Download SC subset OTFs from Adobe (SIL OFL, ~44 MB zip, ~49 MB for Medium+Bold):
+curl -sL "https://github.com/adobe-fonts/source-han-serif/releases/download/2.003R/09_SourceHanSerifSC.zip" \
+  -o /tmp/sh-serif-sc.zip
+unzip -j /tmp/sh-serif-sc.zip "OTF/SimplifiedChinese/SourceHanSerifSC-Medium.otf" \
+                               "OTF/SimplifiedChinese/SourceHanSerifSC-Bold.otf" \
+                               -d .fonts/
+```
+
+font-config auto-detects `.fonts/SourceHanSerifSC-Medium.otf` — no preamble override needed. All 7 weights (ExtraLight through Heavy) available from the same zip.
+
+#### Custom font override
+
+For any font not auto-detected, define before `\usepackage{template-lib}`:
 
 ```latex
-\def\CJKFontPath{/usr/share/fonts/truetype/noto/}
-\def\CJKFontName{NotoSansSC-Regular.ttf}
-\def\CJKFontBold{NotoSansSC-Bold.ttf}
-\input{config.tex}
+\def\CJKFontPath{./.fonts/}
+\def\CJKFontName{SourceHanSerifSC-Medium.otf}
+\def\CJKFontBold{SourceHanSerifSC-Bold.otf}
 ```
+
+### Math Fonts
+
+Template default: **KpMath Regular+Bold** (Kepler project) — a heavier, professional
+serif math font via `unicode-math`. Pairs well with both Latin text and Source Han
+Serif SC CJK. All 6 TeX Gyre math fonts plus KpMath, Erewhon, Libertinus, and
+STIX Two are available in TeX Live if a deck wants to override.
 
 ### Installation
 

@@ -1,0 +1,946 @@
+% =============================================================================
+%  Numerical Optimization — Chapter 12: Theory of Constrained Optimization
+%  Mode: active-socratic  ·  Theme: teal  ·  Source: Nocedal & Wright, Ch. 12
+%  All diagrams redrawn in TikZ (teal), "after N&W Fig 12.x".
+%  No beamer overlay commands are used. Attempt-before-reveal is
+%  realized by placing each task on one frame and its answer on the NEXT frame.
+% =============================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[teal]{template-lib/template-lib}
+\uselayout{text}
+\uselayout{eq}
+\uselayout{twocol}
+
+\usetikzlibrary{arrows.meta,calc,positioning,patterns,decorations.pathmorphing}
+
+% ── Notation shortcuts ──────────────────────────────────────────────────────
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Lag}{\mathcal{L}}
+\newcommand{\Eset}{\mathcal{E}}
+\newcommand{\Iset}{\mathcal{I}}
+\newcommand{\Aset}{\mathcal{A}}
+\newcommand{\feas}{\Omega}
+\newcommand{\grad}{\nabla}
+\newcommand{\T}{^{\mathsf{T}}}
+% inline parenthesized small matrix (mathtools not loaded by template)
+\newenvironment{psmallmatrix}{\left(\begin{smallmatrix}}{\end{smallmatrix}\right)}
+\newcommand{\half}{\tfrac{1}{2}}
+\newcommand{\xs}{x^{*}}
+\newcommand{\ls}{\lambda^{*}}
+% Socratic markers
+\newcommand{\stars}[1]{\textcolor{TLaccent}{#1}}
+\newcommand{\turn}[1]{\TLalertblock[\textbf{Your turn} — attempt before turning the page]{#1}}
+
+\TLsetfoot{Numerical Optimization \textperiodcentered{} Ch.~12 \textperiodcentered{} Constrained Optimization Theory}
+
+\begin{document}
+
+% =============================================================================
+\TLtitlecenter
+  {Theory of Constrained Optimization}
+  {A Socratic tour of KKT conditions, constraint qualifications, and second-order tests}
+  {Numerical Optimization \textperiodcentered{} Chapter 12 (Nocedal \& Wright)}
+  {Active-study deck}
+
+% =============================================================================
+\begin{frame}{How to use this deck}
+  This is an \TLterm{active} deck: you are meant to \emph{reinvent} the theory, not read it.
+  \begin{itemize}
+    \item Each idea opens with a \textbf{question or task}. Keep pen and paper ready.
+    \item When you see \textbf{``Your turn''}, \emph{stop} and attempt it before turning the page.
+    \item The next frame reveals and discusses the answer. Hints are staged weak~$\to$~strong.
+    \item Each section closes with a \textbf{reflection}: what changed in your mental model?
+  \end{itemize}
+  \TLtakeaway{The struggle is the point. A guessed-then-corrected idea sticks; a read one evaporates.}
+\end{frame}
+
+% =============================================================================
+\TLsection{1 \ Orientation: Why Constraints Change Everything}
+
+\begin{frame}{The general constrained problem}
+  Throughout the chapter we study
+  \[
+    \min_{x\in\R^{n}} f(x)
+    \quad\text{subject to}\quad
+    \begin{cases}
+      c_i(x) = 0, & i\in\Eset \quad(\text{equality}),\\[2pt]
+      c_i(x) \ge 0, & i\in\Iset \quad(\text{inequality}),
+    \end{cases}
+  \]
+  with $f$ and all $c_i$ smooth. The \TLterm{feasible set} is
+  \[
+    \feas = \{\, x \mid c_i(x)=0,\ i\in\Eset;\ \ c_i(x)\ge 0,\ i\in\Iset \,\},
+    \qquad \min_{x\in\feas} f(x).
+  \]
+  \TLinfoblock{Notation we will reuse}{$\Eset,\Iset$ index equalities/inequalities;
+  $\grad c_i$ are \emph{constraint gradients}; later $\Lag$ is the Lagrangian and
+  $\Aset(x)$ the active set. We assume you know Taylor's theorem and unconstrained
+  optimality ($\grad f=0$, $\grad^2 f\succeq 0$) from Chapter~2.}
+\end{frame}
+
+\begin{frame}{Your turn: does $\grad f = 0$ still work?}
+  \turn{In unconstrained optimization, a local minimizer satisfies $\grad f(\xs)=0$.
+  Consider $\min\, x_1+x_2$ subject to $x_1^2+x_2^2 = 2$.
+
+  \medskip
+  (a) Is $\grad f = (1,1)\T$ ever zero?\quad
+  (b) So can the unconstrained rule hold at the solution?\quad
+  (c) What must be \emph{different} about optimality on a curve?}
+  \begin{itemize}
+    \item \emph{Hint 1.} Sketch the circle of radius $\sqrt2$ and a few level lines $x_1+x_2=\text{const}$.
+    \item \emph{Hint 2.} You may only move \emph{along} the circle. Which directions decrease $f$?
+    \item \emph{Hint 3.} At the best point, is there \emph{any} feasible direction left that still decreases $f$?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reveal: optimality becomes a statement about \emph{directions}}
+  $\grad f=(1,1)\T\neq 0$ everywhere, so the unconstrained rule \emph{never} holds here.
+  \begin{itemize}
+    \item Feasibility restricts you to moving \emph{tangent} to the circle.
+    \item $\xs$ is optimal when \textbf{no feasible direction decreases $f$} — not when the gradient vanishes.
+    \item The solution is $\xs=(-1,-1)\T$: every tangential move from there increases $x_1+x_2$.
+  \end{itemize}
+  \TLtakeaway{Constrained optimality balances the objective gradient against the \emph{geometry of allowed directions}. The whole chapter makes ``allowed directions'' precise.}
+\end{frame}
+
+% =============================================================================
+\TLsection{2 \ A Single Equality Constraint}
+
+\begin{frame}{Example 12.1 — the geometry}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \[ \min\ x_1+x_2 \quad\text{s.t.}\quad x_1^2+x_2^2-2=0. \]
+      Feasible set: circle of radius $\sqrt2$.\\[4pt]
+      $\grad f=\begin{psmallmatrix}1\\1\end{psmallmatrix}$,\quad
+      $\grad c_1(x)=\begin{psmallmatrix}2x_1\\2x_2\end{psmallmatrix}$.\\[6pt]
+      Solution $\xs=(-1,-1)\T$.
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.92,>={Stealth[length=5pt]}]
+        \draw[->,gray!60] (-2.3,0)--(2.3,0) node[right]{$x_1$};
+        \draw[->,gray!60] (0,-2.3)--(0,2.3) node[above]{$x_2$};
+        \draw[thick,TLprimary] (0,0) circle (1.8);
+        % level lines of x1+x2
+        \foreach \c in {-2.0,-1.0,0,1.0}{
+          \draw[gray!45] (\c-2.6,2.6) -- (\c+2.6,-2.6);
+        }
+        % solution point at 225 deg
+        \coordinate (xs) at (-1.273,-1.273);
+        \fill[TLaccent] (xs) circle (1.6pt) node[below left]{\small $\xs$};
+        % grad f = (1,1)
+        \draw[->,TLneg,very thick] (xs)--($(xs)+(0.95,0.95)$) node[right]{\small $\grad f$};
+        % grad c = 2x  (outward) -> at xs points down-left
+        \draw[->,TLpos,very thick] (xs)--($(xs)+(-0.9,-0.9)$) node[left]{\small $\grad c_1$};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize Redrawn after N\&W Fig.~12.3.}
+    \end{column}
+  \end{columns}
+  \TLtakeaway{At $\xs$ the two gradients are \emph{parallel} (here anti-parallel): $\grad f=\ls\grad c_1$.}
+\end{frame}
+
+\begin{frame}{Your turn: derive the parallelism condition}
+  \turn{Let $d$ be a feasible step from a point $x$ on the circle.
+  Using first-order Taylor expansions, write:
+  \smallskip
+  (a) the condition that $d$ \emph{keeps you feasible} (to first order);\\
+  (b) the condition that $d$ \emph{decreases} $f$;\\
+  (c) argue that if \emph{no} $d$ satisfies both, then $\grad f$ and $\grad c_1$ must be parallel.}
+  \begin{itemize}
+    \item \emph{Hint 1.} Feasibility: $0=c_1(x+d)\approx c_1(x)+\grad c_1(x)\T d$.
+    \item \emph{Hint 2.} Descent: $0> f(x+d)-f(x)\approx \grad f(x)\T d$.
+    \item \emph{Hint 3.} If every $d\perp\grad c_1$ also has $\grad f\T d\ge0$, then $\grad f$ has no component in the tangent plane.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reveal: the Lagrange condition}
+  Feasibility to first order needs $\grad c_1(x)\T d = 0$; improvement needs $\grad f(x)\T d<0$.
+  \begin{itemize}
+    \item If a $d$ exists with \emph{both}, $x$ is not optimal. So optimality $\Rightarrow$ no such $d$.
+    \item ``No tangent direction decreases $f$'' means $\grad f$ is \emph{orthogonal to the tangent line}, i.e.\ parallel to the normal $\grad c_1$:
+  \end{itemize}
+  \[
+    \boxed{\ \grad f(\xs) = \ls\,\grad c_1(\xs)\ }\qquad(\text{here } \ls=-\tfrac12).
+  \]
+  Equivalently, defining the \TLterm{Lagrangian}
+  \[
+    \Lag(x,\lambda) = f(x) - \lambda\, c_1(x),
+    \qquad \grad_x \Lag(\xs,\ls)=0 .
+  \]
+  \TLtakeaway{Stationarity of $\Lag$ in $x$ \emph{is} the parallel-gradients condition. The multiplier $\lambda$ is the proportionality constant.}
+\end{frame}
+
+\begin{frame}{Reflection — equality constraints}
+  \TLinfoblock{What changed in your model?}{Optimality stopped being ``gradient is zero''
+  and became ``objective gradient lies in the span of the active constraint gradients.''
+  The Lagrangian packages this into a single stationarity equation.}
+  Open question to carry forward: \emph{the sign of $\lambda$ was irrelevant for an equality.
+  Will that stay true for inequalities?}
+\end{frame}
+
+% =============================================================================
+\TLsection{3 \ A Single Inequality Constraint}
+
+\begin{frame}{Example 12.2 — now the constraint is one-sided}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \[ \min\ x_1+x_2 \quad\text{s.t.}\quad 2-x_1^2-x_2^2\ge 0. \]
+      Feasible set: the \emph{disk} of radius $\sqrt2$ (boundary + interior).\\[6pt]
+      $\grad c_1(x)=\begin{psmallmatrix}-2x_1\\-2x_2\end{psmallmatrix}$ points \emph{into} the feasible disk.
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=1.05,>={Stealth[length=5pt]}]
+        \draw[->,gray!60] (-2.3,0)--(2.3,0) node[right]{$x_1$};
+        \draw[->,gray!60] (0,-2.3)--(0,2.3) node[above]{$x_2$};
+        \fill[TLprimary!12] (0,0) circle (1.8);
+        \draw[thick,TLprimary] (0,0) circle (1.8);
+        \coordinate (xs) at (-1.273,-1.273);
+        \fill[TLaccent] (xs) circle (1.6pt) node[below left]{\small $\xs$};
+        \draw[->,TLneg,very thick] (xs)--($(xs)+(0.95,0.95)$) node[right]{\small $\grad f$};
+        \draw[->,TLpos,very thick] (xs)--($(xs)+(0.9,0.9)$) node[above right]{\small $\grad c_1$ (inward)};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize Redrawn after N\&W Fig.~12.4.}
+    \end{column}
+  \end{columns}
+  \TLtakeaway{Same solution $\xs=(-1,-1)\T$, but now $\grad f$ and $\grad c_1$ point the \emph{same} way.}
+\end{frame}
+
+\begin{frame}{Your turn: when is the constraint even relevant?}
+  \turn{Two scenarios can occur at a candidate solution $\xs$:
+  \smallskip
+  (1) $\xs$ lies \emph{strictly inside} the disk ($c_1(\xs)>0$);\\
+  (2) $\xs$ lies \emph{on the boundary} ($c_1(\xs)=0$).
+
+  \medskip
+  For each, write the optimality condition on $\grad f(\xs)$. In case (2), determine the \emph{sign} of the multiplier $\lambda$ in $\grad f=\lambda\grad c_1$, using that $\grad c_1$ points inward.}
+  \begin{itemize}
+    \item \emph{Hint 1.} If $\xs$ is interior, the constraint does nothing locally — what's the unconstrained rule?
+    \item \emph{Hint 2.} On the boundary, feasible directions satisfy $\grad c_1\T d\ge 0$ (stay inside or tangent).
+    \item \emph{Hint 3.} For no feasible descent, $\grad f$ must point ``out'', i.e.\ along $+\grad c_1$. What sign is $\lambda$?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reveal: complementarity and a sign condition}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Case 1 — inactive} ($c_1(\xs)>0$):
+      \[ \grad f(\xs)=0,\qquad \lambda^{*}=0. \]
+      The constraint is irrelevant; pure unconstrained stationarity.
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Case 2 — active} ($c_1(\xs)=0$):
+      \[ \grad f(\xs)=\ls\grad c_1(\xs),\quad \ls\ge 0. \]
+      $\grad f$ aligns with the inward normal, so $\ls>0$ (here $\ls=\tfrac{1}{2\sqrt2}$).
+    \end{column}
+  \end{columns}
+  \medskip
+  Both cases collapse into one statement using $\Lag(x,\lambda)=f(x)-\lambda c_1(x)$:
+  \[
+    \grad_x\Lag(\xs,\ls)=0,\quad \ls\ge0,\quad \underbrace{\ls\,c_1(\xs)=0}_{\text{complementarity}} .
+  \]
+  \TLtakeaway{Either the constraint is active ($c_1=0$) \emph{or} its multiplier is zero — never both nonzero. The sign $\ls\ge0$ is the new ingredient inequalities bring.}
+\end{frame}
+
+\begin{frame}{Reflection — the meaning of the sign}
+  \TLwarnblock{Why the sign matters}{For an \emph{equality}, $\grad c$ and $-\grad c$ are both
+  feasible normals, so $\lambda$ may have either sign. For an \emph{inequality}, only one side
+  is feasible, which pins $\lambda\ge0$: pushing against an active constraint can only be
+  resisted, never assisted.}
+  Reflection: complementarity says the multiplier is a ``price'' you pay \emph{only} for constraints
+  that are actually binding. We will see this is literally a shadow price (Section~11).
+\end{frame}
+
+% =============================================================================
+\TLsection{4 \ Two Inequality Constraints}
+
+\begin{frame}{Example 12.3 — intersecting constraints}
+  \[ \min\ x_1+x_2 \quad\text{s.t.}\quad 2-x_1^2-x_2^2\ge0,\ \ x_2\ge0. \]
+  Feasible set: upper half-disk; solution $\xs=(-\sqrt2,0)\T$, where \emph{both} constraints are active.
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.95,>={Stealth[length=5pt]}]
+        \draw[->,gray!60] (-2.2,0)--(2.2,0) node[right]{$x_1$};
+        \draw[->,gray!60] (0,-0.4)--(0,2.2) node[above]{$x_2$};
+        \fill[TLprimary!12] (0,0) -- (1.8,0) arc (0:180:1.8) -- cycle;
+        \draw[thick,TLprimary] (1.8,0) arc (0:180:1.8);
+        \draw[thick,TLprimary] (-1.8,0)--(1.8,0);
+        \coordinate (xs) at (-1.8,0);
+        \fill[TLaccent] (xs) circle (1.6pt) node[below]{\small $\xs$};
+        \draw[->,TLneg,very thick] (xs)--($(xs)+(0.85,0.85)$) node[above]{\small $\grad f$};
+        \draw[->,TLpos,thick] (xs)--($(xs)+(0.95,0)$) node[below right]{\small $\grad c_1$};
+        \draw[->,TLprimaryDark,thick] (xs)--($(xs)+(0,0.95)$) node[left]{\small $\grad c_2$};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      At $\xs$: $\grad f=\begin{psmallmatrix}1\\1\end{psmallmatrix}$,\
+      $\grad c_1=\begin{psmallmatrix}2\sqrt2\\0\end{psmallmatrix}$,\
+      $\grad c_2=\begin{psmallmatrix}0\\1\end{psmallmatrix}$.\\[6pt]
+      $\grad f$ is a \emph{nonnegative} combination of the two active gradients:
+      \[ \grad f=\lambda_1^{*}\grad c_1+\lambda_2^{*}\grad c_2,\ \ \lambda_i^{*}\ge0. \]
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Your turn: which directions are ``good''?}
+  \turn{A step $d$ from $\xs$ is a \emph{feasible descent} direction if it stays feasible to first
+  order \emph{and} decreases $f$. Write the inequalities $d$ must satisfy, then describe the set
+  of such $d$ geometrically. When is this set \emph{empty}?}
+  \begin{itemize}
+    \item \emph{Hint 1.} Feasible (to first order): $\grad c_1\T d\ge0$ \emph{and} $\grad c_2\T d\ge0$.
+    \item \emph{Hint 2.} Descent: $\grad f\T d<0$.
+    \item \emph{Hint 3.} Each inequality is a half-plane through the origin; intersect them. Optimality $=$ empty intersection.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reveal: the cone of feasible descent directions}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      The good directions form the intersection of half-planes
+      \[ \grad c_1\T d\ge0,\ \ \grad c_2\T d\ge0,\ \ \grad f\T d<0. \]
+      $\xs$ is optimal exactly when this cone is \textbf{empty} — no direction is simultaneously
+      feasible and improving.
+      \medskip
+
+      Equivalently (Farkas, coming up): $\grad f$ lies \emph{inside} the cone generated by
+      $\{\grad c_1,\grad c_2\}$ with nonnegative coefficients.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.9,>={Stealth[length=5pt]}]
+        \fill[TLaccentLight] (0,0)--(2.1,0.7)--(2.1,2.1)--(0.7,2.1)--cycle;
+        \draw[->,TLpos,very thick] (0,0)--(2.2,0.75) node[right]{\small $\grad c_1$};
+        \draw[->,TLprimaryDark,very thick] (0,0)--(0.75,2.2) node[above]{\small $\grad c_2$};
+        \draw[->,TLneg,very thick] (0,0)--(1.5,1.5) node[above right]{\small $\grad f$};
+        \node[TLaccent] at (1.5,0.9) {\scriptsize cone of active normals};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize Redrawn after N\&W Figs.~12.5--12.6.}
+    \end{column}
+  \end{columns}
+  \TLtakeaway{Optimality $=$ ``$\grad f$ in the cone of active constraint gradients'' $=$ ``no feasible descent direction.'' This is KKT in embryo.}
+\end{frame}
+
+\begin{frame}{Nonsmooth boundaries become smooth constraints}
+  The diamond-in-a-square feasible region (N\&W Fig.~12.2) has \emph{corners}, yet is described by
+  four \emph{smooth} linear inequalities:
+  \[ x_1+x_2\le1,\ \ x_1-x_2\le1,\ \ -x_1+x_2\le1,\ \ -x_1-x_2\le1. \]
+  Likewise the nonsmooth $\min \max(x^2,x)$ becomes the smooth program
+  $\min t$ s.t.\ $t\ge x,\ t\ge x^2$ (add a slack variable $t$).
+  \TLtakeaway{Each smooth constraint carves one smooth piece of the boundary; corners arise where several become active at once. ``Smooth constraints, nonsmooth region'' is the norm.}
+\end{frame}
+
+\begin{frame}{Reflection — toward a general rule}
+  \TLinfoblock{Pattern across all three examples}{At a solution, $\grad f(\xs)$ is a
+  \emph{nonnegative} linear combination of \emph{active} constraint gradients, with equality
+  multipliers free in sign. Inactive constraints get zero multiplier (complementarity).}
+  We now have a conjecture. The rest of the chapter (a) states it precisely (KKT),
+  (b) identifies the hidden assumption that makes it true (constraint qualifications),
+  and (c) proves it.
+\end{frame}
+
+% =============================================================================
+\TLsection{5 \ First-Order Conditions: the KKT System}
+
+\begin{frame}{The Lagrangian and the active set}
+  \TLinfoblock{Lagrangian}{$\displaystyle \Lag(x,\lambda)=f(x)-\sum_{i\in\Eset\cup\Iset}\lambda_i\,c_i(x).$}
+  \TLinfoblock{Active set at a feasible $x$}{$\displaystyle \Aset(x)=\Eset\cup\{\,i\in\Iset : c_i(x)=0\,\}.$
+  Equalities are always active; an inequality is active when it holds with equality.}
+  \[
+    \grad_x\Lag(x,\lambda)=\grad f(x)-\sum_{i\in\Eset\cup\Iset}\lambda_i\grad c_i(x).
+  \]
+  \TLtakeaway{The active set tells you \emph{which} constraints can exert force at $x$; the multipliers say \emph{how much}.}
+\end{frame}
+
+\begin{frame}{Your turn: assemble the KKT conditions yourself}
+  \turn{From the three examples you have all the ingredients. Write down the complete list of
+  conditions that a solution $(\xs,\ls)$ should satisfy. Cover:
+  \smallskip
+  (a) stationarity of $\Lag$;\quad (b) primal feasibility (both kinds);\\
+  (c) the sign of inequality multipliers;\quad (d) complementarity.}
+  \begin{itemize}
+    \item \emph{Hint 1.} Stationarity came from ``no feasible descent'' $\Rightarrow \grad_x\Lag=0$.
+    \item \emph{Hint 2.} Feasibility: $c_i=0$ on $\Eset$, $c_i\ge0$ on $\Iset$.
+    \item \emph{Hint 3.} From the single-inequality case: $\lambda_i\ge0$ for $i\in\Iset$ and $\lambda_i c_i=0$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reveal: Theorem 12.1 (First-Order Necessary / KKT)}
+  \TLresultblock{KKT conditions}{If $\xs$ is a local solution of the problem and the LICQ holds
+  at $\xs$, then there is a multiplier vector $\ls$ such that
+  \[
+    \begin{aligned}
+      \grad_x\Lag(\xs,\ls) &= 0, &&\text{(stationarity)}\\
+      c_i(\xs) &= 0,\ i\in\Eset; \quad c_i(\xs)\ge0,\ i\in\Iset, &&\text{(primal feasibility)}\\
+      \lambda_i^{*} &\ge 0,\ i\in\Iset, &&\text{(dual feasibility)}\\
+      \lambda_i^{*}\,c_i(\xs) &= 0,\ i\in\Eset\cup\Iset. &&\text{(complementarity)}
+    \end{aligned}
+  \]}
+  By complementarity, inactive constraints drop out and stationarity reads
+  $\grad f(\xs)=\sum_{i\in\Aset(\xs)}\lambda_i^{*}\grad c_i(\xs)$.
+  \TLtakeaway{KKT is exactly the conjecture from the examples — \emph{provided} a constraint qualification (LICQ) holds. That proviso is the heart of \S\,12.3 and \S\,12.5.}
+\end{frame}
+
+\begin{frame}{LICQ and (strict) complementarity}
+  \TLinfoblock{Linear Independence Constraint Qualification (Def.~12.1)}{The LICQ holds at $\xs$ if
+  the active constraint gradients $\{\grad c_i(\xs): i\in\Aset(\xs)\}$ are \emph{linearly independent}.}
+  \begin{itemize}
+    \item Under LICQ the multiplier vector $\ls$ is \emph{unique}.
+    \item \TLterm{Strict complementarity} holds if exactly one of $\lambda_i^{*}$, $c_i(\xs)$ is zero for each
+      $i\in\Iset$ — i.e.\ $\lambda_i^{*}>0$ for every active inequality. It often simplifies algorithms.
+  \end{itemize}
+  \TLtakeaway{LICQ is the ``regularity'' that makes the linearized picture of the constraints faithful. Without it, KKT can fail even at a genuine minimizer.}
+\end{frame}
+
+\begin{frame}{Worked example: applying KKT (Example 12.4)}
+  Minimize $f(x)=(x_1-\tfrac32)^2+(x_2-\tfrac18)^4$ over the diamond
+  $c_i(x)\ge0$ from Fig.~12.2; the solution is $\xs=(1,0)\T$, where $c_1,c_2$ are active:
+  \[
+    \grad f(\xs)=\begin{psmallmatrix}-1\\-1/2\end{psmallmatrix},\quad
+    \grad c_1=\begin{psmallmatrix}-1\\-1\end{psmallmatrix},\quad
+    \grad c_2=\begin{psmallmatrix}-1\\\ \,1\end{psmallmatrix}.
+  \]
+  Solve $\grad f=\lambda_1\grad c_1+\lambda_2\grad c_2$:
+  \[
+    \lambda_1^{*}=\tfrac34,\quad \lambda_2^{*}=\tfrac14,\qquad
+    \lambda_3^{*}=\lambda_4^{*}=0\ \text{(inactive)}.
+  \]
+  Both $\ge0$ $\Rightarrow$ dual feasibility holds; complementarity holds since inactive multipliers vanish.
+  \TLtakeaway{KKT in practice: guess the active set, solve a \emph{linear} system for $\lambda$, then check the signs.}
+\end{frame}
+
+% =============================================================================
+\TLsection{6 \ Deriving KKT: Cones, Sequences, and Farkas}
+
+\begin{frame}{Why we need a careful derivation}
+  Our examples used the loose phrase ``feasible direction.'' On a curved boundary, a direction that
+  looks feasible to \emph{first order} may not be the limit of any genuinely feasible path — and
+  vice versa. We must replace intuition with two precise cones and relate them.
+  \TLinfoblock{Plan of \S\,12.3}{(1) \emph{Tangent cone} $T_\feas(\xs)$ — directions of real feasible
+  paths. (2) \emph{Linearized feasible directions} $F_1$ — the algebraic first-order cone.
+  (3) Show $T_\feas=F_1$ under LICQ (Lemma 12.3). (4) Convert ``no descent in $F_1$'' into
+  multipliers via Farkas (Lemma 12.4). Assemble $\Rightarrow$ KKT.}
+\end{frame}
+
+\begin{frame}{Definition: feasible sequences and the tangent cone}
+  \TLinfoblock{Feasible sequence}{$\{z_k\}\subset\feas$ with $z_k\to\xs$ and $z_k\neq\xs$.}
+  \TLinfoblock{Limiting direction}{$d$ is a limiting direction of $\{z_k\}$ if
+  $\dfrac{z_k-\xs}{\|z_k-\xs\|}\to d$ (along a subsequence). The set of all such $d$ (with scalings)
+  is the \TLterm{tangent cone} $T_\feas(\xs)$.}
+  \[
+    z_k = \xs + \|z_k-\xs\|\,d + o(\|z_k-\xs\|).
+  \]
+  \TLtakeaway{$T_\feas(\xs)$ captures the directions of \emph{actual} feasible motion — no linearization, only honest paths into $\feas$.}
+\end{frame}
+
+\begin{frame}{Theorem 12.2 — the geometric first-order condition}
+  \turn{Suppose along some feasible sequence the limiting direction $d$ has $\grad f(\xs)\T d<0$.
+  Use Taylor's theorem on $f(z_k)$ to show $\xs$ \emph{cannot} be a local minimizer. What do you
+  conclude must hold at a true minimizer?}
+  \begin{itemize}
+    \item \emph{Hint 1.} $f(z_k)=f(\xs)+\|z_k-\xs\|\,d\T\grad f(\xs)+o(\|z_k-\xs\|)$.
+    \item \emph{Hint 2.} If $d\T\grad f<0$, the first-order term eventually dominates the remainder.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reveal: Theorem 12.2 and its proof}
+  \TLresultblock{Theorem 12.2}{If $\xs$ is a local solution, then $\grad f(\xs)\T d\ge0$ for every
+  limiting direction $d$ of every feasible sequence, i.e.\ for all $d\in T_\feas(\xs)$.}
+  \textbf{Proof.} For $z_k$ in the subsequence approaching $\xs$ along $d$, Taylor gives
+  \[
+    f(z_k)=f(\xs)+\|z_k-\xs\|\,d\T\grad f(\xs)+o(\|z_k-\xs\|).
+  \]
+  If $d\T\grad f(\xs)<0$, then for large $k$, $f(z_k)<f(\xs)+\half\|z_k-\xs\|\,d\T\grad f(\xs)<f(\xs)$,
+  so every neighborhood of $\xs$ contains a feasible point with smaller $f$ — contradicting local
+  optimality. Hence $d\T\grad f(\xs)\ge0$. \hfill$\square$
+  \TLtakeaway{No feasible \emph{path} can start out downhill. Clean, but it quantifies over all paths — we need a checkable algebraic version.}
+\end{frame}
+
+\begin{frame}{Definition 12.4 — linearized feasible directions $F_1$}
+  \TLinfoblock{The cone $F_1$}{
+  \[
+    F_1=\Big\{\, \alpha d \ \Big|\ \alpha>0,\
+      \grad c_i(\xs)\T d=0\ (i\in\Eset),\
+      \grad c_i(\xs)\T d\ge0\ (i\in\Aset(\xs)\cap\Iset) \,\Big\}.
+  \]}
+  This is purely \emph{algebraic}: it uses only the active gradients, not any path. It is a cone, and
+  (we will see) equals the tangent cone $T_\feas(\xs)$ when a CQ holds.
+  \TLtakeaway{$F_1$ is the computable stand-in for $T_\feas$. The CQ is precisely what guarantees the stand-in is exact.}
+\end{frame}
+
+\begin{frame}{Lemma 12.3 — $T_\feas = F_1$ under LICQ}
+  \TLresultblock{Lemma 12.3}{(i) Every limiting direction $d$ satisfies the $F_1$ inequalities
+  \[ d\T\grad c_i(\xs)=0\ (i\in\Eset),\qquad d\T\grad c_i(\xs)\ge0\ (i\in\Aset(\xs)\cap\Iset). \]
+  (ii) If those hold (with $\|d\|=1$) \emph{and} LICQ holds, then $d$ is the limiting direction of
+  some feasible sequence.}
+  Part (i) ($T_\feas\subseteq F_1$) is always true; part (ii) ($F_1\subseteq T_\feas$) needs LICQ.
+  \TLtakeaway{The inclusion that \emph{can fail} is $F_1\subseteq T_\feas$: the linearization may invent directions the true set does not allow. LICQ forbids that.}
+\end{frame}
+
+\begin{frame}{Proof of Lemma 12.3(i) — the easy inclusion}
+  Let $d$ be a limiting direction of $\{z_k\}$, so $z_k=\xs+\|z_k-\xs\|d+o(\|z_k-\xs\|)$.
+  For an equality $i\in\Eset$, Taylor's theorem and feasibility ($c_i(z_k)=0$) give
+  \[
+    0=\frac{c_i(z_k)}{\|z_k-\xs\|}=\grad c_i(\xs)\T d+\frac{o(\|z_k-\xs\|)}{\|z_k-\xs\|}\ \xrightarrow{k\to\infty}\ \grad c_i(\xs)\T d.
+  \]
+  For an active inequality $i\in\Aset(\xs)\cap\Iset$, feasibility gives $c_i(z_k)\ge0$, so the same
+  computation yields $\grad c_i(\xs)\T d\ge0$. Hence $d\in F_1$. \hfill$\square$
+  \TLtakeaway{Honest feasible motion must respect the linearized constraints — differentiability leaves no room to cheat to first order.}
+\end{frame}
+
+\begin{frame}{Proof of Lemma 12.3(ii) — building a path (idea)}
+  Given $d\in F_1$ with $\|d\|=1$, we \emph{construct} a feasible sequence with limiting direction $d$.
+  \begin{itemize}
+    \item Let $A=[\grad c_i(\xs)]_{i\in\Aset}\T$ have full row rank (this is LICQ) and let $Z$ span its null space.
+    \item For small $t_k\downarrow0$, solve the system $R(z,t_k)=0$:
+      \[ c(z)=t_k A d,\qquad Z\T(z-\xs-t_k d)=0. \]
+    \item The Jacobian $\begin{psmallmatrix}A\\ Z\T\end{psmallmatrix}$ is nonsingular, so the implicit function
+      theorem gives a unique solution $z_k$ for each $t_k$.
+  \end{itemize}
+  Then $c_i(z_k)=t_k\grad c_i(\xs)\T d$, which is $=0$ on $\Eset$ and $\ge0$ on active $\Iset$ — so $z_k$ is
+  feasible — and one checks $(z_k-\xs)/\|z_k-\xs\|\to d$. \hfill$\square$
+  \TLtakeaway{LICQ $=$ full rank $=$ ``the implicit function theorem applies,'' which is exactly what lets us realize any linearized direction as a real path.}
+\end{frame}
+
+\begin{frame}{Prerequisite reminder: Farkas' Lemma}
+  \TLinfoblock{Farkas' Lemma (the alternative we need)}{For a matrix $A$ and vector $g$, \emph{exactly one}
+  holds:
+  \smallskip
+  (I) $g=\sum_i \lambda_i a_i$ with $\lambda_i\ge0$ \ (g is in the cone of the rows $a_i$); \emph{or}\\
+  (II) there is $d$ with $a_i\T d\ge0$ for all $i$ and $g\T d<0$ \ (a separating direction).}
+  In words: either your gradient is a nonnegative combination of the constraint normals, or there is a
+  feasible direction strictly decreasing the objective. Never both.
+  \TLtakeaway{Farkas is the engine that turns ``no feasible descent direction'' into ``multipliers exist.''}
+\end{frame}
+
+\begin{frame}{Lemma 12.4 — directions become multipliers}
+  \TLresultblock{Lemma 12.4}{There is \emph{no} $d\in F_1$ with $d\T\grad f(\xs)<0$ \ \emph{iff} \ there exist
+  $\lambda_i$ with
+  \[
+    \grad f(\xs)=\sum_{i\in\Aset(\xs)}\lambda_i\grad c_i(\xs),\qquad \lambda_i\ge0\ \ (i\in\Aset(\xs)\cap\Iset).
+  \]}
+  This is Farkas applied to $g=\grad f(\xs)$ and the active gradients (equalities entered with free sign
+  by including $\pm\grad c_i$). The nonnegative-combination side is exactly ``$\grad f\in N$,'' the cone
+  of active normals.
+  \TLtakeaway{``No improving feasible direction'' $\Longleftrightarrow$ ``$\grad f$ is a legal nonnegative combination of active gradients.'' That combination's coefficients \emph{are} the multipliers.}
+\end{frame}
+
+\begin{frame}{Proof of Lemma 12.4 ($\Leftarrow$) — the easy direction}
+  Suppose $\grad f(\xs)=\sum_{i\in\Aset}\lambda_i\grad c_i(\xs)$ with $\lambda_i\ge0$ on active inequalities.
+  Take any $d\in F_1$. Then
+  \[
+    d\T\grad f(\xs)=\underbrace{\sum_{i\in\Eset}\lambda_i\, d\T\grad c_i}_{=\,0}
+      +\underbrace{\sum_{i\in\Aset\cap\Iset}\lambda_i\, d\T\grad c_i}_{\ge\,0}\ \ge 0,
+  \]
+  because $d\T\grad c_i=0$ on $\Eset$ and both $\lambda_i\ge0$ and $d\T\grad c_i\ge0$ on active inequalities.
+  So no $d\in F_1$ has $d\T\grad f<0$. \hfill$\square$
+  \TLtakeaway{If $\grad f$ lives in the cone, every linearized-feasible direction is non-decreasing — automatically.}
+\end{frame}
+
+\begin{frame}{Proof of Lemma 12.4 ($\Rightarrow$) — projection onto the cone}
+  Let $N=\{\sum_{i\in\Aset}\lambda_i\grad c_i:\lambda_i\ge0\text{ on }\Iset\}$ (closed, convex).
+  Suppose $\grad f\notin N$; let $\hat s$ be the closest point of $N$ to $\grad f$. Optimality of the
+  projection gives $\hat s\T(\hat s-\grad f)=0$ and $s\T(\hat s-\grad f)\ge0$ for all $s\in N$.
+  Set $d=\hat s-\grad f\neq0$. Then
+  \[
+    d\T\grad f=d\T(\hat s-d)=-\|d\|^2<0,
+  \]
+  and substituting $s=\pm\grad c_i$ (equalities), $s=\grad c_i$ (active inequalities) shows
+  $d\T\grad c_i=0$ on $\Eset$, $\ge0$ on active $\Iset$, i.e.\ $d\in F_1$. So a descent $d\in F_1$ exists —
+  the contrapositive. \hfill$\square$
+  \TLtakeaway{The separating direction is literally the projection residual $\hat s-\grad f$. Convexity of the normal cone does all the work.}
+\end{frame}
+
+\begin{frame}{Assembling Theorem 12.1}
+  \begin{enumerate}
+    \item $\xs$ a local solution $\Rightarrow$ (Thm 12.2) $\grad f(\xs)\T d\ge0$ for all $d\in T_\feas(\xs)$.
+    \item LICQ $\Rightarrow$ (Lemma 12.3) $T_\feas(\xs)=F_1$. So $\grad f(\xs)\T d\ge0$ for all $d\in F_1$.
+    \item (Lemma 12.4) $\Rightarrow$ multipliers $\lambda_i^{*}\ge0$ (active $\Iset$) with
+      $\grad f(\xs)=\sum_{i\in\Aset}\lambda_i^{*}\grad c_i(\xs)$, i.e.\ $\grad_x\Lag(\xs,\ls)=0$.
+    \item Set $\lambda_i^{*}=0$ for inactive $i$ $\Rightarrow$ complementarity $\lambda_i^{*}c_i(\xs)=0$; feasibility is given.
+  \end{enumerate}
+  These are exactly the KKT conditions (12.30). \hfill$\blacksquare$
+  \TLtakeaway{KKT $=$ Taylor (Thm 12.2) $+$ regularity (LICQ, Lemma 12.3) $+$ Farkas (Lemma 12.4). Remember the three pillars, not the algebra.}
+\end{frame}
+
+\begin{frame}{Reflection — the role of each pillar}
+  \TLinfoblock{If you forget everything else}{
+  \begin{itemize}
+    \item \textbf{Thm 12.2} (calculus): minimizers have no downhill feasible path.
+    \item \textbf{Lemma 12.3} (geometry $+$ IFT): a CQ makes the linearized cone exact.
+    \item \textbf{Lemma 12.4} (convex analysis / Farkas): no-descent $\Leftrightarrow$ multipliers exist.
+  \end{itemize}}
+  Reflection: which pillar fails when KKT fails at a true minimizer? (Almost always Lemma~12.3 — the CQ.)
+\end{frame}
+
+% =============================================================================
+\TLsection{7 \ Second-Order Conditions}
+
+\begin{frame}{Your turn: why isn't first-order enough?}
+  \turn{KKT can hold at a point that is \emph{not} a minimizer (think saddle-like behavior along the
+  boundary). Along which directions does first-order information tell you \emph{nothing} about whether
+  $f$ goes up or down? What second-order quantity would you examine there?}
+  \begin{itemize}
+    \item \emph{Hint 1.} If $d\in F_1$ has $\grad f\T d>0$, $f$ increases — fine. The ambiguous case is $\grad f\T d=0$.
+    \item \emph{Hint 2.} Recall unconstrained theory: when the gradient term vanishes, look at the Hessian (curvature).
+    \item \emph{Hint 3.} Curvature of \emph{what}? Not $f$ alone — the constraints curve too. Think Lagrangian.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reveal: the critical cone $F_2(\ls)$}
+  The ambiguous directions are those in $F_1$ along which $\grad f$ is flat. With a KKT pair $(\xs,\ls)$:
+  \TLinfoblock{Critical cone $F_2(\ls)$}{$w\in F_1$ such that additionally
+  \[
+    \grad c_i(\xs)\T w=0\ (i\in\Eset),\quad
+    \grad c_i(\xs)\T w=0\ (i\in\Aset\cap\Iset,\ \lambda_i^{*}>0),\quad
+    \grad c_i(\xs)\T w\ge0\ (\lambda_i^{*}=0).
+  \]}
+  On $F_2(\ls)$ one has $w\T\grad f(\xs)=\sum_i\lambda_i^{*}\,w\T\grad c_i(\xs)=0$: first-order
+  information is exhausted.
+  \TLtakeaway{The critical cone collects the directions that ``hug'' the strongly-active constraints — precisely where curvature decides optimality.}
+\end{frame}
+
+\begin{frame}{Theorem 12.5 — Second-Order Necessary Conditions}
+  \TLresultblock{Theorem 12.5}{If $\xs$ is a local solution and LICQ holds, and $\ls$ satisfies KKT, then
+  \[
+    w\T\,\grad_{xx}\Lag(\xs,\ls)\,w\ \ge\ 0\qquad\text{for all } w\in F_2(\ls).
+  \]}
+  \textbf{Proof idea.} Build (via Lemma 12.3) a feasible sequence $z_k$ with limiting direction $w/\|w\|$.
+  Complementarity makes $\Lag(z_k,\ls)=f(z_k)$ along it; a Taylor expansion of $\Lag$ gives
+  \[
+    f(z_k)=f(\xs)+\half(t_k/\|w\|)^2\, w\T\grad_{xx}\Lag(\xs,\ls)\,w+o(t_k^2).
+  \]
+  If the curvature were negative, $f(z_k)<f(\xs)$ — contradiction. Hence it is $\ge0$. \hfill$\square$
+  \TLtakeaway{Use $\grad_{xx}\Lag$, \emph{not} $\grad^2 f$: the constraints' curvature (weighted by $\ls$) is part of the story.}
+\end{frame}
+
+\begin{frame}{Theorem 12.6 — Second-Order Sufficient Conditions}
+  \TLresultblock{Theorem 12.6}{If $(\xs,\ls)$ satisfies KKT and
+  \[
+    w\T\,\grad_{xx}\Lag(\xs,\ls)\,w\ >\ 0\qquad\text{for all } w\in F_2(\ls),\ w\neq0,
+  \]
+  then $\xs$ is a \emph{strict} local solution. (No constraint qualification needed.)}
+  Mirror image of the necessary condition: $\ge0$ becomes $>0$, ``$\Rightarrow$ minimizer'' replaces
+  ``minimizer $\Rightarrow$''. For any feasible sequence, the expansion forces $f(z_k)>f(\xs)$.
+  \TLtakeaway{Positive curvature of $\Lag$ on the critical cone certifies a strict minimizer — the constrained analogue of ``$\grad^2 f\succ0$.''}
+\end{frame}
+
+\begin{frame}{Worked example: second-order test}
+  $\min\, x_1+x_2$ s.t.\ $c_1(x)=2-x_1^2-x_2^2\ge0$. KKT point $\xs=(-1,-1)\T$: the constraint is
+  active and $\grad f=(1,1)\T=\ls\grad c_1(\xs)$ with $\grad c_1(\xs)=(2,2)\T$, giving $\ls=\tfrac12>0$.
+  \begin{itemize}
+    \item $\Lag=x_1+x_2-\lambda(2-x_1^2-x_2^2)$, and $\grad^2 c_1=-2I$, so
+      $\grad_{xx}\Lag=\grad^2 f-\lambda\grad^2 c_1=2\lambda I=\begin{psmallmatrix}1&0\\0&1\end{psmallmatrix}$ at $\ls=\tfrac12$.
+    \item Critical cone: $w$ with $\grad c_1(\xs)\T w=0$, i.e.\ $w\propto(1,-1)$ (the boundary tangent).
+    \item Test: $w\T\grad_{xx}\Lag\,w=\|w\|^2>0$ for $w\neq0$.
+  \end{itemize}
+  By Theorem 12.6 the second-order sufficient condition holds, so $\xs$ is a strict local minimizer.
+  \TLtakeaway{Mechanically: form $\grad_{xx}\Lag$, restrict to $F_2(\ls)$, test definiteness \emph{there} — a low-dimensional check even when $n$ is large.}
+\end{frame}
+
+\begin{frame}{Reflection — the multiplier enters the curvature}
+  \TLwarnblock{A classic trap}{Testing $\grad^2 f$ instead of $\grad_{xx}\Lag$ gives wrong answers when
+  constraints are curved. The term $-\sum_i\lambda_i^{*}\grad^2 c_i$ can flip the sign of the curvature
+  on the critical cone.}
+  Reflection: the multipliers you found from the \emph{first}-order conditions are reused in the
+  \emph{second}-order test. First and second order are not separate computations — they are one coupled story.
+\end{frame}
+
+% =============================================================================
+\TLsection{8 \ Other Constraint Qualifications}
+
+\begin{frame}{When the linearization lies — Figure 12.11}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      Feasible set $x_2\le x_1^3,\ x_2\ge0$ at $\xs=(0,0)$. Both active, with
+      \[ F_1=\{d: -d_2\ge0,\ d_2\ge0\}=\{d:d_2=0\}. \]
+      $F_1$ contains $(-1,0)$ — but the \emph{only} real feasible limiting direction is $(+1,0)$!
+      The cusp makes the linearization fictitious; \emph{no CQ holds}, and KKT may fail.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=1.5,>={Stealth[length=5pt]}]
+        \draw[->,gray!60] (-1.1,0)--(1.2,0) node[right]{$x_1$};
+        \draw[->,gray!60] (0,-0.2)--(0,1.0) node[above]{$x_2$};
+        \fill[TLprimary!15] plot[domain=0:1.0,samples=40] (\x,{\x*\x*\x}) -- (1.0,0) -- (0,0);
+        \draw[thick,TLprimary] plot[domain=0:1.05,samples=40] (\x,{\x*\x*\x});
+        \draw[thick,TLprimary] (0,0)--(1.05,0);
+        \fill[TLaccent] (0,0) circle (0.7pt) node[above left]{\scriptsize $\xs$};
+        \draw[->,TLneg,thick] (0,0)--(0.55,0) node[below]{\scriptsize true dir};
+        \draw[->,gray,dashed,thick] (0,0)--(-0.55,0) node[below]{\scriptsize in $F_1$, infeasible};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize Redrawn after N\&W Fig.~12.11.}
+    \end{column}
+  \end{columns}
+  \TLtakeaway{A CQ is exactly a guarantee that $F_1$ faithfully represents $T_\feas$. Cusps and tangential constraints break it.}
+\end{frame}
+
+\begin{frame}{Two more constraint qualifications}
+  \TLinfoblock{Linear constraints (Lemma 12.8)}{If all \emph{active} constraints are linear, then
+  $w\in F_1\Leftrightarrow w/\|w\|$ is a limiting feasible direction — so $F_1=T_\feas$. (Neither
+  weaker nor stronger than LICQ.)}
+  \TLinfoblock{Mangasarian--Fromovitz (MFCQ, Def.~12.5)}{There exists $w$ with
+  \[ \grad c_i(\xs)\T w>0\ (i\in\Aset\cap\Iset),\quad \grad c_i(\xs)\T w=0\ (i\in\Eset), \]
+  and $\{\grad c_i(\xs):i\in\Eset\}$ linearly independent. (Note the \emph{strict} inequality.)}
+  \TLtakeaway{Each CQ is a different sufficient condition for ``$F_1$ is faithful.'' Pick whichever your problem satisfies.}
+\end{frame}
+
+\begin{frame}{Your turn: is MFCQ weaker or stronger than LICQ?}
+  \turn{Decide whether LICQ implies MFCQ or vice versa. If LICQ holds, can you always produce the
+  vector $w$ that MFCQ demands?}
+  \begin{itemize}
+    \item \emph{Hint 1.} Under LICQ the active gradients are independent, so the linear system
+      $\grad c_i\T w=1$ ($i\in\Aset\cap\Iset$), $\grad c_i\T w=0$ ($i\in\Eset$) is \emph{solvable}.
+    \item \emph{Hint 2.} That solution is exactly an MFCQ vector. Does the converse hold?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reveal: MFCQ is strictly weaker (and bounds multipliers)}
+  LICQ $\Rightarrow$ MFCQ: full rank lets you solve $\grad c_i\T w=1$ (active $\Iset$), $\grad c_i\T w=0$
+  ($\Eset$); that $w$ satisfies MFCQ. The converse fails — one can satisfy MFCQ with \emph{dependent}
+  active gradients.
+  \TLinfoblock{A characterization}{MFCQ holds $\Leftrightarrow$ the set of KKT multiplier vectors $\ls$ is
+  \emph{nonempty and bounded}. (Under LICQ that set is a single point.)}
+  \TLtakeaway{Weaker CQ $\Rightarrow$ multipliers may be non-unique but stay bounded. CQs are not all-or-nothing; they trade regularity for generality.}
+\end{frame}
+
+% =============================================================================
+\TLsection{9 \ A Geometric Viewpoint}
+
+\begin{frame}{Forgetting the algebra: the normal cone}
+  The geometric problem is just $\min f(x)$ s.t.\ $x\in\feas$. Define the \TLterm{normal cone}
+  \[
+    N_\feas(\xs)=\{\, v \mid v\T d\le0 \ \text{ for all } d\in T_\feas(\xs)\,\}.
+  \]
+  It is the polar of the tangent cone: the directions that make a non-acute angle with every feasible direction.
+  \begin{center}
+  \begin{tikzpicture}[scale=0.9,>={Stealth[length=5pt]}]
+    \fill[TLprimary!12] (0,0) rectangle (3,1.6);
+    \draw[thick,TLprimary] (0,0) rectangle (3,1.6);
+    \coordinate (p) at (0,0.8);
+    \fill[TLaccent] (p) circle (1.4pt) node[left]{\scriptsize $\xs$};
+    \draw[->,TLpos,thick] (p)--($(p)+(1.0,0)$) node[above]{\scriptsize $T_\feas$ (into set)};
+    \draw[->,TLneg,thick] (p)--($(p)+(-1.0,0)$) node[above]{\scriptsize $N_\feas$ (outward)};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{Tangent cone $=$ where you may go; normal cone $=$ its polar, where the ``outward pushes'' live.}
+\end{frame}
+
+\begin{frame}{Theorem 12.9 — optimality in one line}
+  \TLresultblock{Theorem 12.9}{If $\xs$ is a local minimizer of $f$ on $\feas$, then
+  \[ -\grad f(\xs)\in N_\feas(\xs). \]}
+  \textbf{Proof.} For any $d\in T_\feas(\xs)$ pick $d_j\to d$ with $\xs+t_j d_j\in\feas$, $t_j\downarrow0$.
+  Local optimality and Taylor give $t_j\grad f(\xs)\T d_j+o(t_j)\ge0$; let $j\to\infty$ to get
+  $\grad f(\xs)\T d\ge0$. So $-\grad f(\xs)\T d\le0$ for all $d\in T_\feas(\xs)$, i.e.\
+  $-\grad f(\xs)\in N_\feas(\xs)$. \hfill$\square$
+  \TLtakeaway{The steepest-descent direction $-\grad f$ must point ``out of'' the feasible set. No algebra, no CQ — pure geometry.}
+\end{frame}
+
+\begin{frame}{Lemma 12.10 — geometry meets algebra}
+  \TLresultblock{Lemma 12.10}{Under LICQ at $\xs$:
+  \[ T_\feas(\xs)=F_1\qquad\text{and}\qquad N_\feas(\xs)=-N, \]
+  where $N=\{\sum_{i\in\Aset}\lambda_i\grad c_i(\xs):\lambda_i\ge0\text{ on }\Iset\}$ is the cone of active normals.}
+  Combine with Theorem 12.9: $-\grad f\in N_\feas=-N$ means $\grad f\in N$, i.e.\
+  $\grad f=\sum_i\lambda_i\grad c_i$, $\lambda_i\ge0$ — \emph{KKT again}.
+  \TLtakeaway{The geometric condition $-\grad f\in N_\feas$ and the algebraic KKT system are the \emph{same statement}, translated by the CQ.}
+\end{frame}
+
+\begin{frame}{Convexity makes KKT sufficient (Theorem 12.7)}
+  \TLresultblock{Theorem 12.7}{If the $c_i$, $i\in\Eset$, are linear and the $-c_i$, $i\in\Iset$, are convex,
+  then $\feas$ is convex.}
+  \textbf{Proof.} For feasible $x_0,x_1$ and $x_\tau=(1-\tau)x_0+\tau x_1$: equalities are preserved by
+  linearity; for inequalities, convexity of $-c_i$ gives
+  $-c_i(x_\tau)\le(1-\tau)(-c_i(x_0))+\tau(-c_i(x_1))\le0$, so $c_i(x_\tau)\ge0$. Hence $x_\tau\in\feas$. \hfill$\square$
+  \begin{itemize}
+    \item In a convex program, every local solution is global, and KKT becomes \emph{sufficient}, not just necessary.
+    \item Linear programming is the special case where all functions are linear.
+  \end{itemize}
+  \TLtakeaway{Convexity upgrades KKT from ``necessary clue'' to ``certificate of global optimality.''}
+\end{frame}
+
+% =============================================================================
+\TLsection{10 \ Sensitivity: What Multipliers Mean}
+
+\begin{frame}{Your turn: what is a multiplier worth?}
+  \turn{Perturb an active constraint to $c_i(x)\ge -\epsilon_i$ (relax it slightly). Guess how the optimal
+  objective value $f^{*}$ changes with $\epsilon_i$, in terms of $\lambda_i^{*}$.}
+  \begin{itemize}
+    \item \emph{Hint 1.} Relaxing a binding constraint can only help (or not hurt) a minimization.
+    \item \emph{Hint 2.} The Lagrangian $f-\sum\lambda_i c_i$ already pairs each constraint with its multiplier.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reveal: multipliers are shadow prices}
+  Under strict complementarity and LICQ, the optimal value responds linearly to small relaxations:
+  \[
+    \frac{\partial f^{*}}{\partial \epsilon_i}\ =\ -\,\lambda_i^{*}.
+  \]
+  \begin{itemize}
+    \item A large $\lambda_i^{*}$ $\Rightarrow$ the constraint is ``expensive'': relaxing it improves the optimum a lot.
+    \item $\lambda_i^{*}=0$ (inactive, by complementarity) $\Rightarrow$ small changes don't matter.
+  \end{itemize}
+  \TLtakeaway{The multiplier is the marginal value of the constraint — its \emph{shadow price}. This is why $\lambda^{*}$ is as interesting as $\xs$ itself.}
+\end{frame}
+
+% =============================================================================
+\TLsection{11 \ Synthesis}
+
+\begin{frame}{The whole chapter on one slide}
+  \begin{center}
+  \begin{tikzpicture}[scale=1,>={Stealth[length=5pt]},
+      box/.style={draw=TLprimary,fill=TLprimary!8,rounded corners,inner sep=4pt,align=center,font=\scriptsize}]
+    \node[box] (min) at (0,3) {local\\minimizer};
+    \node[box] (tan) at (0,1.5) {no downhill\\feasible path\\(Thm 12.2)};
+    \node[box] (cq) at (4,1.5) {CQ: $F_1=T_\feas$\\(LICQ/MFCQ/linear)};
+    \node[box] (far) at (8,1.5) {Farkas\\(Lemma 12.4)};
+    \node[box] (kkt) at (4,3) {KKT system\\$\grad_x\Lag=0$, $\lambda_{\Iset}\ge0$, $\lambda c=0$};
+    \node[box] (so) at (8,3) {2nd order on $F_2(\ls)$\\$w\T\grad_{xx}\Lag\,w\gtrless0$};
+    \draw[->] (min)--(tan);
+    \draw[->] (tan)--(cq);
+    \draw[->] (cq)--(far);
+    \draw[->] (tan)--(kkt);
+    \draw[->] (far)--(kkt);
+    \draw[->] (kkt)--(so);
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{First order locates candidates (KKT); a constraint qualification justifies it; second order on the critical cone confirms them. Multipliers are shadow prices throughout.}
+\end{frame}
+
+\begin{frame}{Final reflection}
+  \TLinfoblock{What changed in your model of optimization?}{
+  \begin{itemize}
+    \item ``Set the gradient to zero'' became ``balance the gradient against active constraint normals.''
+    \item ``Feasible direction'' split into a \emph{geometric} cone ($T_\feas$) and an \emph{algebraic} one ($F_1$), bridged by a CQ.
+    \item Curvature tests moved from $\grad^2 f$ to $\grad_{xx}\Lag$ on the critical cone.
+  \end{itemize}}
+  These three shifts recur in every algorithm of Part~II (SQP, interior-point, augmented Lagrangian).
+\end{frame}
+
+% =============================================================================
+\TLsection{12 \ Exercises}
+
+\begin{frame}{Exercise 1 — apply KKT}\hfill\stars{$\star\star$}
+
+  Find all KKT points of $\ \max\ x_1 x_2\ $ on the unit disk $\ x_1^2+x_2^2\le1$
+  (write as $\min -x_1x_2$, constraint $1-x_1^2-x_2^2\ge0$).
+  \begin{itemize}
+    \item \emph{Hint 1.} Stationarity: $\grad(-x_1x_2)=\lambda\grad(1-x_1^2-x_2^2)$, $\lambda\ge0$.
+    \item \emph{Hint 2.} Consider active ($\lambda>0$) vs.\ inactive ($\lambda=0$) cases separately.
+    \item \emph{Hint 3.} On the boundary, symmetry suggests $|x_1|=|x_2|$.
+  \end{itemize}
+  \TLtakeaway{Tests: setting up KKT, case-splitting on activity, and using complementarity.}
+\end{frame}
+
+\begin{frame}{Exercise 2 — second-order test}\hfill\stars{$\star\star$}
+
+  For the KKT point $\xs=(\tfrac1{\sqrt2},\tfrac1{\sqrt2})$ from Exercise 1, verify it is a strict
+  local maximizer using the second-order \emph{sufficient} condition.
+  \begin{itemize}
+    \item \emph{Hint 1.} Form $\grad_{xx}\Lag$ for $\Lag=-x_1x_2-\lambda(1-x_1^2-x_2^2)$.
+    \item \emph{Hint 2.} The critical cone is the tangent line $\{w:\grad c_1(\xs)\T w=0\}$.
+    \item \emph{Hint 3.} Check the sign of $w\T\grad_{xx}\Lag\,w$ for $w$ on that line.
+  \end{itemize}
+  \TLtakeaway{Tests: building $\grad_{xx}\Lag$ and restricting to the critical cone.}
+\end{frame}
+
+\begin{frame}{Exercise 3 — a constraint qualification fails}\hfill\stars{$\star\star\star$}
+
+  For the feasible set $x_2\ge0,\ x_2\le x_1^3$ at $\xs=(0,0)$, show that neither LICQ nor MFCQ holds, and
+  exhibit a problem for which KKT \emph{fails} at a genuine minimizer.
+  \begin{itemize}
+    \item \emph{Hint 1.} Compute the active gradients at the origin — are they independent?
+    \item \emph{Hint 2.} Is there a $w$ with all $\grad c_i\T w>0$ (MFCQ)?
+    \item \emph{Hint 3.} Minimize $f=x_1$ on this set and try to satisfy KKT.
+  \end{itemize}
+  \TLtakeaway{Tests: understanding \emph{why} CQs are assumptions, not technicalities.}
+\end{frame}
+
+\begin{frame}{Exercise 4 — convexity certificate}\hfill\stars{$\star\star$}
+
+  Show that any local solution of a convex program (linear equalities, concave inequality functions
+  $c_i$) is a \emph{global} solution, and that KKT is sufficient there.
+  \begin{itemize}
+    \item \emph{Hint 1.} Use Theorem 12.7 to get convexity of $\feas$.
+    \item \emph{Hint 2.} For a convex $f$ on convex $\feas$, a feasible descent direction at a non-global point exists — contradict KKT.
+  \end{itemize}
+  \TLtakeaway{Tests: connecting convexity, global optimality, and sufficiency of KKT.}
+\end{frame}
+
+\begin{frame}{Exercise 5 — uniqueness of multipliers}\hfill\stars{$\star\star\star$}
+
+  Prove that when LICQ holds at a KKT point, the multiplier vector $\ls$ is \emph{unique}.
+  \begin{itemize}
+    \item \emph{Hint 1.} Suppose $\ls$ and $\hat\lambda$ both satisfy stationarity.
+    \item \emph{Hint 2.} Subtract: $\sum_{i\in\Aset}(\lambda_i^{*}-\hat\lambda_i)\grad c_i(\xs)=0$.
+    \item \emph{Hint 3.} Apply linear independence of the active gradients.
+  \end{itemize}
+  \TLtakeaway{Tests: the precise role LICQ plays beyond mere existence of multipliers.}
+\end{frame}
+
+% =============================================================================
+\TLsection{13 \ References \& Bibliographical Notes}
+
+\begin{frame}{References and further reading}
+  \begin{thebibliography}{9}
+    \footnotesize
+    \bibitem{NW} J.~Nocedal and S.~J.~Wright, \emph{Numerical Optimization}, 2nd ed., Springer, 2006 — Chapter~12.
+    \bibitem{Fiacco} A.~V.~Fiacco and G.~P.~McCormick, \emph{Nonlinear Programming: Sequential Unconstrained Minimization Techniques}, 1968.
+    \bibitem{Mangasarian} O.~L.~Mangasarian, \emph{Nonlinear Programming}, McGraw--Hill, 1969 — constraint qualifications.
+    \bibitem{Fletcher} R.~Fletcher, \emph{Practical Methods of Optimization}, 2nd ed., Wiley, 1987.
+    \bibitem{BV} S.~Boyd and L.~Vandenberghe, \emph{Convex Optimization}, CUP, 2004 — duality and the convex case.
+  \end{thebibliography}
+\end{frame}
+
+\begin{frame}{Bibliographical notes}
+  \begin{itemize}
+    \item The KKT conditions are due to \TLterm{Karush} (1939, MSc thesis) and independently
+      \TLterm{Kuhn \& Tucker} (1951) — hence the name.
+    \item \TLterm{Farkas' Lemma} (1902) is the theorem of the alternative underlying Lemma 12.4; the
+      closedness of the cone $N$ has an elegant proof discussed in N\&W's notes.
+    \item The \TLterm{Mangasarian--Fromovitz} CQ (1967) is the weakest classical CQ guaranteeing bounded
+      multipliers; it underlies stability and sensitivity theory.
+    \item Sensitivity / shadow-price interpretation traces to duality in linear programming (Dantzig) and
+      to Fiacco's parametric programming.
+  \end{itemize}
+  \TLtakeaway{The theory took fifty years to settle; reinventing it in an afternoon is exactly the point of this deck.}
+\end{frame}
+
+% =============================================================================
+\appendix
+
+\begin{frame}{Backup — Solution to Exercise 1}
+  Stationarity: $-x_2=-2\lambda x_1$, $-x_1=-2\lambda x_2$, $\lambda\ge0$.
+  \begin{itemize}
+    \item \textbf{Inactive} ($\lambda=0$): forces $x_1=x_2=0$, the origin — a saddle of $x_1x_2$, value $0$.
+    \item \textbf{Active} ($x_1^2+x_2^2=1$): adding/subtracting gives $x_1=\pm x_2$. With $\lambda\ge0$,
+      $x_1x_2>0$, so $x_1=x_2=\pm\tfrac1{\sqrt2}$ with $\lambda=\tfrac12$ (the two maximizers, value $\tfrac12$),
+      while $x_1=-x_2$ gives $\lambda=-\tfrac12<0$, rejected.
+  \end{itemize}
+  Maximizers: $(\tfrac1{\sqrt2},\tfrac1{\sqrt2})$ and $(-\tfrac1{\sqrt2},-\tfrac1{\sqrt2})$.
+\end{frame}
+
+\begin{frame}{Backup — Solution to Exercise 2}
+  $\Lag=-x_1x_2-\lambda(1-x_1^2-x_2^2)$, so
+  $\grad_{xx}\Lag=\begin{psmallmatrix}2\lambda & -1\\ -1 & 2\lambda\end{psmallmatrix}$ with $\lambda=\tfrac12$,
+  i.e.\ $\begin{psmallmatrix}1&-1\\-1&1\end{psmallmatrix}$.
+  At $\xs=(\tfrac1{\sqrt2},\tfrac1{\sqrt2})$, $\grad c_1=-2\xs\propto(1,1)$, so the critical cone is
+  $w\propto(1,-1)$. Then $w\T\grad_{xx}\Lag\,w=(1,-1)\begin{psmallmatrix}1&-1\\-1&1\end{psmallmatrix}(1,-1)\T=4>0$.
+  By Theorem 12.6, $\xs$ is a strict local maximizer. \hfill$\square$
+\end{frame}
+
+\begin{frame}{Backup — Solution to Exercise 3}
+  Active gradients at $(0,0)$: from $c_1=x_1^3-x_2\ge0$ and $c_2=x_2\ge0$, $\grad c_1(0)=(0,-1)$,
+  $\grad c_2(0)=(0,1)$ — \emph{linearly dependent}, so LICQ fails. For MFCQ we need $w$ with
+  $\grad c_1\T w>0$ and $\grad c_2\T w>0$: i.e.\ $-w_2>0$ and $w_2>0$ — impossible, so MFCQ fails too.
+  For $\min x_1$ the true minimizer along the cusp is $(0,0)$, yet
+  $\grad f=(1,0)$ is \emph{not} a nonnegative combination of $(0,\mp1)$, so KKT has no solution. \hfill$\square$
+\end{frame}
+
+\begin{frame}{Backup — Solution to Exercise 5}
+  If $\ls$ and $\hat\lambda$ both satisfy $\grad f(\xs)=\sum_{i\in\Aset}\lambda_i\grad c_i(\xs)$, subtract:
+  \[ \sum_{i\in\Aset}(\lambda_i^{*}-\hat\lambda_i)\,\grad c_i(\xs)=0. \]
+  Under LICQ the $\{\grad c_i(\xs)\}_{i\in\Aset}$ are linearly independent, so all coefficients vanish:
+  $\lambda_i^{*}=\hat\lambda_i$. Inactive multipliers are $0$ by complementarity in both. Hence $\ls$ is unique. \hfill$\square$
+\end{frame}
+
+\end{document}

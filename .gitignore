@@ -44,3 +44,4 @@ __pycache__/
 Thumbs.db
 # AutoBeamer environment state (per-environment, not shared)
 .autobeamer/
+.fonts/

@@ -9,6 +9,8 @@
 | Keyword Pattern | Memory File | Priority |
 |-----------------|-------------|----------|
 | `theme`, `color`, `palette`, `teal`, `academic`, `dark` | `repo/user-preferences.md` | P0 |
+| `CJK`, `Chinese`, `中文`, `font`, `serif`, `Source Han`, `font-config` | `repo/cjk-font-setup.md` + `repo/user-preferences.md` | P0 |
+| `math font`, `KpMath`, `unicode-math`, `setmathfont` | `repo/user-preferences.md` (Math Font section) | P1 |
 | `box`, `block`, `infoblock`, `alertblock`, `card` | `repo/user-preferences.md` | P0 |
 | `layout`, `column`, `twocol`, `imgtop`, `equal height` | `repo/user-preferences.md` | P0 |
 | `mentor deck`, `self-study`, `exercise`, `example`, `worked` | `repo/user-preferences.md` | P0 |
@@ -28,6 +30,7 @@
 **When**: Every task  
 **Key files**:
 - `user-preferences.md` — MUST READ before any design/plan decision
+- `cjk-font-setup.md` — Chinese font setup, auto-detection chain, math pairing
 - `feedback-split-not-shrink.md` — Split vs shrink preference (CRITICAL)
 - `MEMORY_INDEX.md` — This file
 
@@ -50,6 +53,7 @@
 
 ## Last Updated
 
+- 2026-06-05: Added CJK font setup (Source Han Serif SC + KpMath), updated build/create skills, added `cjk-font-setup.md` memory
 - 2026-06-04: Restored skill memory into the repo; fixed skill-name drift (autobeamer-*), removed a dangling memory-file row from the lookup table
 - 2026-05-31: Added `feedback-split-not-shrink.md`, compacted index, added workspace memory reference
 - 2026-05-24: Created MEMORY_INDEX.md

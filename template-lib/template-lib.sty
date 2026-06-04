@@ -70,8 +70,11 @@
 \input{\TLlibpath font-config.sty}
 
 % ── Math Fonts ──────────────────────────────────────────────────────────────
+% KpMath (Kepler) — designed for math typography, heavier serif than Latin Modern.
+% Pairs well with both Computer Modern body text and Source Han Serif SC CJK.
+% Available weights: Regular, Bold, Light, SemiBold, Sans, SansBold.
 \RequirePackage{unicode-math}
-\setmathfont{Latin Modern Math}
+\setmathfont{KpMath-Regular.otf}[BoldFont=KpMath-Bold.otf]
 
 % ── Global Settings ─────────────────────────────────────────────────────────
 \setbeamertemplate{navigation symbols}{}

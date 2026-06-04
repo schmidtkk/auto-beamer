@@ -73,6 +73,15 @@
   \expandafter\endinput
 \fi
 
+% ── Priority 1.5: Project-local .fonts/ — Source Han Serif SC ────────────────
+% Ships as individual OTFs in .fonts/ (gitignored). Prefer Medium weight for
+% body text on slides — heavier than the system .ttc Regular.
+\IfFileExists{./.fonts/SourceHanSerifSC-Medium.otf}{%
+  \@fc@warn{Detected project-local Source Han Serif SC (Medium+Bold)}
+  \@fc@setfonts{./.fonts/}{SourceHanSerifSC-Medium.otf}{SourceHanSerifSC-Bold.otf}%
+  \expandafter\endinput
+}{}
+
 % ── Priority 2: Windows — Microsoft YaHei ───────────────────────────────────
 \IfFileExists{C:/WINDOWS/Fonts/msyh.ttc}{%
   \@fc@warn{Detected Windows — using Microsoft YaHei}

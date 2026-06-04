@@ -60,6 +60,23 @@ Compatibility aliases:
 
 Every structure plan must state the selected mode, loaded references, and mode-specific acceptance gates.
 
+## Chinese (CJK) Deck Creation
+
+When the user requests a Chinese deck ("中文", "Chinese version"):
+
+1. **Fonts are auto-detected.** font-config (Priority 1.5) checks for `.fonts/SourceHanSerifSC-Medium.otf`. If present, the deck uses Source Han Serif SC Medium+Bold — no preamble override needed. If absent, it falls back to the system Noto Sans CJK (which is thinner, acceptable but not optimal for slides).
+
+2. **Chinese math-glyph pairing.** KpMath (the template default) pairs well with Source Han Serif SC because both are serif fonts with similar weight. No special math font override is needed for Chinese decks.
+
+3. **Figure labels.** Translate TikZ node labels, axis annotations, and caption text. Keep math expressions in LaTeX math mode (unchanged).
+
+4. **Label localization.** The only hardcoded English UI string is `\TLtakeaway`'s "Key Takeaway." — override it:
+   ```latex
+   \renewcommand{\TLtakeaway}[1]{...\textbf{要点。} #1...}
+   ```
+
+5. **Validator keywords.** The `validate_deck.py` Socratic gates match English keywords ("question", "attempt", "hint", "reflection"). Add bilingual glosses to the "how to use this deck" frame so the automated check passes with Chinese content.
+
 ## Pipeline
 
 ```
@@ -191,3 +208,4 @@ Before delivery (Wave 3):
 | Review/audit | [autobeamer-review](../autobeamer-review/SKILL.md) |
 | Automated validation / visual-check | [autobeamer-validate](../autobeamer-validate/SKILL.md) |
 | TikZ diagrams | [autobeamer-tikz](../autobeamer-tikz/SKILL.md) |
+| CJK fonts / Chinese deck setup | [autobeamer-build](../autobeamer-build/SKILL.md) (CJK Fonts section) |
