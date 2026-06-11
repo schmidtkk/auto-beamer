@@ -1,94 +1,7 @@
-% =============================================================================
-%  最优传输的定性理论 — Villani《Optimal Transport: Old and New》第 I 部分 (第 4–8 章)
-%  模式：被动自学（导师讲义 passive-study）  ·  主题：teal  ·  语言：中文
-%  来源：C. Villani, Optimal Transport: Old and New, Springer 2009.
-%        Part I "Qualitative description of optimal transport", Chapters 4–8.
-%        (PDF pp. 55–210 / 印刷页 pp. 39–198)
-%
-%  所有示意图用 TikZ（teal 配色）重绘，标注 "据 Villani 图 x.y 重绘"。
-%  不使用 beamer overlay 命令 (\pause/\onslide/\only/\uncover)。
-%
-%  CJK 字体：font-config 自动检测 .fonts/SourceHanSerifSC-Medium.otf（思源宋体）
-%  数学字体：KpMath（模板默认）
-%
-%  本文件为「主控文件」：前置内容在此，各节 \input 自 slides_assets/ot/secN-*.tex
-%  组装顺序由 lead-codex 指挥官统一维护；各节文件遵循 STYLE-CONTRACT.md。
-% =============================================================================
-\documentclass[aspectratio=169,10pt]{beamer}
-\usepackage[teal]{template-lib/template-lib}
-\uselayout{text}
-\uselayout{eq}
-\uselayout{twocol}
-\uselayout{1img}
-\uselayout{2img}
-\uselayout{table}
+% Master file: shared preamble is extracted to slides_assets/ot/_preamble.tex
+% (so per-section standalone check wrappers _check_secN.tex can reuse it).
+\input{slides_assets/ot/_preamble.tex}
 
-\usetikzlibrary{arrows.meta,calc,positioning,patterns,decorations.pathmorphing,%
-                fit,backgrounds,shapes.geometric,shapes.misc,intersections}
-
-\graphicspath{{slides_assets/ot/}{slides_assets/ot/source_figures/}}
-
-% ── 记号缩写（全讲义统一，secN 文件不得重复定义）──────────────────────────────
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\N}{\mathbb{N}}
-\newcommand{\E}{\mathbb{E}}
-\newcommand{\Prob}{\mathbb{P}}
-\newcommand{\X}{\mathcal{X}}
-\newcommand{\Y}{\mathcal{Y}}
-\newcommand{\Z}{\mathcal{Z}}
-\newcommand{\Pp}{\mathcal{P}}                 % 概率测度集
-\newcommand{\Ppp}[1]{\mathcal{P}_{#1}}        % P_p（p 阶矩有限）
-\newcommand{\Pac}{\mathcal{P}^{\mathrm{ac}}}  % 绝对连续概率测度
-\newcommand{\coup}[2]{\Pi(#1,#2)}             % 耦合（转移计划）集合
-\newcommand{\law}{\operatorname{law}}
-\newcommand{\Id}{\mathrm{Id}}
-\newcommand{\supp}{\operatorname{supp}}
-\newcommand{\dom}{\operatorname{dom}}
-\newcommand{\pf}[2]{{#1}_{\#}#2}              % 推前 T_# mu
-\newcommand{\Wp}[1]{W_{#1}}                   % Wasserstein 距离 W_p
-\newcommand{\Wtwo}{W_{2}}
-\newcommand{\ctr}[1]{{#1}^{c}}               % c-变换 psi^c
-\newcommand{\cctr}[1]{{#1}^{cc}}            % 二次 c-变换
-\newcommand{\inner}[2]{\langle #1,\,#2\rangle}
-\newcommand{\abs}[1]{\lvert #1\rvert}
-\newcommand{\norm}[1]{\lVert #1\rVert}
-\newcommand{\dd}{\,\mathrm{d}}
-\newcommand{\cost}{c}
-\newcommand{\half}{\tfrac{1}{2}}
-\newcommand{\eps}{\varepsilon}
-\newcommand{\To}{\longrightarrow}
-\newcommand{\wkto}{\rightharpoonup}           % 弱收敛
-\newcommand{\subjto}{\;\text{s.t.}\;}
-
-% ── 被动自学讲义的结构标记 ────────────────────────────────────────────────────
-% 关键术语首次出现
-% \TLterm{} 已由模板提供
-% 难度星标（amssymb \bigstar），accent 色
-\newcommand{\diffI}{\textcolor{TLaccent}{\ensuremath{\bigstar}}}
-\newcommand{\diffII}{\textcolor{TLaccent}{\ensuremath{\bigstar\bigstar}}}
-\newcommand{\diffIII}{\textcolor{TLaccent}{\ensuremath{\bigstar\bigstar\bigstar}}}
-% 习题提示行
-\newcommand{\hint}[1]{\emph{提示.}~#1}
-% “定义 / 定理 / 命题 / 引理” 行内标签（plain-text-first：默认不进彩框）
-\newcommand{\deflab}[1]{\textbf{\textcolor{TLprimaryDark}{#1}}}
-% 文献注记标签（用于 References / Bibliographical notes 帧，含英文锚点供校验器识别）
-\newcommand{\bibnote}[1]{\emph{文献注记 (bibliographical notes).}~#1}
-
-% ── 本地化“要点”标签（要点。Key Takeaway）─────────────────────────────────────
-\renewcommand{\TLtakeaway}[1]{%
-  \vspace{0.4em}%
-  \begin{tikzpicture}
-    \node[fill=TLaccentLight, rounded corners=3pt, inner sep=8pt,
-          text width=\linewidth-16pt, align=justify] {%
-      \small\textcolor{TLaccent}{\textbf{要点。}} #1%
-    };
-  \end{tikzpicture}%
-  \vspace{0.2em}%
-}
-
-\TLsetfoot{最优传输的定性理论 \textperiodcentered{} Villani 第 I 部分（第 4--8 章）}
-
-% =============================================================================
 \begin{document}
 
 % ── 封面 ─────────────────────────────────────────────────────────────────────
@@ -117,6 +30,7 @@
 % ── 全局路线图 ───────────────────────────────────────────────────────────────
 \begin{frame}{全局路线图：定性理论的五块拼图}
   \begin{center}
+  \resizebox{\linewidth}{!}{%
   \begin{tikzpicture}[>={Stealth[length=5pt]},node distance=4mm,
       box/.style={draw=TLprimary,fill=TLprimaryTint,rounded corners=3pt,
         align=center,inner sep=5pt,text width=2.35cm,font=\scriptsize},
@@ -135,7 +49,7 @@
     \node[lab,below=5mm of c6.south] {测度间的几何};
     \node[lab,below=5mm of c7.south] {最优如何随时间演化};
     \node[lab,below=5mm of c8.south] {轨迹有多光滑};
-  \end{tikzpicture}
+  \end{tikzpicture}}
   \end{center}
   \vspace{2pt}
   \begin{itemize}\small
