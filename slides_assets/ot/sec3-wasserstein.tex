@@ -1,0 +1,543 @@
+% =============================================================================
+%  §3  Ch.6 Wasserstein 距离
+%  来源：Villani, Optimal Transport: Old and New, Chapter 6 (pp. 93–108)
+% =============================================================================
+\TLsection{3 \ Wasserstein 距离}
+
+% ── 动机 ─────────────────────────────────────────────────────────────────────
+\begin{frame}{动机：从最优传输成本到概率测度上的距离}
+  第 4--5 章构造了最优传输成本
+  \[
+    C(\mu,\nu) = \inf_{\pi\in\coup{\mu}{\nu}} \int_{\X\times\X} c(x,y)\dd\pi(x,y).
+  \]
+  $C(\mu,\nu)$ 定量刻画了把分布 $\mu$ 运输到 $\nu$ 的代价。
+
+  \textbf{自然问题：} $C(\mu,\nu)$ 是概率测度空间上的\emph{距离}吗？
+
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{一般情形下 $C$ 的问题：}
+      \begin{itemize}
+        \item 成本 $c$ 不一定是距离，$C$ 未必满足三角不等式。
+        \item $c$ 不对称时 $C$ 也不对称。
+        \item $C(\mu,\nu)$ 可以是 $+\infty$。
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{当 $c=d^{p}$ 时的修正：}
+      \begin{itemize}
+        \item 令 $c(x,y)=d(x,y)^{p}$，$p\ge1$。
+        \item 取 $p$ 次根：$\Wp{p}(\mu,\nu)=C(\mu,\nu)^{1/p}$。
+        \item 本章证明 $\Wp{p}$ 是\TLterm{Wasserstein 距离}。
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \TLtakeaway{以 $d^{p}$ 为成本、取 $p$ 次根后，最优传输成本升格为概率测度空间上的真正距离。}
+\end{frame}
+
+% ── 定义 6.1 ─────────────────────────────────────────────────────────────────
+\begin{frame}{定义 6.1：Wasserstein 距离}
+  \deflab{定义 6.1（Wasserstein 距离，Villani Def 6.1）。}
+
+  设 $(\X,d)$ 为 Polish 度量空间，$p\in[1,\infty)$。
+  对 $\X$ 上的两个概率测度 $\mu,\nu$，\TLterm{$p$ 阶 Wasserstein 距离}定义为
+  \[
+    \Wp{p}(\mu,\nu) \;:=\;
+    \left(\inf_{\pi\in\coup{\mu}{\nu}} \int_{\X\times\X} d(x,y)^{p}\dd\pi(x,y)\right)^{1/p}.
+  \]
+  等价地，若 $(X,Y)$ 为联合随机变量，$\law(X)=\mu$，$\law(Y)=\nu$，则
+  \[
+    \Wp{p}(\mu,\nu)
+    = \inf\Bigl\{\bigl(\E[d(X,Y)^{p}]\bigr)^{1/p}:\;
+      \law(X)=\mu,\;\law(Y)=\nu\Bigr\}.
+  \]
+
+  \deflab{特殊情形 6.2（Kantorovich–Rubinstein 距离）。}
+  $\Wp{1}$ 也常称为 \TLterm{Kantorovich–Rubinstein 距离}（简称 KR 距离）。
+
+  \TLtakeaway{以 $d^{p}$ 为成本的最优传输值取 $p$ 次根，即得 $p$ 阶 Wasserstein 距离 $\Wp{p}$。}
+\end{frame}
+
+% ── 例 6.3 ───────────────────────────────────────────────────────────────────
+\begin{frame}{例 6.3：Wasserstein 距离继承基础度量}
+  \deflab{例 6.3（Villani Example 6.3）。}
+  对任意 $x,y\in\X$ 及任意 $p\ge1$，
+  \[
+    \Wp{p}(\delta_{x},\delta_{y}) \;=\; d(x,y).
+  \]
+
+  \textbf{验证。} $\coup{\delta_{x}}{\delta_{y}}=\{\delta_{(x,y)}\}$（唯一耦合），因此
+  \[
+    \Wp{p}(\delta_{x},\delta_{y})^{p}
+    = \int_{\X\times\X} d(x',y')^{p}\dd\delta_{(x,y)}(x',y')
+    = d(x,y)^{p}.
+  \]
+  取 $p$ 次根即得。结果不依赖 $p$——这是 Dirac 测度的特殊性。
+
+  \textbf{含义。} 映射 $x\mapsto\delta_{x}$ 是 $(\X,d)$ 到 $(\Ppp{p}(\X),\Wp{p})$ 的\emph{等距嵌入}。
+
+  \TLtakeaway{$\Wp{p}(\delta_x,\delta_y)=d(x,y)$：Wasserstein 距离忠实保留基础度量，Dirac 的嵌入是等距的。}
+\end{frame}
+
+% ── 距离公理（一）对称性与非退化性 ──────────────────────────────────────────
+\begin{frame}{$\Wp{p}$ 是距离（一）：对称性与非退化性}
+  \textbf{目标：} 验证 $\Wp{p}$ 满足距离的三条公理。
+
+  \textbf{公理 1（对称性）：} $\Wp{p}(\mu,\nu)=\Wp{p}(\nu,\mu)$。
+
+  \textbf{证明。} 若 $\pi\in\coup{\mu}{\nu}$，令 $\tilde{\pi}$ 为 $\pi$ 在 $(x,y)\mapsto(y,x)$ 下的像，则 $\tilde{\pi}\in\coup{\nu}{\mu}$，且 $\int d^{p}\dd\tilde{\pi}=\int d^{p}\dd\pi$（$d$ 对称）。两边下确界相等。$\square$
+
+  \textbf{公理 2（非退化性）：} $\Wp{p}(\mu,\nu)=0 \iff \mu=\nu$。
+
+  \textbf{证明（$\Leftarrow$）。} 取对角耦合 $\pi=(\Id,\Id)_{\#}\mu$，则 $\int d(x,y)^{p}\dd\pi=0$，故 $\Wp{p}(\mu,\nu)=0$。
+
+  \textbf{证明（$\Rightarrow$）。} 若 $\Wp{p}(\mu,\nu)=0$，存在耦合使 $\int d(x,y)^{p}\dd\pi=0$，故 $\pi$ 集中在对角线 $\{y=x\}$ 上，从而 $\nu=\pf{\Id}{\mu}=\mu$。$\square$
+
+  \TLtakeaway{对称性由 $d$ 的对称性继承；非退化性等价于最优耦合集中在对角线上 iff 两测度相同。}
+\end{frame}
+
+% ── 距离公理（二）粘合引理 ───────────────────────────────────────────────────
+\begin{frame}{$\Wp{p}$ 是距离（二）：粘合引理的陈述}
+  \deflab{粘合引理（Gluing Lemma，Villani Chapter 1）。}
+
+  设 $\mu_{1},\mu_{2},\mu_{3}\in\Pp(\X)$。记 $\pi^{12}$ 为 $(\mu_{1},\mu_{2})$ 的一个耦合，
+  $\pi^{23}$ 为 $(\mu_{2},\mu_{3})$ 的一个耦合（二者共享中间边际 $\mu_{2}$）。
+
+  则存在定义在同一概率空间上的三元随机变量 $(X_{1},X_{2},X_{3})$ 使得
+  \[
+    \law(X_{1},X_{2}) = \pi^{12}, \quad
+    \law(X_{2},X_{3}) = \pi^{23}.
+  \]
+  特别地，$\law(X_{1},X_{3})$ 是 $(\mu_{1},\mu_{3})$ 的一个耦合。
+
+  \textbf{构造（测度论语言）。} 令 $\pi^{(23)}=\int_{\X}\pi^{(23)}_{x_{2}}\dd\mu_{2}(x_{2})$ 为正则分解，定义
+  \[
+    \pi^{(123)}(\dd x_{1}\dd x_{2}\dd x_{3})
+    = \pi^{(12)}(\dd x_{1}\dd x_{2})\cdot\pi^{(23)}_{x_{2}}(\dd x_{3}).
+  \]
+  给定 $X_{2}$，$X_{1}$ 与 $X_{3}$ 条件独立。
+
+  \TLtakeaway{粘合引理：沿公共边际 $\mu_2$ 把两耦合"串联"成三元分布，$(X_1,X_3)$ 是 $(\mu_1,\mu_3)$ 的耦合。}
+\end{frame}
+
+% ── 距离公理（三）三角不等式 ────────────────────────────────────────────────
+\begin{frame}{$\Wp{p}$ 是距离（三）：三角不等式证明}
+  \textbf{公理 3（三角不等式）：} $\Wp{p}(\mu_{1},\mu_{3})\le\Wp{p}(\mu_{1},\mu_{2})+\Wp{p}(\mu_{2},\mu_{3})$。
+
+  \textbf{证明。}
+  设 $(X_{1},X_{2})$ 是 $(\mu_{1},\mu_{2})$ 的最优耦合，$(Z_{2},Z_{3})$ 是 $(\mu_{2},\mu_{3})$ 的最优耦合。
+
+  由粘合引理，存在 $(X_{1},X_{2},X_{3})$ 使 $\law(X_{1},X_{3})$ 是 $(\mu_{1},\mu_{3})$ 的耦合，故
+  \[
+    \Wp{p}(\mu_{1},\mu_{3})
+    \;\le\; \bigl(\E[d(X_{1},X_{3})^{p}]\bigr)^{1/p}.
+  \]
+  由 $d(X_{1},X_{3})\le d(X_{1},X_{2})+d(X_{2},X_{3})$ 及 $L^{p}$ Minkowski 不等式：
+  \[
+    \bigl(\E[d(X_{1},X_{3})^{p}]\bigr)^{1/p}
+    \;\le\; \bigl(\E[d(X_{1},X_{2})^{p}]\bigr)^{1/p}
+           + \bigl(\E[d(X_{2},X_{3})^{p}]\bigr)^{1/p}.
+  \]
+  右边两项分别等于 $\Wp{p}(\mu_{1},\mu_{2})$ 和 $\Wp{p}(\mu_{2},\mu_{3})$。$\square$
+
+  \TLtakeaway{三步：粘合最优耦合 $\to$ $d$ 的三角不等式 $\to$ $L^{p}$ Minkowski 不等式。}
+\end{frame}
+
+% ── 定义 6.4：Wasserstein 空间 ────────────────────────────────────────────────
+\begin{frame}{定义 6.4：Wasserstein 空间 $\Ppp{p}(\X)$}
+  \deflab{定义 6.4（Wasserstein 空间，Villani Def 6.4）。}
+
+  设 $(\X,d)$ 为 Polish 空间，$p\in[1,\infty)$，取定基点 $x_{0}\in\X$。\TLterm{$p$ 阶 Wasserstein 空间}定义为
+  \[
+    \Ppp{p}(\X) \;:=\;
+    \left\{\mu\in\Pp(\X):\; \int_{\X} d(x_{0},x)^{p}\dd\mu(x) < +\infty\right\}.
+  \]
+  该定义不依赖 $x_{0}$ 的选取。
+
+  \textbf{$\Wp{p}$ 在 $\Ppp{p}(\X)$ 上有限的证明。} 对 $\mu,\nu\in\Ppp{p}(\X)$，由
+  \[
+    d(x,y)^{p} \;\le\; 2^{p-1}\bigl(d(x,x_{0})^{p}+d(x_{0},y)^{p}\bigr)
+  \]
+  得 $\int d(x,y)^{p}\dd\pi\le 2^{p-1}\bigl(\int d(x_{0},x)^{p}\dd\mu+\int d(x_{0},y)^{p}\dd\nu\bigr)<+\infty$，故 $\Wp{p}(\mu,\nu)<+\infty$。$\square$
+
+  \TLtakeaway{$\Ppp{p}(\X)$ 是 $p$ 阶矩有限的概率测度全体，$\Wp{p}$ 在其上为真正有限的距离。}
+\end{frame}
+
+% ── 定理 6.18 ────────────────────────────────────────────────────────────────
+\begin{frame}{$\Ppp{p}(\X)$ 本身也是 Polish 空间（定理 6.18）}
+  \deflab{定理 6.18（Wasserstein 空间的拓扑，Villani Thm 6.18）。}
+
+  设 $\X$ 为 Polish 空间，$p\in[1,\infty)$。则 $\bigl(\Ppp{p}(\X),\Wp{p}\bigr)$ 也是 Polish 空间（完备可分度量空间），且有限支撑测度在其中稠密。
+
+  \textbf{证明思路（可分性）。} 取 $\X$ 的稠密子集 $D$，有理系数、支撑于 $D$ 中有限多点的测度 $\mathcal{P}_{0}$ 在 $\Ppp{p}(\X)$ 中稠密。
+
+  \textbf{为什么这很重要？}
+  \begin{itemize}
+    \item \textbf{完备性：} Cauchy 序列有极限，§4 的测地线曲线在此收敛。
+    \item \textbf{可分性：} Wasserstein 空间上可以做测度论，为 §4 的置换插值铺路。
+    \item 若 $\X$ 紧，则 $\Ppp{p}(\X)$ 也紧；若 $\X$ 仅局部紧，则 $\Ppp{p}(\X)$ 不局部紧。
+  \end{itemize}
+
+  \TLtakeaway{Polish 空间上的 Wasserstein 空间仍是 Polish 空间：完备性和可分性被继承，为 §4 的几何结构奠基。}
+\end{frame}
+
+% ── 注记 6.5：KR 对偶 ───────────────────────────────────────────────────────
+\begin{frame}{注记 6.5：$\Wp{1}$ 的 Kantorovich–Rubinstein 对偶}
+  \deflab{注记 6.5（KR 对偶公式，Villani Rem 6.5）。}
+
+  由定理 5.10(i) 与特殊情形 5.4，对任意 $\mu,\nu\in\Ppp{1}(\X)$：
+  \[
+    \Wp{1}(\mu,\nu)
+    \;=\; \sup\left\{\int_{\X}\psi\dd\mu - \int_{\X}\psi\dd\nu
+          :\; \|\psi\|_{\mathrm{Lip}}\le1\right\}.
+  \]
+  这是 \TLterm{KR 对偶公式}，全书最常用的计算工具之一。
+
+  \textbf{应用举例（协方差不等式）。} 若 $f$ 是关于 $\mu$ 的概率密度，则
+  \[
+    \int f\dd\mu\int g\dd\mu - \int fg\dd\mu
+    \;\le\; \|g\|_{\mathrm{Lip}}\cdot\Wp{1}(f\mu,\mu).
+  \]
+
+  \textbf{含义。} 上界将函数的协方差与 $\Wp{1}$ 距离联系起来，是 $\Wp{1}$ 在概率估计中的典型应用。
+
+  \TLtakeaway{KR 对偶：$\Wp{1}$ 等于 1-Lipschitz 函数积分差的上确界，使得计算转化为寻找最优 Lipschitz 检验函数。}
+\end{frame}
+
+% ── 注记 6.6：阶的排序 ───────────────────────────────────────────────────────
+\begin{frame}{注记 6.6：Wasserstein 距离的阶的排序}
+  \deflab{注记 6.6（阶的排序，Villani Rem 6.6）。}
+
+  由 Hölder 不等式：对 $1\le p\le q$，
+  \[
+    \Wp{p}(\mu,\nu) \;\le\; \Wp{q}(\mu,\nu).
+  \]
+  特别地，$\Wp{1}$ 是所有 Wasserstein 距离中\emph{最弱}的。
+
+  \begin{center}\small
+    \begin{tabular}{lll}
+      \toprule
+      & $\Wp{1}$ & $\Wtwo$ \\
+      \midrule
+      强度 & 弱（最易满足） & 强 \\
+      估计难度 & 容易（KR 对偶） & 较难 \\
+      几何信息 & 有限 & 丰富（黎曼风格） \\
+      典型应用 & PDE、信息论 & OT 几何、置换插值 \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \TLtakeaway{$\Wp{1}\le\Wp{p}$：阶越高距离越强；$p=1$ 最灵活易估，$p=2$ 最能捕捉几何结构。}
+\end{frame}
+
+% ── 计算例（一）：一维分位公式——陈述与证明思路 ───────────────────────────────
+\begin{frame}{计算例（一）：一维分位函数公式（陈述）}
+  \deflab{一维闭合公式。}
+
+  设 $\mu,\nu\in\Ppp{p}(\R)$，$F_{\mu}^{-1},F_{\nu}^{-1}$ 为分位函数（广义逆 CDF）。则
+  \[
+    \Wp{p}(\mu,\nu)^{p}
+    \;=\; \int_{0}^{1} \bigl|F_{\mu}^{-1}(t) - F_{\nu}^{-1}(t)\bigr|^{p}\dd t.
+  \]
+
+  \textbf{证明思路。} $\R$ 上最优传输由\emph{单调重排}实现：$T=F_{\nu}^{-1}\circ F_{\mu}$ 是最优 Monge 映射，且
+  \[
+    \int_{\R} |x-T(x)|^{p}\dd\mu(x)
+    = \int_{0}^{1}|F_{\mu}^{-1}(t)-F_{\nu}^{-1}(t)|^{p}\dd t.
+  \]
+  最优性：$T$ 单调故满足 $c$-循环单调性（第 5 章）；分位公式是其代价的等价表达。
+
+  \TLtakeaway{一维情形：最优传输就是单调重排；Wasserstein 距离是分位函数差的 $L^{p}$ 范数。}
+\end{frame}
+
+% ── 计算例（一）：数值例 ────────────────────────────────────────────────────
+\begin{frame}{计算例（一）续：均匀分布平移的 $\Wp{p}$}
+  \textbf{数值例（均匀分布的平移）。}
+
+  设 $\mu=\mathrm{Uniform}[0,1]$，$\nu=\mathrm{Uniform}[a,a+1]$（$a\in\R$）。
+
+  分位函数：$F_{\mu}^{-1}(t)=t$，$F_{\nu}^{-1}(t)=a+t$。代入一维公式：
+  \[
+    \Wp{p}(\mu,\nu)^{p}
+    = \int_{0}^{1}\abs{t-(a+t)}^{p}\dd t
+    = \int_{0}^{1}\abs{a}^{p}\dd t
+    = \abs{a}^{p},
+  \]
+  故 $\Wp{p}(\mu,\nu)=\abs{a}$，与 $p$ 无关。
+
+  \textbf{含义。} 两个均匀分布相差平移 $a$，最优方案就是每个质量点向右（或左）平移 $a$。
+  Wasserstein 距离恰好等于平移量 $\abs{a}$，与 $p$ 无关。
+
+  \TLtakeaway{均匀分布平移量 $a$ 的 Wasserstein 距离等于 $|a|$，与 $p$ 无关——单纯平移的代价就是平移距离。}
+\end{frame}
+
+% ── 计算例（二）：两个高斯之间的 W_2 ────────────────────────────────────────
+\begin{frame}{计算例（二）：高斯分布之间的 $\Wtwo$（推导）}
+  \deflab{一维高斯的 $\Wtwo$ 公式。}
+
+  设 $\mu=\mathcal{N}(m_{1},\sigma_{1}^{2})$，$\nu=\mathcal{N}(m_{2},\sigma_{2}^{2})$（$\R$ 上），则
+  \[
+    \Wtwo(\mu,\nu)^{2} \;=\; (m_{1}-m_{2})^{2} + (\sigma_{1}-\sigma_{2})^{2}.
+  \]
+
+  \textbf{推导（分位公式）。} 令 $\Phi^{-1}$ 为标准正态分位函数，则
+  $F_{\mu}^{-1}(t)=m_{1}+\sigma_{1}\Phi^{-1}(t)$，$F_{\nu}^{-1}(t)=m_{2}+\sigma_{2}\Phi^{-1}(t)$。代入：
+  \[
+    \Wtwo(\mu,\nu)^{2}
+    = \int_{0}^{1}\bigl[(m_{1}-m_{2})+(\sigma_{1}-\sigma_{2})\Phi^{-1}(t)\bigr]^{2}\dd t.
+  \]
+  展开，利用 $\int_{0}^{1}\Phi^{-1}(t)\dd t=0$（均值零）与 $\int_{0}^{1}[\Phi^{-1}(t)]^{2}\dd t=1$（方差一）：
+  \[
+    = (m_{1}-m_{2})^{2} + 2(m_{1}-m_{2})(\sigma_{1}-\sigma_{2})\cdot0
+      + (\sigma_{1}-\sigma_{2})^{2}\cdot1
+    = (m_{1}-m_{2})^{2} + (\sigma_{1}-\sigma_{2})^{2}.\;\square
+  \]
+
+  \TLtakeaway{$\Wtwo^2=(m_1-m_2)^2+(\sigma_1-\sigma_2)^2$：均值偏移与尺度偏移相互独立地贡献。}
+\end{frame}
+
+% ── 计算例（三）：一维最优单调匹配图示 ──────────────────────────────────────
+\begin{frame}{计算例图示：一维密度的最优单调匹配}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.82,>={Stealth[length=4pt]}]
+        \draw[->,TLink,thin] (-0.3,0) -- (4.8,0) node[right,font=\scriptsize] {$x$};
+        \draw[->,TLink,thin] (0,-0.15) -- (0,2.1);
+        % mu: Uniform[0,2]
+        \draw[TLprimary,very thick] (0,0) -- (0,1.35) -- (2,1.35) -- (2,0);
+        \node[TLprimary,font=\scriptsize,above] at (1,1.35) {$\mu$};
+        % nu: Uniform[1.5,3.5]
+        \draw[TLaccent,very thick] (1.5,0) -- (1.5,1.35) -- (3.5,1.35) -- (3.5,0);
+        \node[TLaccent,font=\scriptsize,above] at (2.5,1.35) {$\nu$};
+        % 单调匹配箭头
+        \foreach \x/\y in {0.2/1.7, 0.6/2.1, 1.0/2.5, 1.4/2.9, 1.8/3.3}{
+          \draw[->,TLinkSoft,thin,dashed] (\x,0.08) -- (\y,0.08);
+        }
+        \node[font=\scriptsize,TLinkSoft] at (1.8,0.55) {单调匹配};
+      \end{tikzpicture}\\[3pt]
+      {\scriptsize 据 Villani 图 6.1 重绘。}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \small
+      \textbf{设置。} $\mu=\mathrm{Uniform}[0,2]$，$\nu=\mathrm{Uniform}[1.5,3.5]$，$p=1$。
+
+      分位函数：$F_{\mu}^{-1}(t)=2t$，$F_{\nu}^{-1}(t)=1.5+2t$。
+
+      \[
+        \Wp{1}(\mu,\nu)=\int_{0}^{1}1.5\,\dd t=1.5.
+      \]
+
+      最优方案：平移 $T(x)=x+1.5$。每个质量点向右移 $1.5$ 单位。
+    \end{column}
+  \end{columns}
+  \TLtakeaway{一维最优传输即单调重排；每个分位点点对点对齐，Wasserstein 距离是分位差的 $L^{p}$ 范数。}
+\end{frame}
+
+% ── 定义 6.8 ─────────────────────────────────────────────────────────────────
+\begin{frame}{定义 6.8：$\Ppp{p}(\X)$ 中的弱收敛（等价条件）}
+  \deflab{定义 6.8（Wasserstein 意义下的弱收敛，Villani Def 6.8）。}
+
+  设 $(\mu_{k})\subset\Ppp{p}(\X)$，$\mu\in\Ppp{p}(\X)$，取定 $x_{0}\in\X$。以下等价：
+  \begin{enumerate}\small
+    \item[(i)] $\mu_{k}\wkto\mu$ 且 $\displaystyle\int_{\X} d(x_{0},x)^{p}\dd\mu_{k}\To\int_{\X} d(x_{0},x)^{p}\dd\mu$。
+    \item[(ii)] $\mu_{k}\wkto\mu$ 且 $\displaystyle\limsup_{k}\int_{\X} d(x_{0},x)^{p}\dd\mu_{k} \le \int_{\X} d(x_{0},x)^{p}\dd\mu$。
+    \item[(iii)] $\mu_{k}\wkto\mu$ 且 $\displaystyle\lim_{R\to\infty}\limsup_{k}\int_{d(x_{0},x)\ge R} d(x_{0},x)^{p}\dd\mu_{k}=0$（质量不逃逸）。
+    \item[(iv)] 对所有 $|\varphi(x)|\le C(1+d(x_{0},x)^{p})$ 的连续 $\varphi$，$\int\varphi\dd\mu_{k}\To\int\varphi\dd\mu$。
+  \end{enumerate}
+
+  \TLtakeaway{$\Ppp{p}$ 中弱收敛 = 普通弱收敛 + $p$ 阶矩收敛（等价条件 (i)）；条件 (iii) 意为矩均匀可积。}
+\end{frame}
+
+% ── 定理 6.9：陈述 ──────────────────────────────────────────────────────────
+\begin{frame}{定理 6.9：$\Wp{p}$ 刻画 $\Ppp{p}$ 中的弱收敛}
+  \deflab{定理 6.9（$\Wp{p}$ 距离化 $\Ppp{p}$，Villani Thm 6.9）。}
+
+  设 $(\X,d)$ 为 Polish 空间，$p\in[1,\infty)$，$(\mu_{k})\subset\Ppp{p}(\X)$，$\mu\in\Pp(\X)$。则
+  \[
+    \Wp{p}(\mu_{k},\mu)\To 0
+    \;\iff\;
+    (\mu_{k})\;\text{在}\;\Ppp{p}(\X)\;\text{中弱收敛到}\;\mu.
+  \]
+
+  \textbf{重要性。} Wasserstein 收敛比普通弱收敛更强——同时要求 $p$ 阶矩收敛。
+
+  \textbf{反例。} 令 $\mu_{k}=(1-1/k)\delta_{0}+(1/k)\delta_{k^{2}}$，$\mu=\delta_{0}$。则 $\mu_{k}\wkto\mu$，但 $\int|x|\dd\mu_{k}=k\To\infty\neq0$，故 $\Wp{1}(\mu_{k},\mu)\To\infty$。
+
+  \TLtakeaway{定理 6.9：$\Wp{p}$ 收敛等价于弱收敛加 $p$ 阶矩收敛，Wasserstein 拓扑严格强于弱拓扑。}
+\end{frame}
+
+% ── 定理 6.9 证明（一）──────────────────────────────────────────────────────
+\begin{frame}{定理 6.9 的证明（一）：$\Wp{p}\to0$ 蕴含弱收敛与矩收敛}
+  \textbf{方向 $(\Rightarrow)$：} 设 $\Wp{p}(\mu_{k},\mu)\To0$。
+
+  \textbf{弱收敛。} 由引理 6.14，$(\mu_{k})$ 胶着，存在弱收敛子列 $\mu_{k'}\wkto\mu'$；用引理 4.3 知 $\Wp{p}(\mu',\mu)=0$，故 $\mu'=\mu$。
+
+  \textbf{矩的上界。} 设 $\pi_{k}$ 为 $(\mu_{k},\mu)$ 的最优耦合。对 $\eps>0$ 存在 $C_{\eps}>0$ 使
+  \[
+    d(x_{0},x)^{p} \;\le\; (1+\eps)d(x_{0},y)^{p} + C_{\eps}d(x,y)^{p}.
+  \]
+  对 $\pi_{k}$ 积分（利用边际性质）：
+  \[
+    \int d(x_{0},x)^{p}\dd\mu_{k}
+    \;\le\; (1+\eps)\int d(x_{0},y)^{p}\dd\mu + C_{\eps}\Wp{p}(\mu_{k},\mu)^{p}.
+  \]
+  令 $k\to\infty$ 再令 $\eps\to0$：$\limsup_{k}\int d(x_{0},x)^{p}\dd\mu_{k}\le\int d(x_{0},x)^{p}\dd\mu$（条件 (ii) 成立）。$\square$
+
+  \TLtakeaway{$(\Rightarrow)$：胶着性保证弱极限；对不等式积分给出 $p$ 阶矩的上界，从而矩收敛。}
+\end{frame}
+
+% ── 定理 6.9 证明（二）──────────────────────────────────────────────────────
+\begin{frame}{定理 6.9 的证明（二）：弱收敛加矩收敛蕴含 $\Wp{p}\to0$}
+  \textbf{方向 $(\Leftarrow)$：} 设 $\mu_{k}\wkto\mu$ 且 $p$ 阶矩收敛。
+
+  设 $\pi_{k}$ 为 $(\mu_{k},\mu)$ 的最优耦合。由弱收敛和引理 4.4，$(\pi_{k})$ 胶着，取子列 $\pi_{k}\wkto\pi$。定理 5.20 保证 $\pi=(\Id,\Id)_{\#}\mu$（平凡耦合）。
+
+  \textbf{分割估计。} 利用
+  \[
+    \bigl(d(x,y)^{p}-R^{p}\bigr)_{+}
+    \;\le\; 2^{p}\bigl[d(x,x_{0})^{p}\mathbf{1}_{d(x,x_{0})\ge R/2}
+    + d(x_{0},y)^{p}\mathbf{1}_{d(x_{0},y)\ge R/2}\bigr],
+  \]
+  将 $\Wp{p}(\mu_{k},\mu)^{p}$ 分解为截断项（弱收敛给出 $\to0$）和尾部项（$p$ 阶矩均匀可积给出 $\to0$）：
+  \[
+    \limsup_{k}\Wp{p}(\mu_{k},\mu)^{p} = 0. \quad\square
+  \]
+
+  \TLtakeaway{$(\Leftarrow)$：最优耦合弱极限是对角耦合；截断分解利用矩均匀可积，得 Wasserstein 收敛。}
+\end{frame}
+
+% ── 推论 6.11 与注记 6.10 ─────────────────────────────────────────────────────
+\begin{frame}{注记 6.10 与推论 6.11：矩收敛与 $\Wp{p}$ 的连续性}
+  \deflab{注记 6.10（矩收敛，Villani Rem 6.10）。}
+
+  由定理 6.9，Wasserstein 收敛蕴含 $p$ 阶矩的收敛。更强地，在局部紧长度空间中，映射
+  \[
+    \mu\;\mapsto\;\Bigl(\int_{\X} d(x_{0},x)^{p}\dd\mu\Bigr)^{1/p}
+  \]
+  关于 $\Wp{p}$ 是 $1$-Lipschitz 的（命题 7.29）。
+
+  \deflab{推论 6.11（连续性，Villani Cor 6.11）。}
+
+  若 $\mu_{k}\To\mu$，$\nu_{k}\To\nu$ 均在 $\Ppp{p}(\X)$ 中，则
+  $\Wp{p}(\mu_{k},\nu_{k})\To\Wp{p}(\mu,\nu)$。
+
+  \textbf{证明。} 由三角不等式：
+  \[
+    |\Wp{p}(\mu_{k},\nu_{k})-\Wp{p}(\mu,\nu)|
+    \le\Wp{p}(\mu_{k},\mu)+\Wp{p}(\nu_{k},\nu)\To0.\;\square
+  \]
+
+  \TLtakeaway{Wasserstein 收敛蕴含矩收敛；$\Wp{p}$ 关于两个参数均在 Wasserstein 拓扑下连续。}
+\end{frame}
+
+% ── 注记 6.12 与推论 6.13 ─────────────────────────────────────────────────────
+\begin{frame}{注记 6.12 与推论 6.13：下半连续性与弱拓扑等价性}
+  \deflab{注记 6.12（弱拓扑下仅下半连续，Villani Rem 6.12）。}
+
+  若仅有普通弱收敛，则只能得到
+  \[
+    \Wp{p}(\mu,\nu) \;\le\; \liminf_{k\to\infty}\Wp{p}(\mu_{k},\nu_{k}).
+  \]
+  即：$\Wp{p}$ 在 $\Pp(\X)$ 上关于弱拓扑\emph{下半连续}，但一般不连续。
+
+  \deflab{推论 6.13（有界距离下等价，Villani Cor 6.13）。}
+
+  设 $\tilde{d}=d/(1+d)$（有界且与 $d$ 诱导相同拓扑）。对应于 $\tilde{d}$ 的 Wasserstein 收敛等价于 $\Pp(\X)$ 上的普通弱收敛。
+
+  \textbf{原因。} 有界化后 $\int\tilde{d}(x_{0},x)^{p}\dd\mu\le1$ 对所有 $\mu$ 自动成立，矩条件退化为自动满足。
+
+  \TLtakeaway{弱拓扑下 $\Wp{p}$ 下半连续（不连续）；有界距离下 Wasserstein 收敛等价于弱收敛。}
+\end{frame}
+
+% ── 为何偏爱 Wasserstein 距离 ─────────────────────────────────────────────────
+\begin{frame}{为何偏爱 Wasserstein 距离？}
+  弱收敛有多种度量化方式（Lévy–Prokhorov、有界 Lipschitz、弱-$*$ 等），Wasserstein 距离有以下优势（Villani pp.97--99）：
+
+  \begin{enumerate}\small
+    \item \textbf{计及大距离。} 与弱-$*$ 距离相比，$\Wp{p}$ 对质量逃逸到远处敏感，更精确。
+    \item \textbf{天然适应 OT 框架。} 问题含输运结构（PDE、流体力学）时，Wasserstein 语言直接适用。
+    \item \textbf{丰富对偶性。} $\Wp{1}$ 的 KR 对偶使计算转化为 Lipschitz 函数积分，技术上便利。
+    \item \textbf{上界易构造。} 任意耦合给出 $\Wp{p}$ 上界；$C$-Lipschitz 映射 $f$ 诱导 $C$-Lipschitz 映射 $\mu\mapsto\pf{f}{\mu}$。
+    \item \textbf{编码底层几何。} $x\mapsto\delta_{x}$ 等距嵌入（例 6.3）；Wasserstein 空间曲率反映 $\X$ 的曲率（§4 以后）。
+  \end{enumerate}
+
+  \TLtakeaway{Wasserstein 距离的价值：对大距离敏感 + KR 对偶易计算 + 自然编码底层几何，而非仅是弱收敛的又一度量化。}
+\end{frame}
+
+% ── 定理 6.15：全变差控制 ────────────────────────────────────────────────────
+\begin{frame}{定理 6.15：全变差控制 Wasserstein 距离}
+  \deflab{定理 6.15（全变差上界，Villani Thm 6.15）。}
+
+  设 $\mu,\nu$ 为 $(\X,d)$ 上的概率测度，$p\in[1,\infty)$，$x_{0}\in\X$，$1/p+1/p'=1$。则
+  \[
+    \Wp{p}(\mu,\nu)
+    \;\le\; 2^{1/p'}\!\left(\int_{\X} d(x_{0},x)^{p}\dd|\mu-\nu|(x)\right)^{1/p}.
+  \]
+  \deflab{特殊情形 6.16（有界直径）。} 若 $\X$ 直径 $\le D$，则 $\Wp{1}(\mu,\nu)\le D\cdot\|\mu-\nu\|_{TV}$。
+
+  \textbf{证明思路。} 构造耦合
+  $\pi=(\Id,\Id)_{\#}(\mu\wedge\nu)+\frac{1}{a}(\mu-\nu)^{+}\otimes(\mu-\nu)^{-}$（固定公共质量，剩余乘积耦合），再利用 $d(x,y)^{p}\le2^{p-1}(d(x,x_{0})^{p}+d(x_{0},y)^{p})$ 估计。
+
+  \TLtakeaway{全变差控制 Wasserstein 须用 $d(x_0,x)^p$ 加权；裸全变差仅在有界空间中适用。}
+\end{frame}
+
+% ── §3 小结（一） ─────────────────────────────────────────────────────────────
+\begin{frame}{§3 小结（一）：定义与距离公理}
+  \begin{itemize}\small
+    \item \textbf{定义 6.1（$\Wp{p}$）。} 成本 $d^{p}$ 的最优传输值取 $p$ 次根。满足距离三公理，三角不等式经粘合引理 + $L^{p}$ Minkowski 不等式证明。
+    \item \textbf{例 6.3。} $\Wp{p}(\delta_{x},\delta_{y})=d(x,y)$：Dirac 测度等距嵌入。
+    \item \textbf{定义 6.4（$\Ppp{p}(\X)$）。} $p$ 阶矩有限的概率测度；$\Wp{p}$ 在其上有限；$\Ppp{p}(\X)$ 本身是 Polish 空间（定理 6.18）。
+    \item \textbf{注记 6.5。} KR 对偶：$\Wp{1}=\sup_{\|\psi\|_\mathrm{Lip}\le1}(\int\psi\dd\mu-\int\psi\dd\nu)$。
+    \item \textbf{注记 6.6。} 阶序 $\Wp{1}\le\Wp{p}$；$p=1$ 最灵活，$p=2$ 最能反映几何。
+  \end{itemize}
+
+  \TLtakeaway{$\Wp{p}$ 将最优传输代价升格为真正的距离；$\Ppp{p}(\X)$ 是自然定义域，本身也是 Polish 空间。}
+\end{frame}
+
+% ── §3 小结（二） ─────────────────────────────────────────────────────────────
+\begin{frame}{§3 小结（二）：收敛刻画与计算工具}
+  \begin{itemize}\small
+    \item \textbf{定理 6.9。} $\Wp{p}$ 收敛等价于弱收敛加 $p$ 阶矩收敛。
+    \item \textbf{推论 6.11。} $\Wp{p}$ 关于两个参数在 Wasserstein 拓扑下连续。
+    \item \textbf{注记 6.12。} 仅弱收敛时 $\Wp{p}$ 下半连续（不连续）。
+    \item \textbf{推论 6.13。} 有界距离下 Wasserstein 收敛等价于弱收敛。
+    \item \textbf{计算工具：} 一维分位公式；高斯 $\Wtwo^{2}=(m_1{-}m_2)^{2}+(\sigma_1{-}\sigma_2)^{2}$；定理 6.15 全变差上界。
+  \end{itemize}
+
+  \textbf{预告：} §4 利用 $(\Ppp{2}(\X),\Wtwo)$ 的 Polish 性质，构造测地线与 McCann 插值。
+
+  \TLtakeaway{定理 6.9 是本章核心：$\Wp{p}$ 刻画弱收敛 + 矩收敛，为 §4 在概率测度空间上做几何提供度量基础。}
+\end{frame}
+
+% ── 习题 3 · Exercises ─────────────────────────────────────────────────────────
+\begin{frame}{习题 3 · Exercises}
+  \begin{itemize}
+    \item \textbf{习题 3.1}~(\diffI)\
+      设 $\mu=\mathrm{Bernoulli}(p_{0})$，$\nu=\mathrm{Bernoulli}(q_{0})$（在 $\{0,1\}$ 上，$0\le p_{0}\le q_{0}\le1$）。
+      用一维分位公式计算 $\Wp{1}(\mu,\nu)$。
+      \begin{itemize}\footnotesize
+        \item \hint{$F_{\mu}^{-1}(t)=\mathbf{1}_{t\ge1-p_{0}}$；差在区间 $[1-q_{0},1-p_{0})$ 上为 $1$，其余为 $0$。}
+      \end{itemize}
+      % SOLUTION: F_mu^{-1}=0 on [0,1-p_0), 1 on [1-p_0,1]. F_nu^{-1}=0 on [0,1-q_0), 1 on [1-q_0,1]. 差在 [1-q_0,1-p_0) 上为 1，其余 0（p_0<=q_0 故 1-q_0<=1-p_0）。W_1(mu,nu)=int_0^1|差|dt=(1-p_0)-(1-q_0)=q_0-p_0。直觉：把 q_0-p_0 比例的"0"搬到"1"，每单位距离 1，总代价 q_0-p_0。
+
+    \item \textbf{习题 3.2}~(\diffII)\
+      构造 $\mu_{k}\wkto\mu$ 但 $\Wp{1}(\mu_{k},\mu)\to\infty$ 的例子，并说明违反了定理 6.9 的哪个条件。
+      \begin{itemize}\footnotesize
+        \item \hint{令 $\mu_{k}=(1-1/k)\delta_{0}+(1/k)\delta_{k^{2}}$，计算一阶矩；用 KR 对偶取检验函数 $\psi(x)=\min(x,R)$ 估计下界。}
+      \end{itemize}
+      % SOLUTION: mu_k 弱收敛到 delta_0（phi 有界时 (1-1/k)phi(0)+(1/k)phi(k^2)→phi(0)）。一阶矩 int|x|dmu_k=(1/k)k^2=k→∞，违反定理 6.9 条件 (i) 的矩收敛。取 psi(x)=min(x,R)/R（1/R-Lipschitz），KR 对偶：W_1(mu_k,delta_0)≥R·(1/k·min(k^2,R)/R - 0)；令 R=k 得 W_1≥k→∞。
+
+    \item \textbf{习题 3.3}~(\diffIII)\
+      设 $\mu=\mathcal{N}(0,I_{n})$，$\nu=\mathcal{N}(m,\Sigma)$（$\R^{n}$ 上，$\Sigma$ 正定）。
+      利用多维高斯 $\Wtwo$ 公式
+      $\Wtwo^{2}=|m_1{-}m_2|^{2}+\mathrm{tr}(\Sigma_1+\Sigma_2-2(\Sigma_1^{1/2}\Sigma_2\Sigma_1^{1/2})^{1/2})$，
+      计算 $\Wtwo(\mu,\nu)^{2}$，并在 $n=1$ 时验证与正文高斯例吻合。
+      \begin{itemize}\footnotesize
+        \item \hint{代入 $\Sigma_1=I_n$；化简 $(I\Sigma I)^{1/2}=\Sigma^{1/2}$，再用 $\mathrm{tr}(I+\Sigma-2\Sigma^{1/2})=\mathrm{tr}((I-\Sigma^{1/2})^{2})$。}
+      \end{itemize}
+      % SOLUTION: 代入 Sigma_1=I_n, m_1=0。(I^{1/2}Sigma I^{1/2})^{1/2}=Sigma^{1/2}。W_2^2=|m|^2+tr(I+Sigma-2Sigma^{1/2})=|m|^2+tr((I-Sigma^{1/2})^2)=|m|^2+sum_i(1-sqrt(lambda_i))^2，lambda_i 为 Sigma 的特征值。当 n=1，Sigma=sigma^2，W_2^2=m^2+(1-sigma)^2，与正文（m_1=0,sigma_1=1,m_2=m,sigma_2=sigma）的 W_2^2=(m_1-m_2)^2+(sigma_1-sigma_2)^2 完全吻合。
+  \end{itemize}
+  \TLtakeaway{3.1 用分位差计算 Bernoulli 距离；3.2 构造矩发散的弱收敛反例；3.3 验证多维高斯公式。}
+\end{frame}

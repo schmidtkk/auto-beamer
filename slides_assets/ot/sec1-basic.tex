@@ -1,0 +1,439 @@
+% =============================================================================
+%  §1  Ch.4 最优耦合的基本性质
+%  来源：Villani, Optimal Transport: Old and New, Chapter 4 (pp. 43–48)
+% =============================================================================
+\TLsection{1 \ 最优耦合的基本性质}
+
+% ── 动机：为什么存在性不是显然的 ───────────────────────────────────────────────
+\begin{frame}{为什么最优耦合"存在"不是显然的？}
+  我们已经知道 Kantorovich 问题的可行集 $\coup{\mu}{\nu}$ 非空（含乘积测度 $\mu\otimes\nu$），
+  目标 $I[\pi]=\int_{\X\times\Y} c\dd\pi$ 对 $\pi$ 线性。
+
+  \textbf{朴素想法。} 取一列"趋向下确界"的计划：存在 $(\pi_k)\subset\coup{\mu}{\nu}$ 使
+  \[
+    I[\pi_k] \;\To\; \inf_{\pi\in\coup{\mu}{\nu}} I[\pi].
+  \]
+  \textbf{问题。} $(\pi_k)$ 是否有收敛子列？极限是否还在 $\coup{\mu}{\nu}$ 里？
+
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{两个关键工具：}
+      \begin{itemize}
+        \item \textbf{紧性。} $\coup{\mu}{\nu}$ 在弱拓扑下紧——使得收敛子列存在。
+        \item \textbf{下半连续。} $I[\pi]$ 在弱极限处不增——使得极限是最优。
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{对应结果：}
+      \begin{itemize}
+        \item Lemma 4.4 $+$ Prokhorov 定理 $\Rightarrow$ 紧性。
+        \item Lemma 4.3 $\Rightarrow$ 下半连续。
+        \item Theorem 4.1 组装：最优耦合存在。
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \TLtakeaway{存在性证明的骨架：下确界列 $\to$ 紧性（取极限） $\to$ 下半连续（极限仍最优）。}
+\end{frame}
+
+% ── 定理 4.1 陈述 ─────────────────────────────────────────────────────────────
+\begin{frame}{定理 4.1：最优耦合的存在性}
+  \deflab{定理 4.1（最优耦合存在，Villani Thm 4.1）。}
+
+  设 $\X,\Y$ 为 Polish 空间，$\mu\in\Pp(\X)$，$\nu\in\Pp(\Y)$。
+  设 $a:\X\to\R\cup\{-\infty\}$ 上半连续且 $a\in L^1(\mu)$，
+  $b:\Y\to\R\cup\{-\infty\}$ 上半连续且 $b\in L^1(\nu)$。
+  设成本函数 $c:\X\times\Y\to\R\cup\{+\infty\}$ 下半连续，且
+  \[
+    c(x,y) \;\ge\; a(x)+b(y) \quad \forall\, x\in\X,\; y\in\Y.
+  \]
+  则\emph{存在}一个耦合 $\pi^\star\in\coup{\mu}{\nu}$ 使得
+  \[
+    I[\pi^\star] = \inf_{\pi\in\coup{\mu}{\nu}} I[\pi], \quad I[\pi]:=\int_{\X\times\Y} c(x,y)\dd\pi(x,y).
+  \]
+
+  \deflab{注记 4.2。} 下界条件 $c\ge a+b$ 保证 $I[\pi]$ 在 $\R\cup\{+\infty\}$ 中\emph{有定义}（不出现 $+\infty-\infty$）。
+  多数应用中可取 $a=b=0$，即 $c\ge0$。
+
+  \TLtakeaway{定理 4.1 是"第一件好事"：在 Polish 空间上、下半连续成本满足下界条件时，最优耦合必然存在。}
+\end{frame}
+
+% ── 注记 4.5：存在性 ≠ 有限性 ────────────────────────────────────────────────
+\begin{frame}{注记 4.5：存在性不等于有限最优成本}
+  \deflab{注记 4.5。} 定理 4.1 断言最优耦合\emph{存在}，但不排除
+  \[
+    \inf_{\pi\in\coup{\mu}{\nu}} I[\pi] = +\infty.
+  \]
+  即：存在最优计划，但其成本可能无穷大。
+
+  \textbf{何时成本有限？} 一个简单的充分条件：
+  \[
+    \iint_{\X\times\Y} c(x,y)\dd\mu(x)\dd\nu(y) < +\infty.
+  \]
+  此条件等价于\emph{独立耦合} $\mu\otimes\nu$ 的成本有限，从而保证至少有一个计划成本有限，
+  进而最优成本有限。
+
+  \textbf{更强的条件（后续章节用到）：} 若
+  $c(x,y)\le c_{\X}(x)+c_{\Y}(y)$，其中 $c_{\X}\in L^1(\mu)$，$c_{\Y}\in L^1(\nu)$，
+  则\emph{任意}耦合的成本均有限。
+
+  \TLtakeaway{成本有限性是独立的条件：验证 $\mu\otimes\nu$ 的成本是否有限，是最简单的途径。}
+\end{frame}
+
+% ── Prokhorov 定理回顾 + 引理 4.4 ────────────────────────────────────────────
+\begin{frame}{Prokhorov 定理与耦合集的胶着性（引理 4.4）}
+  \deflab{Prokhorov 定理（紧性判据）。}
+  设 $\X$ 为 Polish 空间，$\mathcal{F}\subset\Pp(\X)$。
+  $\mathcal{F}$ 在弱拓扑下\emph{预紧}当且仅当它\TLterm{胶着 (tight)}：
+  \[
+    \forall\eps>0,\;\exists\text{ 紧集 } K_\eps\subset\X, \;
+    \mu[\X\setminus K_\eps]\le\eps \;\forall\,\mu\in\mathcal{F}.
+  \]
+  直觉：无质量"逃逸到无穷"。
+
+  \deflab{引理 4.4（转移计划的胶着性）。}
+  设 $\mathcal{F}\subset\Pp(\X)$ 与 $\mathcal{G}\subset\Pp(\Y)$ 均胶着，
+  则 $\Pi(\mathcal{F},\mathcal{G})$ 在 $\Pp(\X\times\Y)$ 中\emph{也胶着}。
+
+  \textbf{证明思路。} 对任意 $\eps>0$，取紧集 $K_\eps\subset\X$，$L_\eps\subset\Y$ 使得
+  $\mu[\X\setminus K_\eps]\le\eps$，$\nu[\Y\setminus L_\eps]\le\eps$。
+  对任意耦合 $(X,Y)\sim\pi\in\Pi(\mathcal{F},\mathcal{G})$：
+  \[
+    \Prob\bigl[(X,Y)\notin K_\eps\times L_\eps\bigr]
+    \;\le\; \Prob[X\notin K_\eps]+\Prob[Y\notin L_\eps]
+    \;\le\; 2\eps.
+  \]
+  $K_\eps\times L_\eps$ 在 $\X\times\Y$ 中紧，上界 $2\eps$ 与耦合选取无关。\hfill$\square$
+
+  \TLtakeaway{单个 $\mu,\nu$ 的胶着性（在 Polish 空间上自动成立）可"提升"到整个耦合集 $\coup{\mu}{\nu}$。}
+\end{frame}
+
+% ── 引理 4.3：成本泛函的下半连续性 ──────────────────────────────────────────
+\begin{frame}{引理 4.3：成本泛函的下半连续性}
+  \deflab{引理 4.3（成本泛函的下半连续性）。}
+  设 $\X,\Y$ 为 Polish 空间，$c:\X\times\Y\to\R\cup\{+\infty\}$ 下半连续，
+  $h:\X\times\Y\to\R\cup\{-\infty\}$ 上半连续且 $c\ge h$。
+  设 $\pi_k\wkto\pi$，且 $h\in L^1(\pi_k)$，$h\in L^1(\pi)$，
+  $\int h\dd\pi_k\To\int h\dd\pi$。则
+  \[
+    \int_{\X\times\Y} c\dd\pi \;\le\; \liminf_{k\to\infty}\int_{\X\times\Y} c\dd\pi_k.
+  \]
+
+  \textbf{证明思路。}
+  \begin{enumerate}\small
+    \item 用 $c-h$ 代替 $c$，不妨设 $c\ge0$（下半连续非负函数）。
+    \item 写 $c$ 为有界连续函数列的\emph{逐点递增极限}：$c=\lim_{\ell\to\infty} c_\ell$，$c_\ell\nearrow c$，$c_\ell\in C_b(\X\times\Y)$。
+    \item 对每个固定 $\ell$：$\pi_k\wkto\pi \Rightarrow \int c_\ell\dd\pi_k\to\int c_\ell\dd\pi$（弱收敛定义）。
+    \item 由单调收敛定理：
+    \[
+      \int c\dd\pi = \lim_{\ell}\int c_\ell\dd\pi
+      = \lim_{\ell}\lim_{k}\int c_\ell\dd\pi_k
+      \le \liminf_{k}\int c\dd\pi_k. \quad\square
+    \]
+  \end{enumerate}
+
+  \TLtakeaway{下半连续成本泛函对弱收敛也下半连续——这让"取极限不增加成本"成为可能。}
+\end{frame}
+
+% ── 定理 4.1 的证明（一）：紧性 ───────────────────────────────────────────────
+\begin{frame}{定理 4.1 的证明（一）：紧性}
+  \textbf{目标：} 在 $\coup{\mu}{\nu}$ 中找到成本最小的耦合。
+
+  \textbf{步骤一：$\coup{\mu}{\nu}$ 是弱紧集。}
+  \begin{itemize}\small
+    \item $\{\mu\}\subset\Pp(\X)$ 胶着（Polish 空间上单点集自动胶着），$\{\nu\}$ 同理。
+    \item 引理 4.4 $\Rightarrow$ $\coup{\mu}{\nu}$ 在 $\Pp(\X\times\Y)$ 中胶着。
+    \item Prokhorov 定理 $\Rightarrow$ $\coup{\mu}{\nu}$ 预紧。
+    \item 边际条件在弱极限下保持 $\Rightarrow$ $\coup{\mu}{\nu}$ 闭。
+    \item 闭 $+$ 预紧 $\Rightarrow$ \textbf{弱紧}。
+  \end{itemize}
+
+  \textbf{步骤二：取极小化列并提取极限。}
+  \begin{itemize}\small
+    \item 取 $(\pi_k)\subset\coup{\mu}{\nu}$ 使 $I[\pi_k]\to\inf I$。
+    \item 由弱紧性，存在子列（仍记为 $\pi_k$）使 $\pi_k\wkto\pi^\star\in\coup{\mu}{\nu}$。
+  \end{itemize}
+
+  步骤二保证了极限的存在性与可行性。接下来用引理 4.3 证明最优性。
+\end{frame}
+
+% ── 定理 4.1 的证明（二）：取极限并用下半连续 ────────────────────────────────
+\begin{frame}{定理 4.1 的证明（二）：取极限并用下半连续}
+  \textbf{步骤三：引理 4.3 给出最优性。}
+  \begin{itemize}\small
+    \item 令 $h(x,y)=a(x)+b(y)$，则 $h\in L^1(\pi_k)\cap L^1(\pi^\star)$，
+      且 $\int h\dd\pi_k = \int a\dd\mu+\int b\dd\nu = \int h\dd\pi^\star$（边际不变）。
+    \item 引理 4.3 $\Rightarrow$ $I[\pi^\star]\le\liminf_k I[\pi_k]=\inf I$。
+    \item 又 $\pi^\star\in\coup{\mu}{\nu}$ $\Rightarrow$ $I[\pi^\star]\ge\inf I$。
+    \item 故 $I[\pi^\star]=\inf I$，即 $\pi^\star$ 最优。\hfill$\square$
+  \end{itemize}
+
+  \textbf{证明全景回顾：}
+  \begin{itemize}\small
+    \item 步骤一：利用 Prokhorov 定理 $+$ 引理 4.4，证明 $\coup{\mu}{\nu}$ 弱紧。
+    \item 步骤二：从极小化列提取弱收敛子列，极限仍在 $\coup{\mu}{\nu}$ 中。
+    \item 步骤三：引理 4.3 确保极限的成本不超过下确界，故极限最优。
+  \end{itemize}
+
+  \TLtakeaway{三步：紧集 $\to$ 极限存在；下半连续 $\to$ 极限最优。每步都用到 Polish 空间的拓扑结构。}
+\end{frame}
+
+% ── 定理 4.6：最优性被子计划继承 ─────────────────────────────────────────────
+\begin{frame}{第二件好事：最优性被子计划继承（定理 4.6）}
+  \deflab{定理 4.6（限制性质，Villani Thm 4.6）。}
+  设定同定理 4.1，并设最优传输成本 $C(\mu,\nu)<+\infty$，$\pi\in\coup{\mu}{\nu}$ 为最优计划。
+  设 $\pi'$ 是 $\X\times\Y$ 上的非负测度，满足 $\pi'\le\pi$（作为测度）且 $\pi'[\X\times\Y]>0$。
+  定义归一化限制：
+  \[
+    \tilde{\pi} \;:=\; \frac{\pi'}{\pi'[\X\times\Y]}.
+  \]
+  则 $\tilde{\pi}$ 是其边际 $\tilde{\mu}=\pf{(\mathrm{proj}_{\X})}{\tilde{\pi}}$，
+  $\tilde{\nu}=\pf{(\mathrm{proj}_{\Y})}{\tilde{\pi}}$ 之间的\emph{最优}耦合。
+
+  \textbf{通俗理解。} "最优传输计划的任意一个子计划，对其所搬运的那部分质量来说，也是最优的。"
+  否则可以局部改进子计划，从而降低整体成本——矛盾。
+
+  \TLtakeaway{限制性质说明：最优计划\emph{局部也优}。这是全书反复使用的简单而有力的原则。}
+\end{frame}
+
+% ── 定理 4.6 的矛盾证明（一）：构造与验证 ────────────────────────────────────
+\begin{frame}{定理 4.6 的证明（一）：构造竞争计划}
+  \textbf{假设 $\tilde{\pi}$ 不是最优的。} 则存在计划 $\hat{\pi}$ 使得
+  \[
+    \pf{(\mathrm{proj}_{\X})}{\hat{\pi}}=\tilde{\mu},\quad
+    \pf{(\mathrm{proj}_{\Y})}{\hat{\pi}}=\tilde{\nu},\quad
+    \text{但 } \int c\dd\hat{\pi} < \int c\dd\tilde{\pi}.
+  \]
+  令 $Z = \pi'[\X\times\Y]>0$。构造竞争计划：
+  \[
+    \hat{\pi}_{\mathrm{new}} \;:=\; (\pi - \pi') + Z\hat{\pi}.
+  \]
+  \textbf{验证边际：} 由 $\pi'=Z\tilde{\pi}$ 及 $\hat{\pi}$ 的边际，$\hat{\pi}_{\mathrm{new}}$ 的边际等于 $\mu,\nu$。
+
+  \textbf{验证成本更低：}
+  \[
+    \int c\dd\hat{\pi}_{\mathrm{new}}
+    = \int c\dd\pi - Z\int c\dd\tilde{\pi} + Z\int c\dd\hat{\pi}
+    < \int c\dd\pi.
+  \]
+  （利用 $C(\mu,\nu)<+\infty$ 保证有限成本运算合法。）
+  这与 $\pi$ 最优性矛盾，故 $\tilde{\pi}$ 是最优的。\hfill$\square$
+\end{frame}
+
+% ── 定理 4.6 的证明（二）：唯一性的传递 ─────────────────────────────────────
+\begin{frame}{定理 4.6 的证明（二）：唯一性的传递}
+  \textbf{唯一性的传递。} 若 $\pi$ 是 $(\mu,\nu)$ 之间的\emph{唯一}最优计划，则类似论证可知 $\tilde{\pi}$ 也是 $(\tilde{\mu},\tilde{\nu})$ 之间的唯一最优计划。
+
+  \textbf{理由。} 若 $\tilde{\pi}$ 不唯一，设 $\hat{\pi}\ne\tilde{\pi}$ 也是 $(\tilde{\mu},\tilde{\nu})$ 的最优计划。
+  用同样的"替换"构造 $\hat{\pi}_{\mathrm{new}} = (\pi-\pi') + Z\hat{\pi}$，
+  其成本与 $\pi$ 相同（因 $\hat{\pi}$ 与 $\tilde{\pi}$ 成本相同），
+  但 $\hat{\pi}_{\mathrm{new}}\ne\pi$——与 $\pi$ 的唯一性矛盾。\hfill$\square$
+
+  \textbf{例 4.7（条件化仍最优）。}
+  设 $(X,Y)$ 是最优计划 $\pi$ 下的随机向量，$Z\subset\X\times\Y$ Borel 且 $\Prob[(X,Y)\in Z]>0$。
+  令 $\pi' = \pi|_{Z}$，则 $\pi'\le\pi$，
+  定理 4.6 直接给出：给定 $(X,Y)\in Z$ 的条件耦合在相应边际之间最优。
+
+  \TLtakeaway{证明关键：用子计划的"更好替代"拼出整体更优的计划；唯一性类似传递。条件化保持最优性是直接推论。}
+\end{frame}
+
+% ── 例 4.7 的原则解释 ──────────────────────────────────────────────────────────
+\begin{frame}{例 4.7：条件化原则的威力}
+  \TLwarnblock{为什么这个原则"简单但有力"}{
+    全书多次用到"取一个最优计划，把注意力限制到某个子集，
+    子集上的计划仍最优"这一论证步骤。每次背后都是定理 4.6。
+  }
+
+  \textbf{使用场景举例：}
+  \begin{itemize}
+    \item 把最优计划限制到某个"好的"区域，在该区域上研究其几何结构。
+    \item 用条件化把全局问题降维为局部问题，再用局部最优性归纳推进。
+    \item 在唯一性证明中：若存在两个最优计划，对它们的"差集"条件化推出矛盾。
+  \end{itemize}
+
+  \TLtakeaway{例 4.7：最优耦合对任意正概率事件的条件化也最优（定理 4.6 之概率语言形式）。}
+\end{frame}
+
+% ── 定理 4.8：最优成本的凸性 ──────────────────────────────────────────────────
+\begin{frame}{第三件好事：最优成本的凸性（定理 4.8）}
+  \deflab{定理 4.8（最优成本的凸性，Villani Thm 4.8）。}
+  设 $(\Theta,\lambda)$ 为概率空间，$\theta\mapsto\mu_\theta\in\Pp(\X)$，
+  $\theta\mapsto\nu_\theta\in\Pp(\Y)$ 可测，成本 $c\ge a+b$ 如定理 4.1。则
+  \[
+    C\!\left(\int_{\Theta}\!\mu_\theta\dd\lambda(\theta),\,
+            \int_{\Theta}\!\nu_\theta\dd\lambda(\theta)\right)
+    \;\le\;
+    \int_{\Theta} C(\mu_\theta,\nu_\theta)\dd\lambda(\theta).
+  \]
+
+  \textbf{直觉。} "先混合，再最优传输"的代价不超过"先分别最优传输，再混合"的平均代价。
+  混合只会\emph{增加灵活性}（可以选混合后的最优计划），故成本不增。
+
+  \textbf{证明思路。}
+  \begin{itemize}\small
+    \item 对 $\lambda$-a.e.\ $\theta$，定理 4.1 给出最优计划 $\pi_\theta\in\coup{\mu_\theta}{\nu_\theta}$。
+    \item 令 $\pi:=\int_{\Theta}\pi_\theta\dd\lambda(\theta)$，其边际为 $\mu:=\int\mu_\theta\dd\lambda$，$\nu:=\int\nu_\theta\dd\lambda$，故 $\pi\in\coup{\mu}{\nu}$。
+    \item 由 $C(\mu,\nu)\le I[\pi]$ 及 Fubini 定理：
+      $C(\mu,\nu)\le \int_{\Theta} C(\mu_\theta,\nu_\theta)\dd\lambda(\theta)$。\hfill$\square$
+  \end{itemize}
+
+  \TLtakeaway{最优传输成本关于边际测度\emph{凸}：混合测度的传输成本不超过分别传输成本的平均。}
+\end{frame}
+
+% ── 最优计划的刻画：开放问题（一）───────────────────────────────────────────
+\begin{frame}{超越存在性：最优计划的刻画（一）}
+  存在性定理告诉我们"最优计划存在"，但对其\emph{结构}只字未提。自然的问题：
+
+  \begin{itemize}
+    \item \textbf{唯一性？} 最优计划是否唯一？是否光滑？
+    \item \textbf{Monge 耦合？} 是否存在\emph{确定性}最优计划（即推前映射 $T$ 使 $\pf{T}{\mu}=\nu$）？
+    \item \textbf{几何刻画？} 有没有直接判断某个耦合"是否最优"的几何条件？
+  \end{itemize}
+
+  关于唯一性与几何刻画的答案见第 9--12 章；关于几何刻画的关键工具——循环单调性与 Kantorovich 对偶——将在下一节（§2）展开。
+\end{frame}
+
+% ── 最优计划的刻画：开放问题（二）───────────────────────────────────────────
+\begin{frame}{超越存在性：为何 Monge 不能用紧性论证（二）}
+  \textbf{为什么不能直接对 Monge 用定理 4.1 的紧性论证？}
+
+  Monge 计划的集合（由推前映射产生的耦合）\emph{一般不弱紧}——事实上，它往往在全体耦合 $\coup{\mu}{\nu}$ 中\emph{稠密}！
+  因此：
+  \begin{itemize}
+    \item Monge 问题的下确界 $=$ Kantorovich 问题的最小值（两者相等是\emph{可能}的）。
+    \item 但\emph{无法保证} Monge 极小化子存在——下确界可以不被 Monge 计划取到。
+  \end{itemize}
+
+  \textbf{对比：}
+  \begin{itemize}\small
+    \item Kantorovich 松弛允许"分裂质量"，集合 $\coup{\mu}{\nu}$ 弱紧，极小化子必然存在。
+    \item Monge 限制不允许分裂，集合不紧，极小化子可以不存在。
+  \end{itemize}
+
+  \TLtakeaway{确定性 (Monge) 计划集不紧，因此 Monge 极小子不保证存在；但 Kantorovich 最小值 $=$ Monge 下确界仍可能成立。第 5 章开始刻画。}
+\end{frame}
+
+% ── 例 4.9：质量分裂（TikZ 图 4.1）── 文字 ──────────────────────────────────
+\begin{frame}{例 4.9：需要分裂质量的例子}
+  \deflab{例 4.9（Villani Example 4.9）。}
+  取 $\X=\Y=\R^2$，成本 $c(x,y)=\abs{x-y}^2$。
+  设：
+  \begin{align*}
+    \mu &= H^1 \text{ 限制到 } \{0\}\times[-1,1], \\
+    \nu &= \tfrac{1}{2}H^1 \text{ 限制到 } \{-1\}\times[-1,1]
+           + \tfrac{1}{2}H^1 \text{ 限制到 } \{1\}\times[-1,1].
+  \end{align*}
+  其中 $H^1$ 为一维 Hausdorff 测度（弧长测度）。
+
+  \textbf{唯一最优计划：} 对每个点 $(0,a)\in\supp\mu$，将其一半质量送到 $(-1,a)$，
+  另一半送到 $(1,a)$（水平运输，竖直坐标不变）：
+  \[
+    \pi^\star = \int_{-1}^{1} \tfrac{1}{2}\bigl[\delta_{((0,a),(-1,a))}+\delta_{((0,a),(1,a))}\bigr]\dd a.
+  \]
+
+  \textbf{这\emph{不是} Monge 计划：} 每个 $(0,a)$ 的质量被分裂成两份，
+  不存在函数 $T$ 使 $T(0,a)=(-1,a)$ 且同时 $T(0,a)=(1,a)$。
+
+  \TLtakeaway{质量分裂是最优的——这说明即使有唯一最优 Kantorovich 计划，也不一定是 Monge 计划。}
+\end{frame}
+
+% ── 例 4.9：TikZ 图 4.1 ────────────────────────────────────────────────────
+\begin{frame}{例 4.9 图示：最优耦合 vs 确定性近似（图 4.1 重绘）}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \centering{\small\textbf{最优耦合（质量分裂）}}\\[6pt]
+      \begin{tikzpicture}[scale=1.05,>={Stealth[length=4pt]}]
+        % 支撑集
+        \draw[TLprimary,very thick] (0,-1.3) -- (0,1.3);
+        \draw[TLaccent,thick] (-1.5,-1.3) -- (-1.5,1.3);
+        \draw[TLaccent,thick] (1.5,-1.3) -- (1.5,1.3);
+        % 箭头：中心 -> 左和右（几个示例点）
+        \foreach \y in {-1.0,-0.5,0.0,0.5,1.0}{
+          \draw[->,TLink,thin] (0.05,\y) -- (1.45,\y);
+          \draw[->,TLink,thin] (-0.05,\y) -- (-1.45,\y);
+        }
+        % 标注
+        \node[font=\scriptsize,TLinkSoft,above] at (0,1.35) {$\mu$};
+        \node[font=\scriptsize,TLinkSoft,above] at (-1.5,1.35) {$\nu_L$};
+        \node[font=\scriptsize,TLinkSoft,above] at (1.5,1.35) {$\nu_R$};
+        \node[font=\scriptsize] at (0,-1.6) {$x=0$};
+        \node[font=\scriptsize] at (-1.5,-1.6) {$x=-1$};
+        \node[font=\scriptsize] at (1.5,-1.6) {$x=1$};
+      \end{tikzpicture}\\[3pt]
+      {\scriptsize 每点质量各分一半，水平运输。}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \centering{\small\textbf{确定性近似（非最优）}}\\[6pt]
+      \begin{tikzpicture}[scale=1.05,>={Stealth[length=4pt]}]
+        \draw[TLprimary,very thick] (0,-1.3) -- (0,1.3);
+        \draw[TLaccent,thick] (-1.5,-1.3) -- (-1.5,1.3);
+        \draw[TLaccent,thick] (1.5,-1.3) -- (1.5,1.3);
+        % 交替箭头：显式指定每个点的去向
+        \draw[->,TLink,thin] (0.05,-1.0) -- (1.45,-1.0);
+        \draw[->,TLink,thin] (-0.05,-0.5) -- (-1.45,-0.5);
+        \draw[->,TLink,thin] (0.05,0.0) -- (1.45,0.0);
+        \draw[->,TLink,thin] (-0.05,0.5) -- (-1.45,0.5);
+        \draw[->,TLink,thin] (0.05,1.0) -- (1.45,1.0);
+        \node[font=\scriptsize,TLinkSoft,above] at (0,1.35) {$\mu$};
+        \node[font=\scriptsize,TLinkSoft,above] at (-1.5,1.35) {$\nu_L$};
+        \node[font=\scriptsize,TLinkSoft,above] at (1.5,1.35) {$\nu_R$};
+        \node[font=\scriptsize] at (0,-1.6) {$x=0$};
+        \node[font=\scriptsize] at (-1.5,-1.6) {$x=-1$};
+        \node[font=\scriptsize] at (1.5,-1.6) {$x=1$};
+      \end{tikzpicture}\\[3pt]
+      {\scriptsize 每点只送一侧（交替），不分裂，非最优。}
+    \end{column}
+  \end{columns}
+  \vspace{4pt}
+  {\scriptsize 据 Villani 图 4.1 重绘。}
+  \TLtakeaway{最优计划（左）把质量对称分裂；确定性近似（右）不分裂但成本更高。Monge 下确界 $=$ Kantorovich 最小值，但 Monge 极小子不存在。}
+\end{frame}
+
+% ── 习题 1 · Exercises ─────────────────────────────────────────────────────────
+\begin{frame}{习题 1 · Exercises}
+  \begin{itemize}
+    \item \textbf{习题 1.1}~(\diffI)\ 验证独立耦合 $\mu\otimes\nu$ 满足 Kantorovich 问题的边际约束，
+      并在 $\iint c\dd\mu\dd\nu<+\infty$ 时说明 $I[\mu\otimes\nu]<+\infty$，
+      从而 $C(\mu,\nu)<+\infty$。
+      \begin{itemize}\footnotesize
+        \item \hint{验证 $\pf{(\mathrm{proj}_{\X})}{\mu\otimes\nu}=\mu$ 和 $\pf{(\mathrm{proj}_{\Y})}{\mu\otimes\nu}=\nu$，
+          再利用 Fubini 定理计算 $I[\mu\otimes\nu]=\iint c\dd\mu\dd\nu$。}
+      \end{itemize}
+    % SOLUTION: mu otimes nu 的第一边际：对任意 Borel A 属于 X，mu otimes nu [A × Y] = mu[A] * nu[Y] = mu[A]，故第一边际为 mu；同理第二边际为 nu。I[mu otimes nu] = int_{X×Y} c d(mu⊗nu) = int_X int_Y c(x,y) dnu(y) dmu(x) (Fubini，c>=0 可以交换) = ∬ c dmu dnu < +∞ 由假设。故独立耦合有限成本，C(μ,ν) ≤ I[μ⊗ν] < +∞。
+
+    \item \textbf{习题 1.2}~(\diffII)\ 设 $\pi^\star$ 是有限离散分布的最优 Kantorovich 计划。
+      取子集 $Z=\{(a_i,b_j):\pi^\star_{ij}>0\}$ 中某个矩形子块 $A\times B$，
+      令 $\pi'=\pi^\star|_{A\times B}$。用显式"重新分配"论证证明 $\pi'/\pi'[A\times B]$ 是最优的。
+      \begin{itemize}\footnotesize
+        \item \hint{假设子计划不最优，构造更便宜的局部替换，再代入整体计划，与 $\pi^\star$ 最优性矛盾。}
+      \end{itemize}
+    % SOLUTION: 设子计划 tilde{pi} = pi'/(pi'[A×B]) 不是最优的。则存在有相同边际但成本更小的计划 hat{pi}。令 Z = pi'[A×B]，构造 pi_new = (pi^star - pi') + Z * hat{pi}。验证：pi_new 的边际等于 mu, nu（因为 pi' 和 hat{pi} 有相同的边际，差了一个因子 Z）；pi_new 的成本 = I[pi^star] - I[pi'] + Z * I[hat{pi}] = I[pi^star] - Z * I[tilde{pi}] + Z * I[hat{pi}] < I[pi^star]（因为 I[hat{pi}] < I[tilde{pi}]）。这与 pi^star 最优性矛盾。
+
+    \item \textbf{习题 1.3}~(\diffIII)\ 用例 4.9 说明：存在 $\mu,\nu\in\Pp(\R^2)$ 使得
+      Monge 下确界等于 Kantorovich 最小值，但不存在 Monge 映射 $T$ 实现 Kantorovich 最小值。
+      \begin{itemize}\footnotesize
+        \item \hint{例 4.9 中唯一最优 Kantorovich 计划分裂质量，不对应任何映射；
+          但确定性近似序列的成本趋向 $C(\mu,\nu)$，说明两个下确界相等。}
+      \end{itemize}
+    % SOLUTION: 例 4.9 中 C(mu,nu) 由唯一最优计划 pi^star 达到，其值为 1（每点 (0,a) 到 (±1,a) 的平方距离均为 1，总成本为 int_{-1}^{1} 1 da = 2，但归一化后为 1）。任意 Monge 计划 T 满足 pf{T}{mu} = nu，必将 [−1,1] 的一半质量送到 x=−1 段，另一半送到 x=1 段；设在集合 A 上 T(0,a) = (−1,a)，在 [−1,1]\A 上 T(0,a)=(1,a)，A 测度为 1。任意这样的 T 成本等于 1 = C(mu,nu)，但没有一个是连续映射或弱极限——因为 pi^star 不是推前测度。实际上可以验证 pi^star 的条件分布 pi^star_{(0,a)} = 1/2 delta_{(-1,a)} + 1/2 delta_{(1,a)} 不是 delta 测度，故 pi^star 不是任何映射的图。但 Monge 下确界确实等于 Kantorovich 最小值（均为 1），因为上述显式 Monge 映射（取 A 任意测度为 1 的子集）成本恰好也是 1。此例说明：Kantorovich 最小值可以被 Monge 计划的成本序列实现，但极限（唯一最优 pi^star）本身不是 Monge 计划。
+  \end{itemize}
+\end{frame}
+
+% ── §1 小结 ───────────────────────────────────────────────────────────────────
+\begin{frame}{§1 小结：最优耦合的四个基本性质}
+  \begin{itemize}\small
+    \item \textbf{存在性（定理 4.1）。} Polish 空间上下半连续成本满足下界条件时，最优耦合必然存在。
+      证明骨架：Prokhorov 紧性 $+$ 成本泛函下半连续。
+    \item \textbf{成本有定义（注记 4.2 / 4.5）。} 下界条件保证 $I[\pi]$ 在 $\R\cup\{+\infty\}$ 有意义；
+      独立耦合成本有限 $\iff$ $\iint c\dd\mu\dd\nu<+\infty$。
+    \item \textbf{限制性质（定理 4.6）。} 最优计划的任意子计划也最优——"局部也优"。
+      条件化同样保持最优性。
+    \item \textbf{凸性（定理 4.8）。} 最优成本 $C(\mu,\nu)$ 关于边际测度凸：
+      混合分布的传输成本不超过分别传输成本的平均。
+  \end{itemize}
+  \textbf{遗留问题（§2 起逐步回答）：}
+  \begin{itemize}\small
+    \item 唯一性？几何刻画？$\to$ §2 循环单调性与 Kantorovich 对偶。
+    \item 确定性（Monge）最优计划是否存在？$\to$ 第 9--12 章。
+  \end{itemize}
+  \TLtakeaway{第 4 章打下了基础：存在性、有限性、限制性、凸性——四块基石，为后续刻画最优计划做好准备。}
+\end{frame}

@@ -1,0 +1,236 @@
+% =============================================================================
+%  §0  预备：测度、耦合与两个传输问题
+%  指挥官撰写 —— 本节为「风格范本」。Codex 各节须在记号、版式、密度、图风、
+%  worked-example 与 takeaway 习惯上与本节保持一致。
+%  来源：Villani 引言 + 第 1–3 章（不在 4–8 范围内，但为其前置背景）。
+% =============================================================================
+\TLsection{0 \ 预备：测度、耦合与两个传输问题}
+
+% ── 本节定位 ─────────────────────────────────────────────────────────────────
+\begin{frame}{本节要补齐什么？}
+  第 4--8 章默认你熟悉\emph{概率测度}、\emph{弱收敛}、\emph{推前}以及\emph{两个传输问题}。
+  本节把这些背景一次补齐，使全讲义\textbf{自足}。
+  \begin{itemize}
+    \item \textbf{对象。} 在 Polish 空间上的概率测度 $\Pp(\X)$，以及如何度量它们的“靠近”。
+    \item \textbf{动作。} 用映射搬运质量（\emph{推前} $\pf{T}{\mu}$），以及质量守恒。
+    \item \textbf{两个问题。} Monge 的\emph{确定性}搬运 vs.\ Kantorovich 的\emph{可分裂}搬运。
+    \item \textbf{一个伏笔。} 对偶（“面包店”经济直觉）——第 2 节的主角。
+  \end{itemize}
+  \TLtakeaway{把“最优传输”读成一句话：\emph{在所有把 $\mu$ 搬成 $\nu$ 的方案里，找总成本最小的那个}。本节把这句话里的每个词讲清楚。}
+\end{frame}
+
+% ── 概率测度空间 ─────────────────────────────────────────────────────────────
+\begin{frame}{对象：Polish 空间上的概率测度 $\Pp(\X)$}
+  \textbf{为什么。} 传输的两端是\emph{质量分布}，不是单个点；最自然的语言是\emph{概率测度}。
+
+  \medskip
+  \deflab{约定。} $\X,\Y$ 为\TLterm{Polish 空间}（完备可分度量空间，如 $\R^n$）。
+  $\Pp(\X)$ 记其上全体\emph{概率测度}。一个 $\mu\in\Pp(\X)$ 给每个（可测）集合 $A$ 一个质量
+  $\mu[A]\in[0,1]$，且 $\mu[\X]=1$。积分 $\int_{\X} \varphi \dd\mu$ 表示“按密度 $\mu$
+  对检验函数 $\varphi\in C_b(\X)$ 取平均”：
+  \[
+    \mu \;\longmapsto\; \int_{\X} \varphi \dd\mu, \qquad \varphi\in C_b(\X).
+  \]
+  \begin{itemize}\small
+    \item \emph{例 1（点质量）。} $\delta_{x_0}$：全部质量集中在 $x_0$，$\int\varphi\dd\delta_{x_0}=\varphi(x_0)$。
+    \item \emph{例 2（经验测度）。} $\frac1n\sum_{i=1}^n\delta_{x_i}$：$n$ 个等重样本点。
+    \item \emph{例 3（密度）。} $\mu=f\,\mathrm{Leb}$，$f\ge0,\ \int f=1$（如高斯）。
+  \end{itemize}
+  \TLtakeaway{$\Pp(\X)$ 同时容纳“离散沙堆”与“连续密度”——这正是传输需要的统一框架。}
+\end{frame}
+
+% ── 弱收敛 + 紧性 ────────────────────────────────────────────────────────────
+\begin{frame}{度量“靠近”：弱收敛与 Prokhorov 紧性}
+  \textbf{为什么。} 要证“最优方案\emph{存在}”，标准武器是\emph{紧性 + 下半连续}（第 1 节会用到）。
+  先把“测度列收敛”说清楚。
+
+  \medskip
+  \deflab{弱（窄）收敛。} $\mu_k\wkto\mu$ 指对每个有界连续 $\varphi$，
+  \[
+    \int_{\X} \varphi\dd\mu_k \;\To\; \int_{\X} \varphi\dd\mu .
+  \]
+  直觉：沙堆\emph{整体形状}收敛，允许质量\emph{连续地移动}，但不允许质量\emph{逃逸到无穷}。
+
+  \medskip
+  \deflab{Prokhorov 定理（紧性判据）。} 一族测度\emph{胶着 (tight)} ——
+  即对任意 $\eps>0$ 存在紧集 $K_\eps$ 使 $\mu[\X\setminus K_\eps]\le\eps$ 对全族成立——
+  当且仅当它\emph{弱列紧}。
+  \TLtakeaway{“胶着”= 质量不会偷偷跑到无穷远。它是后面所有\emph{存在性}证明的引擎。}
+\end{frame}
+
+% ── 推前测度 ─────────────────────────────────────────────────────────────────
+\begin{frame}{动作：用映射搬运质量 —— 推前 $\pf{T}{\mu}$}
+  \textbf{为什么。} “把 $\mu$ 搬成 $\nu$”最朴素的方式是给每个 $x$ 指定一个去处 $T(x)$。
+
+  \medskip
+  \deflab{推前（pushforward）。} 给可测 $T:\X\to\Y$，定义 $\nu=\pf{T}{\mu}$ 为
+  \[
+    \nu[B] \;=\; \mu\!\left[T^{-1}(B)\right]\quad(\forall B),
+    \qquad\Longleftrightarrow\qquad
+    \int_{\Y} \varphi\dd(\pf{T}{\mu}) = \int_{\X} \varphi\!\circ\! T \dd\mu .
+  \]
+  这恰是\emph{质量守恒}：$T$ 把落在 $T^{-1}(B)$ 的质量全部送进 $B$。
+
+  \medskip
+  \deflab{可算的例子（1D）。} 设 $\mu=\mathrm{Unif}[0,1]$，$T(x)=x^2$。则对 $y\in(0,1)$，
+  \[
+    \nu[(0,y)] = \mu[\,x^2<y\,] = \mu[\,x<\sqrt y\,] = \sqrt y
+    \;\Rightarrow\; \nu \text{ 的密度 } g(y)=\frac{1}{2\sqrt y}.
+  \]
+  \TLtakeaway{推前 = “换元公式”的测度版。记号 $\pf{T}{\mu}=\nu$ 读作“$T$ 把 $\mu$ 搬成了 $\nu$”。}
+\end{frame}
+
+% ── Monge 问题 ───────────────────────────────────────────────────────────────
+\begin{frame}{问题一：Monge —— 确定性搬运（可能无解）}
+  \deflab{Monge 问题 (1781)。} 给定 $\mu\in\Pp(\X),\ \nu\in\Pp(\Y)$ 与成本 $c(x,y)\ge0$，求\emph{传输映射}
+  \[
+    \inf_{T}\ \int_{\X} c\big(x,\,T(x)\big)\dd\mu(x)
+    \subjto \pf{T}{\mu}=\nu .
+  \]
+  即：每粒质量\emph{整粒}送到唯一去处 $T(x)$，且送达后的分布恰为 $\nu$。
+
+  \medskip
+  \deflab{它为何会“无解”。} Monge 不允许\emph{分裂}质量。若 $\mu=\delta_0$（一个点）而
+  $\nu=\tfrac12\delta_{-1}+\tfrac12\delta_{1}$（两个点），则\emph{没有任何函数} $T$ 能把一个点
+  送成两个点——可行集\emph{为空}。
+  \begin{itemize}\small
+    \item 即便可行，目标关于 $T$ \emph{高度非凸}，约束 $\pf{T}{\mu}=\nu$ 也非线性。
+  \end{itemize}
+  \TLwarnblock{陷阱}{“最优传输映射存在吗”是一个\emph{很难}的问题（第 9--12 章主题）。
+  本讲义先绕开它——靠下面的松弛保证\emph{总有最优方案}。}
+\end{frame}
+
+% ── Kantorovich 松弛 ─────────────────────────────────────────────────────────
+\begin{frame}{问题二：Kantorovich —— 允许分裂的搬运（总有解）}
+  \deflab{耦合 / 转移计划。} $\mu,\nu$ 的\TLterm{耦合}是 $\X\times\Y$ 上的概率测度
+  $\pi$，其两个\emph{边际}分别为 $\mu,\nu$：
+  \[
+    \pf{(\mathrm{proj}_{\X})}{\pi}=\mu,\quad \pf{(\mathrm{proj}_{\Y})}{\pi}=\nu .
+    \qquad \text{记全体耦合为 } \coup{\mu}{\nu}.
+  \]
+  $\pi(dx\,dy)$ = “从 $x$ 附近搬一点质量到 $y$ 附近”的量；允许一个 $x$ 的质量\emph{分裂}去多个 $y$。
+
+  \medskip
+  \deflab{Kantorovich 问题 (1942)。}
+  \[
+    \boxed{\ C(\mu,\nu)\;=\;\inf_{\pi\in\coup{\mu}{\nu}}\ \int_{\X\times\Y} c(x,y)\dd\pi(x,y)\ }
+  \]
+  \begin{itemize}\small
+    \item 目标对 $\pi$ \emph{线性}，约束\emph{线性凸}，$\coup{\mu}{\nu}$ 非空（含乘积测度 $\mu\otimes\nu$）且\emph{弱紧}。
+    \item $\Rightarrow$ 最优 $\pi$ \emph{总存在}（第 1 节严格证明）。Monge 是 Kantorovich 中“不分裂”的特例。
+  \end{itemize}
+  \TLtakeaway{把“映射”松弛成“耦合”，问题从\emph{非凸、可能无解}变为\emph{线性、总有解}——这是全部理论的起点。}
+\end{frame}
+
+% ── 图：Monge vs Kantorovich ─────────────────────────────────────────────────
+\begin{frame}{一图看懂：不可分裂 vs 可分裂}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \centering {\small\textbf{Monge：整粒搬运}}\par\vspace{4pt}
+      \begin{tikzpicture}[scale=0.82,>={Stealth[length=4pt]}]
+        \foreach \y in {2,1.2,0.4}{\fill[TLprimary] (0,\y) circle (2pt);}
+        \foreach \y in {2,1.2,0.4}{\fill[TLaccent] (3,\y) circle (2pt);}
+        \draw[->,TLink] (0.15,2)--(2.85,2);
+        \draw[->,TLink] (0.15,1.2)--(2.85,0.4);
+        \draw[->,TLink] (0.15,0.4)--(2.85,1.2);
+        \node[font=\scriptsize,TLinkSoft] at (0,2.6) {源 $\mu$};
+        \node[font=\scriptsize,TLinkSoft] at (3,2.6) {汇 $\nu$};
+      \end{tikzpicture}\par\vspace{3pt}
+      {\scriptsize 每个源 $\to$ 唯一汇（一个排列）。}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \centering {\small\textbf{Kantorovich：质量可分}}\par\vspace{4pt}
+      \begin{tikzpicture}[scale=0.82,>={Stealth[length=4pt]}]
+        \foreach \y in {2,1.2,0.4}{\fill[TLprimary] (0,\y) circle (2pt);}
+        \foreach \y in {2,1.2,0.4}{\fill[TLaccent] (3,\y) circle (2pt);}
+        \draw[->,TLink!70,thick] (0.15,2)--(2.85,2);
+        \draw[->,TLink!40] (0.15,2)--(2.85,1.2);
+        \draw[->,TLink!70,thick] (0.15,1.2)--(2.85,0.4);
+        \draw[->,TLink!40] (0.15,1.2)--(2.85,2);
+        \draw[->,TLink!70,thick] (0.15,0.4)--(2.85,1.2);
+        \node[font=\scriptsize,TLinkSoft] at (0,2.6) {源 $\mu$};
+        \node[font=\scriptsize,TLinkSoft] at (3,2.6) {汇 $\nu$};
+      \end{tikzpicture}\par\vspace{3pt}
+      {\scriptsize 一个源的质量可\emph{分流}到多个汇（粗细 = 质量）。}
+    \end{column}
+  \end{columns}
+  \vspace{4pt}
+  \TLtakeaway{Kantorovich 把“箭头”换成“流量矩阵”：可行集变成凸的 $\coup{\mu}{\nu}$，于是最优解被紧性\emph{保送}出来。}
+\end{frame}
+
+% ── worked example：离散运输 ─────────────────────────────────────────────────
+\begin{frame}{可算的例子：$3\times3$ 离散运输}
+  设 $\mu=\tfrac13(\delta_{a_1}{+}\delta_{a_2}{+}\delta_{a_3})$，$\nu=\tfrac13(\delta_{b_1}{+}\delta_{b_2}{+}\delta_{b_3})$。
+  耦合 $\pi=(\pi_{ij})$ 是\emph{双随机矩阵}的 $\tfrac13$ 倍：行和列和均为 $\tfrac13$。
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \[
+        \min_{\pi\ge0}\ \sum_{i,j} c_{ij}\,\pi_{ij}
+        \subjto \sum_j\pi_{ij}=\tfrac13,\ \sum_i\pi_{ij}=\tfrac13 .
+      \]
+      \begin{itemize}\small
+        \item 这是一个\textbf{线性规划}；可行域是（缩放的）\emph{双随机矩阵}多胞形。
+        \item \emph{Birkhoff 定理}：其顶点恰为\emph{置换矩阵} $\Rightarrow$ 存在\emph{最优的 Monge 映射}（一个排列）。
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \[
+        c=\begin{pmatrix} 0 & 2 & 2\\ 2 & 0 & 2\\ 2 & 2 & 0\end{pmatrix}
+        \;\Rightarrow\;
+        \pi^\star=\tfrac13\!\begin{pmatrix} 1&0&0\\0&1&0\\0&0&1\end{pmatrix}
+      \]
+      {\scriptsize 对角成本为 $0$，故恒等排列最优，$C(\mu,\nu)=0$。}
+    \end{column}
+  \end{columns}
+  \vspace{2pt}
+  \TLtakeaway{离散情形 = 线性规划 + Birkhoff：松弛（双随机）与原始（置换）在\emph{顶点}处重合。这预演了第 2 节“对偶”与第 9 章“Monge=Kantorovich”。}
+\end{frame}
+
+% ── 成本与对偶伏笔 ───────────────────────────────────────────────────────────
+\begin{frame}{成本函数与对偶的“面包店”伏笔}
+  \deflab{成本 $c(x,y)$。} “把一单位质量从 $x$ 送到 $y$ 的代价”。常见选择：
+  \[
+    c(x,y)=\abs{x-y}\ (\text{距离}),\qquad c(x,y)=\abs{x-y}^2\ (\text{二次，最重要}).
+  \]
+  最优总成本 $C(\mu,\nu)$ 由上页 Kantorovich 问题给出。
+
+  \medskip
+  \deflab{对偶直觉（第 2 节正式展开）。} 设想一家中介：在产地 $x$ 以价 $\psi(x)$ \emph{收货}，
+  在销地 $y$ 以价 $\phi(y)$ \emph{售出}，只要价格“诚实”——
+  \[
+    \phi(y)-\psi(x)\le c(x,y)\quad(\forall x,y),
+  \]
+  其利润 $\int\phi\dd\nu-\int\psi\dd\mu$ 永不超过你自运的成本。\emph{最大利润} = \emph{最小成本}。
+  \TLtakeaway{“成本视角”（搬多少）与“价格视角”（值多少）在最优处相等——这就是 Kantorovich 对偶，第 2 节的核心。}
+\end{frame}
+
+% ── 习题 ─────────────────────────────────────────────────────────────────────
+\begin{frame}{习题 0 · Exercises（提示见本页，解答见附录）}
+  \begin{itemize}
+    \item \textbf{习题 0.1}~(\diffI)\ 设 $\mu=\mathrm{Unif}[0,1]$，$T(x)=2x$。求 $\nu=\pf{T}{\mu}$ 及其密度。
+      \begin{itemize}\footnotesize
+        \item \hint{用 $\nu[(0,y)]=\mu[\,2x<y\,]$，再对 $y$ 求导。}
+      \end{itemize}
+    \item \textbf{习题 0.2}~(\diffII)\ 证明：乘积测度 $\mu\otimes\nu$ 恒为一个耦合。由此论证 $\coup{\mu}{\nu}\neq\varnothing$。
+      \begin{itemize}\footnotesize
+        \item \hint{验证两个边际；这说明 Kantorovich 可行集\emph{总}非空。}
+      \end{itemize}
+    \item \textbf{习题 0.3}~(\diffIII)\ 取 $\mu=\delta_0$，$\nu=\tfrac12\delta_{-1}{+}\tfrac12\delta_{1}$，$c=\abs{x-y}^2$。
+      说明 Monge 不可行，但写出唯一的 Kantorovich 耦合并算出 $C(\mu,\nu)$。
+      \begin{itemize}\footnotesize
+        \item \hint{$\delta_0$ 的质量必须分裂；唯一耦合是 $\tfrac12\delta_{(0,-1)}{+}\tfrac12\delta_{(0,1)}$。}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+% ── 小结 ─────────────────────────────────────────────────────────────────────
+\begin{frame}{§0 小结：上路前的工具箱}
+  \begin{itemize}
+    \item \textbf{对象}：$\Pp(\X)$ 上的概率测度；\textbf{靠近}：弱收敛；\textbf{引擎}：Prokhorov 紧性。
+    \item \textbf{动作}：推前 $\pf{T}{\mu}$（质量守恒 / 换元）。
+    \item \textbf{两个问题}：Monge（确定性、可能无解）$\subset$ Kantorovich（耦合、线性、\emph{总有解}）。
+    \item \textbf{伏笔}：成本视角 $\leftrightarrow$ 价格视角的对偶。
+  \end{itemize}
+  \TLtakeaway{记住主问题 $C(\mu,\nu)=\inf_{\pi\in\coup{\mu}{\nu}}\int c\dd\pi$。第 1 节起，我们追问：它\emph{何时取到}、\emph{长什么样}、\emph{如何随时间演化}。}
+\end{frame}
