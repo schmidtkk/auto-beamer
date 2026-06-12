@@ -108,7 +108,7 @@
 \end{frame}
 
 % ── 引理 4.3：成本泛函的下半连续性 ──────────────────────────────────────────
-\begin{frame}{引理 4.3：成本泛函的下半连续性}
+\begin{frame}{引理 4.3：成本泛函的下半连续性（陈述）}
   \deflab{引理 4.3（成本泛函的下半连续性）。}
   设 $\X,\Y$ 为 Polish 空间，$c:\X\times\Y\to\R\cup\{+\infty\}$ 下半连续，
   $h:\X\times\Y\to\R\cup\{-\infty\}$ 上半连续且 $c\ge h$。
@@ -118,32 +118,39 @@
     \int_{\X\times\Y} c\dd\pi \;\le\; \liminf_{k\to\infty}\int_{\X\times\Y} c\dd\pi_k.
   \]
 
-  \textbf{证明思路。}
+  \textbf{读法。} 泛函 $\pi\mapsto\int c\dd\pi$ 对弱收敛\emph{下半连续}——这正是 §0 中"下半连续"概念在测度空间 $\Pp(\X\times\Y)$ 上的体现（辅助函数 $h$ 仅用于把成本下界 $c\ge a+b$ 纳入框架）。
+
+  \TLtakeaway{下半连续成本泛函对弱收敛也下半连续——这让"取极限不增加成本"成为可能（定理 4.1 的另一半引擎）。}
+\end{frame}
+
+% ── 引理 4.3 的证明 ──────────────────────────────────────────────────────────
+\begin{frame}{引理 4.3 的证明：逼近 + 单调收敛}
+  \textbf{证明思路（三步）。}
   \begin{enumerate}\small
     \item 用 $c-h$ 代替 $c$，不妨设 $c\ge0$（下半连续非负函数）。
-    \item 写 $c$ 为有界连续函数列的\emph{逐点递增极限}：$c=\lim_{\ell\to\infty} c_\ell$，$c_\ell\nearrow c$，$c_\ell\in C_b(\X\times\Y)$。
-    \item 对每个固定 $\ell$：$\pi_k\wkto\pi \Rightarrow \int c_\ell\dd\pi_k\to\int c_\ell\dd\pi$（弱收敛定义）。
-    \item 由单调收敛定理：
+    \item \textbf{逼近}（用 §0 下半连续\emph{性质 (a)}，inf-卷积）：把 $c$ 写成有界连续函数的逐点递增极限 $c=\lim_{\ell} c_\ell$，$c_\ell\nearrow c$，$c_\ell\in C_b(\X\times\Y)$。
+    \item \textbf{先固定 $\ell$，再对 $k$ 取极限。} 弱收敛定义给出 $\int c_\ell\dd\pi_k\to\int c_\ell\dd\pi$；又因 $c_\ell\le c$ 有 $\int c_\ell\dd\pi_k\le\int c\dd\pi_k$，对 $k$ 取下极限：
     \[
-      \int c\dd\pi = \lim_{\ell}\int c_\ell\dd\pi
-      = \lim_{\ell}\lim_{k}\int c_\ell\dd\pi_k
-      \le \liminf_{k}\int c\dd\pi_k. \quad\square
+      \int c_\ell\dd\pi \;=\; \lim_{k}\int c_\ell\dd\pi_k \;\le\; \liminf_{k}\int c\dd\pi_k .
     \]
   \end{enumerate}
-
-  \TLtakeaway{下半连续成本泛函对弱收敛也下半连续——这让"取极限不增加成本"成为可能。}
+  \textbf{收尾：对 $\ell$ 取上确界}（单调收敛定理，$c_\ell\nearrow c$）：左端 $\sup_\ell\int c_\ell\dd\pi=\int c\dd\pi$，右端与 $\ell$ 无关，故
+  \[
+    \int c\dd\pi \;\le\; \liminf_{k}\int c\dd\pi_k. \quad\square
+  \]
+  \TLtakeaway{关键：lsc 给出连续递增逼近（§0 性质 a），再用 $c_\ell\le c$ 把不等式传到 $\liminf$。}
 \end{frame}
 
 % ── 定理 4.1 的证明（一）：紧性 ───────────────────────────────────────────────
 \begin{frame}{定理 4.1 的证明（一）：紧性}
-  \textbf{目标：} 在 $\coup{\mu}{\nu}$ 中找到成本最小的耦合。
+  \textbf{目标：} 在 $\coup{\mu}{\nu}$ 中找成本最小的耦合——即 §0 "紧集上 lsc 必达最小"在测度空间的实现（$\coup{\mu}{\nu}$ 为"紧集"，$I[\pi]=\int c\dd\pi$ 为"lsc 目标"）。
 
   \textbf{步骤一：$\coup{\mu}{\nu}$ 是弱紧集。}
   \begin{itemize}\small
     \item $\{\mu\}\subset\Pp(\X)$ 胶着（Polish 空间上单点集自动胶着），$\{\nu\}$ 同理。
     \item 引理 4.4 $\Rightarrow$ $\coup{\mu}{\nu}$ 在 $\Pp(\X\times\Y)$ 中胶着。
     \item Prokhorov 定理 $\Rightarrow$ $\coup{\mu}{\nu}$ 预紧。
-    \item 边际条件在弱极限下保持 $\Rightarrow$ $\coup{\mu}{\nu}$ 闭。
+    \item \emph{闭性：}边际约束 $\int\varphi\dd\pi=\int\varphi\dd\mu$（对一切 $\varphi\in C_b(\X)$）在弱极限下保持，故弱极限仍以 $\mu,\nu$ 为边际 $\Rightarrow$ $\coup{\mu}{\nu}$ 闭。
     \item 闭 $+$ 预紧 $\Rightarrow$ \textbf{弱紧}。
   \end{itemize}
 
@@ -153,7 +160,6 @@
     \item 由弱紧性，存在子列（仍记为 $\pi_k$）使 $\pi_k\wkto\pi^\star\in\coup{\mu}{\nu}$。
   \end{itemize}
 
-  步骤二保证了极限的存在性与可行性。接下来用引理 4.3 证明最优性。
 \end{frame}
 
 % ── 定理 4.1 的证明（二）：取极限并用下半连续 ────────────────────────────────

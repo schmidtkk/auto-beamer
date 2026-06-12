@@ -58,6 +58,137 @@
   \TLtakeaway{“胶着”= 质量不会偷偷跑到无穷远。它是后面所有\emph{存在性}证明的引擎。}
 \end{frame}
 
+% ── 下半连续 / 上半连续 —— 定义 ──────────────────────────────────────────────
+\begin{frame}{下半连续（lsc）：代价函数的自然正则性}
+  \textbf{为什么。} 证最优传输计划存在（定理 4.1），需要"紧性 + lsc $\Rightarrow$ 最小值被取到"。
+  代价 $c(x,y)$ 通常不连续（如截断成本），但满足\emph{下半连续}——这已足够。
+
+  \medskip
+  \deflab{定义（下半连续 / lsc）。} $f:X\to\mathbb{R}\cup\{+\infty\}$
+  称在 $x_0$ 处\TLterm{下半连续 (lsc)}，若
+  \[
+    \liminf_{x\to x_0}f(x) \;\ge\; f(x_0).
+  \]
+  等价刻画：$f$ 全局 lsc $\;\Longleftrightarrow\;$ 对任意 $a\in\mathbb{R}$，
+  下水平集 $\{x: f(x)\le a\}$ 是\emph{闭集}。
+
+  \deflab{上半连续 (usc)} 为对偶：$\limsup_{x\to x_0}f(x)\le f(x_0)$，
+  等价于所有上水平集 $\{f\ge a\}$ 闭（即 $-f$ lsc）。
+
+  \medskip
+  \textbf{典型例子：} 开集 $U$ 的示性函数 $\mathbf{1}_{U}$ 是 lsc；
+  闭集 $F$ 的示性函数 $\mathbf{1}_{F}$ 是 usc。
+  距离函数 $d(x,\cdot)$ 是连续的（既 lsc 又 usc）。
+
+  \TLtakeaway{下半连续 $\Longleftrightarrow$ 所有下水平集 $\{f\le a\}$ 是闭集——最小化问题的自然正则性。}
+\end{frame}
+
+% ── 下半连续 —— 图示 + 两个关键性质 ──────────────────────────────────────────
+\begin{frame}{下半连续：图示与两个核心性质}
+  \begin{columns}[T]
+    \begin{column}{0.40\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.82,>={Stealth[length=4pt]}]
+        \draw[->,TLinkSoft] (-0.2,0)--(2.8,0) node[right,font=\scriptsize]{$x$};
+        \draw[->,TLinkSoft] (0,-0.2)--(0,2.4) node[above,font=\scriptsize]{$f(x)$};
+        \draw[TLprimary,thick] (0.1,0.55)--(1.4,0.55);
+        \fill[TLprimary] (1.4,0.55) circle (2pt);
+        \draw[TLprimary] (1.4,1.65) circle (2pt);
+        \draw[TLprimary,thick] (1.4,1.65)--(2.6,1.65);
+        \node[font=\scriptsize,TLinkSoft] at (1.4,-0.35) {$x_0$};
+        \node[font=\scriptsize,TLaccent] at (2.25,1.40) {lsc：取下值};
+      \end{tikzpicture}\par
+      {\scriptsize 跳跃处取下值（实心点），\par 图形"从下方封闭"。\par 据 Villani 风格重绘。}
+    \end{column}
+    \begin{column}{0.59\textwidth}
+      \textbf{(a) 连续函数逼近（引理 4.3 用到）}
+
+      lsc 且有下界的 $f$ 是有界连续函数列的\emph{逐点递增极限} $f_\ell\nearrow f$。
+      标准构造（inf-卷积）：
+      \[
+        f_\ell(x) = \inf_{y}\bigl[f(y)+\ell\,d(x,y)\bigr].
+      \]
+
+      \smallskip
+      \textbf{(b) 紧集上取最小值（lsc 版 Weierstrass）}
+
+      若 $K$ 紧，$f:K\to\mathbb{R}\cup\{+\infty\}$ lsc 且不恒 $+\infty$，
+      则 $\inf_{K}f$ 被某点取到。
+
+      \smallskip
+      \emph{用途：}$\pi\mapsto\int c\,\dd\pi$ lsc，$\Pi(\mu,\nu)$ 弱紧
+      $\Rightarrow$ 最优耦合存在（定理 4.1）。
+    \end{column}
+  \end{columns}
+  \TLtakeaway{紧集上的 lsc 函数必达最小值——最优传输存在性证明的核心逻辑。}
+\end{frame}
+
+% ── 绝对连续测度 ─────────────────────────────────────────────────────────────
+\begin{frame}{绝对连续测度 $\Pac$：Brenier 定理的门票}
+  \textbf{为什么。} Brenier 定理（§2，$T=\nabla\varphi$）和定理 8.7（§5）均要求
+  $\mu\in\Pac(\mathbb{R}^n)$——否则最优\emph{映射}可能不存在，只有耦合。
+
+  \deflab{定义（绝对连续）。} 称 $\mu$
+  \TLterm{绝对连续于} $\nu$，记 $\mu\ll\nu$，若
+  $\nu[N]=0 \Rightarrow \mu[N]=0$（对所有 Borel 集 $N$）。
+  在 $\mathbb{R}^n$ 上：$\mu\ll\mathrm{Leb}$ 当且仅当 $\mu$ 有密度 $f\ge0$，
+  即 $\mu=f\cdot\mathrm{Leb}$，$\int f\,\dd x=1$。
+  记 $\Pac(X)=\{\mu\in\Pp(X):\mu\ll\mathrm{vol}\}$。
+
+  \medskip
+  \textbf{直觉：} $\mu\in\Pac$ 意味着质量平滑散布——无原子（无 $\delta_x$），
+  $\mathbb{R}^2$ 中一条线段的 $\mu$-质量为零。
+
+  \textbf{对比：} 测度 $\mathcal{H}^{1}\!\!\restriction_{\text{线段}}$（下一帧）
+  是\emph{奇异的}，$\notin\Pac(\mathbb{R}^2)$。
+
+  \TLtakeaway{$\mu\in\Pac$ 保证最优\emph{映射}（非仅耦合）的存在；无绝对连续则 Brenier 定理失效。}
+\end{frame}
+
+% ── Hausdorff 测度（定义 + 实例） ─────────────────────────────────────────────
+\begin{frame}{Hausdorff 测度 $\mathcal{H}^{k}$：$k$ 维体积与奇异测度}
+  \textbf{为什么。} 例 4.9 中传输计划用 $\mathcal{H}^{1}$ 限制到线段——需知它是什么。
+
+  \deflab{定义（Hausdorff $k$-测度）。} 对集合 $A\subset X$，
+  \[
+    \mathcal{H}^{k}(A) = \lim_{\delta\to0}\inf\!\Bigl\{
+      \sum_{i}(\mathrm{diam}\,U_i)^{k} :
+      A\subseteq\bigcup_{i}U_i,\;\mathrm{diam}\,U_i<\delta
+    \Bigr\}
+  \]
+  （Carathéodory 构造，乘规范化常数后得标准度量）。
+
+  \begin{itemize}\small
+    \item $\mathcal{H}^{1}$ = 弧长；$\mathcal{H}^{2}$ = 面积；$\mathcal{H}^{n}=c_n\cdot\mathrm{Leb}^n$。
+    \item 线段 $\Gamma\subset\mathbb{R}^2$：$\mathcal{H}^{1}\!\!\restriction_{\Gamma}$ 把质量分布在 $\Gamma$ 上，
+      但 $\mathrm{Leb}^2[\Gamma]=0$，故 $\mathcal{H}^{1}\!\!\restriction_{\Gamma}\notin\Pac(\mathbb{R}^2)$（奇异）。
+  \end{itemize}
+
+  \TLtakeaway{$\mathcal{H}^{k}$ 把"$k$ 维体积"推广到任意度量空间；$\mathcal{H}^{1}\!\!\restriction_{\text{曲线}}$ 是奇异测度，不属于 $\Pac(\mathbb{R}^2)$。}
+\end{frame}
+
+% ── 条件测度 / disintegration ─────────────────────────────────────────────────
+\begin{frame}{条件测度与 Disintegration：Gluing Lemma 的基础}
+  \textbf{为什么。} 三角不等式（§3，引理 4.4）的粘合引理把
+  $\pi\in\Pi(\mu,\nu)$ 和 $\sigma\in\Pi(\nu,\rho)$ 沿 $\nu$ 拼合为 $\Pi(\mu,\rho)$ 中的耦合，依赖 disintegration。
+
+  \deflab{定理（disintegration）。} 设 $\pi\in\Pi(\mu,\nu)$，$X$ 为 Polish 空间。
+  则存在 $\mu$-a.e.\ 唯一的\TLterm{条件测度族} $\{\pi_{x}\}_{x\in X}$，使得
+  \[
+    \int_{X\times Y} \varphi(x,y)\,\dd\pi
+    = \int_{X}\!\Bigl[\int_{Y}\varphi(x,y)\,\dd\pi_{x}(y)\Bigr]\dd\mu(x).
+  \]
+  简记：$\pi(\dd x\,\dd y)=\mu(\dd x)\,\pi_{x}(\dd y)$。
+
+  \textbf{粘合构造。} 取 $\sigma(\dd y\,\dd z)=\nu(\dd y)\,\sigma_{y}(\dd z)$，定义
+  $(\pi\ltimes\sigma)(\dd x\,\dd y\,\dd z)=\mu(\dd x)\,\pi_{x}(\dd y)\,\sigma_{y}(\dd z)$。
+  其 $(x,z)$ 边际属于 $\Pi(\mu,\rho)$，完成粘合。
+
+  \TLtakeaway{任意耦合可沿边际分解为条件测度族；Gluing Lemma 正是利用此分解把两段路拼成一段。}
+\end{frame}
+
+
+
 % ── 推前测度 ─────────────────────────────────────────────────────────────────
 \begin{frame}{动作：用映射搬运质量 —— 推前 $\pf{T}{\mu}$}
   \textbf{为什么。} “把 $\mu$ 搬成 $\nu$”最朴素的方式是给每个 $x$ 指定一个去处 $T(x)$。
@@ -96,8 +227,8 @@
   \begin{itemize}\small
     \item 即便可行，目标关于 $T$ \emph{高度非凸}，约束 $\pf{T}{\mu}=\nu$ 也非线性。
   \end{itemize}
-  \TLwarnblock{陷阱}{“最优传输映射存在吗”是一个\emph{很难}的问题（第 9--12 章主题）。
-  本讲义先绕开它——靠下面的松弛保证\emph{总有最优方案}。}
+  \TLwarnblock{陷阱}{「最优传输映射是否存在」是\emph{很难}的问题（§9--12）。
+  本讲义靠松弛保证\emph{总有最优方案}。}
 \end{frame}
 
 % ── Kantorovich 松弛 ─────────────────────────────────────────────────────────
