@@ -205,6 +205,7 @@
   \textbf{若 $\mu_{0}$ 或 $\mu_{1}$ 中至少一个绝对连续于 $M$ 上的体积元，}\\[4pt]
   \textbf{则 $\mu_{t}\in\Pac(M)$ 对所有 $t\in(0,1)$ 成立。}
   \end{center}
+  {\small （此处 $\Pac$ 为绝对连续概率测度，定义见 §0。）}
 
   \textbf{直观。} 在中间时刻 $t_0$，传输映射 $T_{t_0\to 1}$ 是 Lipschitz 的（定理 8.5）。
   Lipschitz 映射的像保持零测集的零测性（Lusin N 条件），从而绝对连续性反向传递：
@@ -217,10 +218,10 @@
 \begin{frame}{定理 8.7 证明（紧支撑情形）}
   \textbf{假设 $\mu_1\in\Pac$，$\mu_0,\mu_1$ 紧支撑，证明 $\mu_{t_0}\in\Pac$，$t_0\in(0,1)$。}
 
-  \textbf{步骤一。} 由定理 8.5，存在 Lipschitz 映射 $T$ 解 Monge 问题 $\mu_{t_0}\to\mu_1$。
+  \textbf{步骤一。} 由定理 8.5（其 Lipschitz 性由推论 8.2 缩短引理给出），存在 Lipschitz 映射 $T$ 解 Monge 问题 $\mu_{t_0}\to\mu_1$。
 
-  \textbf{步骤二（零测集）。} 设 $N$ 为零体积集。由面积公式，$\mathrm{vol}(T(N))\le T_{\mathrm{Lip}}^n\cdot\mathrm{vol}(N)=0$，
-  故 $\mu_1[T(N)]=0$（$\mu_1\in\Pac$）。
+  \textbf{步骤二（零测集）。} 设 $N$ 为零体积集。$T$ 的 Lipschitz 常数为 $C_K/\min(t_0,1-t_0)$（定理 8.5）；Lipschitz 映射的面积公式给出 $\mathrm{vol}(T(N))\le T_{\mathrm{Lip}}^n\cdot\mathrm{vol}(N)=0$，
+  故 $\mu_1[T(N)]=0$（$\mu_1\in\Pac$，绝对连续，见 §0）。
 
   \textbf{步骤三（绝对连续性）。} 由 $N\subset T^{-1}(T(N))$：
   \[
@@ -228,10 +229,22 @@
   \]
   故 $\mu_{t_0}\in\Pac$。
 
-  \textbf{一般情形（非紧）。} 若 $\mu_{t_0}\notin\Pac$，取体积零但正测度的集 $Z_{t_0}$；
-  对 $\Pi$ 限制到紧子集 $K\subset\{\gamma\colon\gamma(t_0)\in Z_{t_0}\}$，化为紧支撑情形得矛盾。
-
   \TLtakeaway{$T$ Lipschitz $+$ $\mu_1\in\Pac$ $\Rightarrow$ $T(N)$ 零测 $\Rightarrow$ $\mu_{t_0}[N]=0$：绝对连续性沿 Lipschitz 传输反向传递。}
+\end{frame}
+
+% ── 定理 8.7：证明续（非紧情形）──────────────────────────────────────────────
+\begin{frame}{定理 8.7 证明续（非紧支撑情形）}
+  \textbf{步骤四（非紧推广）。} 若 $\mu_{t_0}\notin\Pac$，取体积零但 $\mu_{t_0}$-正测度的集 $Z_{t_0}$；
+  对 $\Pi$ 限制到紧子集 $K\subset\{\gamma\colon\gamma(t_0)\in Z_{t_0}\}$，化为上述紧支撑情形，得矛盾。
+
+  \textbf{小结。} 三步骨架：
+  \begin{enumerate}\small
+    \item 定理 8.5 $\to$ $T$ Lipschitz（推论 8.2 缩短引理）。
+    \item Lipschitz 面积公式 $\to$ $T(N)$ 零体积。
+    \item $\mu_1\in\Pac$ $\to$ $\mu_1[T(N)]=0$ $\to$ $\mu_{t_0}[N]=0$。
+  \end{enumerate}
+
+  \TLtakeaway{绝对连续性沿 Lipschitz 传输的逆向传递：$\mu_1\in\Pac$（见 §0）$+$ $T$ Lipschitz $\Rightarrow$ $\mu_{t_0}\in\Pac$。非紧情形通过紧子集的穷举化归完成。}
 \end{frame}
 
 % ── 为什么定理 8.7 重要 ────────────────────────────────────────────────────
