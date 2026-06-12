@@ -94,6 +94,23 @@
   \TLtakeaway{§3--§5 的语言：距离、测地线、作用量与缩短——把静态的传输升格为动态的几何。}
 \end{frame}
 
+\begin{frame}{术语表 · Glossary（三）——§0 预备概念}
+  \begin{center}\small
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{术语（Term）} & \textbf{含义} \\
+    \midrule
+    下半连续 (lsc) & $\liminf_{x\to x_0}f(x)\ge f(x_0)$；等价于所有下水平集 $\{f\le a\}$ 为闭集 \\
+    上半连续 (usc) & $\limsup_{x\to x_0}f(x)\le f(x_0)$；lsc 的对偶概念 \\
+    绝对连续 $\Pac$ & $\mu\ll\mathrm{vol}$（有 Lebesgue 密度）；无原子；Brenier 定理的前提 \\
+    Hausdorff 测度 $\mathcal{H}^{k}$ & 度量空间上的 $k$ 维体积；$\mathcal{H}^{1}=$ 弧长，$\mathcal{H}^{n}\propto\mathrm{Leb}^{n}$ \\
+    条件测度 / disintegration & 耦合 $\pi$ 沿边际 $\mu$ 分解为 $\{\pi_{x}\}_{x\in\X}$；Gluing Lemma 的基础 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \TLtakeaway{§0 背景术语：lsc 保证最优性问题有解；$\Pac$ 保证 Brenier 映射存在；disintegration 支撑 Gluing Lemma。}
+\end{frame}
+
 % ── 记号表 · Notation ────────────────────────────────────────────────────────
 \begin{frame}{记号表 · Notation}
   \begin{center}\small
@@ -103,6 +120,7 @@
     \midrule
     $\X,\Y$ & Polish（完备可分度量）空间 \\
     $\Pp(\X)$，$\Ppp{p}(\X)$ & 概率测度全体；$p$ 阶矩有限者 \\
+    $\Pac(\X)$ & 绝对连续概率测度（有 Lebesgue 密度）\\
     $\coup{\mu}{\nu}=\Pi(\mu,\nu)$ & $(\mu,\nu)$ 的全体耦合（转移计划） \\
     $\pf{T}{\mu}$ & 推前测度（$T$ 把 $\mu$ 搬成的测度） \\
     $c(x,y)$，$C(\mu,\nu)$ & 单位成本；最优总成本 \\
