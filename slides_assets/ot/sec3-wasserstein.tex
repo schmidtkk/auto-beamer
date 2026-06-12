@@ -111,12 +111,12 @@
   \]
   特别地，$\law(X_{1},X_{3})$ 是 $(\mu_{1},\mu_{3})$ 的一个耦合。
 
-  \textbf{构造（测度论语言）。} 令 $\pi^{(23)}=\int_{\X}\pi^{(23)}_{x_{2}}\dd\mu_{2}(x_{2})$ 为正则分解，定义
+  \textbf{构造。} 把 $\pi^{(23)}$ 沿 $\mu_2$ disintegrate 为条件测度 $\pi^{(23)}_{x_2}$（见 §0），定义
   \[
     \pi^{(123)}(\dd x_{1}\dd x_{2}\dd x_{3})
-    = \pi^{(12)}(\dd x_{1}\dd x_{2})\cdot\pi^{(23)}_{x_{2}}(\dd x_{3}).
+    = \pi^{(12)}(\dd x_{1}\dd x_{2})\cdot\pi^{(23)}_{x_{2}}(\dd x_{3})
   \]
-  给定 $X_{2}$，$X_{1}$ 与 $X_{3}$ 条件独立。
+  （即给定 $X_2$ 时让 $X_1,X_3$ 条件独立）。
 
   \TLtakeaway{粘合引理：沿公共边际 $\mu_2$ 把两耦合"串联"成三元分布，$(X_1,X_3)$ 是 $(\mu_1,\mu_3)$ 的耦合。}
 \end{frame}
@@ -392,18 +392,12 @@
 \begin{frame}{定理 6.9 的证明（二）：弱收敛加矩收敛蕴含 $\Wp{p}\to0$}
   \textbf{方向 $(\Leftarrow)$：} 设 $\mu_{k}\wkto\mu$ 且 $p$ 阶矩收敛。
 
-  设 $\pi_{k}$ 为 $(\mu_{k},\mu)$ 的最优耦合。由弱收敛和引理 4.4，$(\pi_{k})$ 胶着，取子列 $\pi_{k}\wkto\pi$。定理 5.20 保证 $\pi=(\Id,\Id)_{\#}\mu$（平凡耦合）。
-
-  \textbf{分割估计。} 利用
-  \[
-    \bigl(d(x,y)^{p}-R^{p}\bigr)_{+}
-    \;\le\; 2^{p}\bigl[d(x,x_{0})^{p}\mathbf{1}_{d(x,x_{0})\ge R/2}
-    + d(x_{0},y)^{p}\mathbf{1}_{d(x_{0},y)\ge R/2}\bigr],
-  \]
-  将 $\Wp{p}(\mu_{k},\mu)^{p}$ 分解为截断项（弱收敛给出 $\to0$）和尾部项（$p$ 阶矩均匀可积给出 $\to0$）：
-  \[
-    \limsup_{k}\Wp{p}(\mu_{k},\mu)^{p} = 0. \quad\square
-  \]
+  设 $\pi_{k}$ 为最优耦合；由引理 4.4 胶着，取子列 $\pi_{k}\wkto\pi$，定理 5.20 给出 $\pi=(\Id,\Id)_{\#}\mu$（对角耦合）。把 $\Wp{p}(\mu_k,\mu)^p\le\int d^p\dd\pi_k$ 拆成两段：
+  \begin{itemize}\small
+    \item \emph{截断项} $\int\min(d^p,R^p)\dd\pi_k\to\int\min(d^p,R^p)\dd\pi=0$：被积函数有界连续，$\pi_k\wkto\pi$ 且 $\pi$ 在对角线上（$d=0$）。
+    \item \emph{尾部项} $\int(d^p-R^p)_+\dd\pi_k$：由 $(d^p{-}R^p)_+\le 2^p[d(x,x_0)^p\mathbf{1}_{d(x,x_0)\ge R/2}+d(x_0,y)^p\mathbf{1}_{d(x_0,y)\ge R/2}]$，先 $k\to\infty$ 再 $R\to\infty$ 趋于 $0$（矩均匀可积）。
+  \end{itemize}
+  两段相加：$\displaystyle\limsup_{k}\Wp{p}(\mu_{k},\mu)^{p} = 0$。\hfill$\square$
 
   \TLtakeaway{$(\Leftarrow)$：最优耦合弱极限是对角耦合；截断分解利用矩均匀可积，得 Wasserstein 收敛。}
 \end{frame}

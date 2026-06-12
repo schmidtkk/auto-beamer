@@ -336,8 +336,8 @@
 % ── 定理 5.10（一）：对偶等式陈述 ────────────────────────────────────────────
 \begin{frame}{定理 5.10：Kantorovich 对偶（一）——对偶等式}
   \deflab{定理 5.10（Kantorovich 对偶，Villani Thm 5.10）。}
-  设 $\X,\Y$ 为 Polish 空间，$\mu\in\Pp(\X)$，$\nu\in\Pp(\Y)$，$c:\X\times\Y\to\R\cup\{+\infty\}$ 下半连续，且
-  $c(x,y)\ge a(x)+b(y)$ 对某上半连续的 $a\in L^1(\mu)$，$b\in L^1(\nu)$。则
+  设 $\X,\Y$ 为 Polish 空间，$\mu\in\Pp(\X)$，$\nu\in\Pp(\Y)$，$c:\X\times\Y\to\R\cup\{+\infty\}$ 下半连续（见 §0），且
+  $c(x,y)\ge a(x)+b(y)$ 对某上半连续（见 §0）的 $a\in L^1(\mu)$，$b\in L^1(\nu)$。则
 
   \deflab{(i) 存在对偶等式：}
   \[
@@ -410,7 +410,7 @@
 \end{frame}
 
 % ── 证明思路（一）：构造 Kantorovich 势 ──────────────────────────────────────
-\begin{frame}{定理 5.10 证明思路（一）：从 c-循环单调集构造势函数}
+\begin{frame}{定理 5.10 证明思路（一a）：定义势函数并验证 c-凸性}
   \textbf{核心构造（Rüschendorf/Rockafellar）。}
   给定一个 c-循环单调集 $\Gamma$，固定基点 $(x_0,y_0)\in\Gamma$，令 $\psi(x_0)=0$，
   对任意 $x\in\X$ 定义（Villani 式 5.17）：
@@ -420,14 +420,36 @@
     +\cdots+c(x_m,y_m)-c(x,y_m)\bigr].
   \]
 
-  \textbf{关键验证。}
+  \textbf{关键验证（上半部分）。}
   \begin{itemize}\small
     \item \textbf{$\psi(x_0)=0$。} 由 c-循环单调性，上式对 $(x_1,y_1)=(x_0,y_0)$ 的所有链均 $\le 0$，而取 $m=1,(x_1,y_1)=(x_0,y_0)$ 时为 $0$，故 $\psi(x_0)=0$。
-    \item \textbf{$\psi$ 是 c-凸函数。} 通过引入辅助函数 $\zeta(y)=\sup_{\text{链}}\{\cdots+c(x_m,y)\}$，可将 $\psi$ 改写为 $\psi(x)=\sup_{y}[\zeta(y)-c(x,y)]$，这正是 c-凸性定义。
-    \item \textbf{$\Gamma\subset\partial_c\psi$。} 对 $(x,y)\in\Gamma$：利用 $\psi$ 的定义，可验证 $\ctr{\psi}(y)=\psi(x)+c(x,y)$。
+    \item \textbf{$\psi$ 是 c-凸函数。} 引入辅助函数
+      $\zeta(y_m):=\sup_{\substack{m,\,(x_1,y_1),\ldots\\(x_{m-1},y_{m-1})\in\Gamma}}
+      \bigl[c(x_0,y_0)-c(x_1,y_0)+\cdots+c(x_{m-1},y_{m-1})\bigr]$（链在 $y_m$ 处终止之前的累积值）。
+      则对固定的 $x$，式 5.17 的每一项可写成 $\zeta(y_m)-c(x,y_m)$（终止链在 $y_m$，再跳 $x$），
+      故 $\psi(x)=\sup_{y\in\Y}[\zeta(y)-c(x,y)]$，这正是 c-凸性定义（$\psi$ 是 $\zeta$ 的 c-变换）。
   \end{itemize}
 
-  \TLtakeaway{构造关键：c-循环单调性保证了 $\psi(x_0)=0$（有界不发散）；由此得到 c-凸函数 $\psi$，其 c-次微分恰好包含 $\Gamma$。}
+  \TLtakeaway{势函数 $\psi$ 由"所有以 $x$ 结尾的链的链值上确界"定义，可改写为 $\psi(x)=\sup_y[\zeta(y)-c(x,y)]$，天然是 c-凸函数。}
+\end{frame}
+
+\begin{frame}{定理 5.10 证明思路（一b）：验证 $\Gamma\subset\partial_c\psi$}
+  \textbf{承接前页：$\psi$ c-凸，$\psi(x_0)=0$。目标：对每个 $(x,y)\in\Gamma$ 证 $\ctr{\psi}(y)=\psi(x)+c(x,y)$。}
+
+  \begin{itemize}\small
+    \item \textbf{上界：} 由竞争性不等式（c-变换定义），$\ctr{\psi}(y)=\inf_{x'}[\psi(x')+c(x',y)]\le\psi(x)+c(x,y)$。
+    \item \textbf{下界：} 对任意 $x'\in\X$，考虑以 $(x,y)$ 为最后一步的链
+      $(x_1,y_1),\ldots,(x_m,y_m)=(x,y)$。对 c-循环单调性的链不等式（在 $(x,y)$ 之后插入 $(x',y)$ 并绕回），可得
+      \[
+        \psi(x') \;\ge\; \psi(x) + c(x,y) - c(x',y).
+      \]
+      （即：从 $x'$ 出发把货送到 $y$，成本至少是"从 $x$ 到 $y$ 的成本"加上"放弃 $x'$ 所省的成本"。）\\
+      整理：$\psi(x')+c(x',y)\ge\psi(x)+c(x,y)$ 对所有 $x'$ 成立，故
+      $\ctr{\psi}(y)=\inf_{x'}[\psi(x')+c(x',y)]\ge\psi(x)+c(x,y)$。
+    \item \textbf{结论：} 上下界相等，$\ctr{\psi}(y)=\psi(x)+c(x,y)$，即 $(x,y)\in\partial_c\psi$，所以 $\Gamma\subset\partial_c\psi$。
+  \end{itemize}
+
+  \TLtakeaway{c-循环单调性让每个 $(x,y)\in\Gamma$ 恰好"满足等号"：$\ctr{\psi}(y)-\psi(x)=c(x,y)$，即 $(x,y)$ 在 c-次微分中。}
 \end{frame}
 
 % ── 证明思路（二）：对偶等式的建立 ──────────────────────────────────────────
@@ -552,7 +574,7 @@
 
 % ── Brenier 定理的标准应用 ───────────────────────────────────────────────────
 \begin{frame}{Brenier 定理：二次成本下的结论}
-  \textbf{标准应用。} 取 $c(x,y)=|x-y|^2/2$ 在 $\R^n$ 上，$\mu\in\Pac(\R^n)$（绝对连续）。
+  \textbf{标准应用。} 取 $c(x,y)=|x-y|^2/2$ 在 $\R^n$ 上，$\mu\in\Pac(\R^n)$（绝对连续，见 §0）。
 
   \deflab{Brenier 定理。}
   \begin{itemize}
