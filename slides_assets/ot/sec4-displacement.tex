@@ -74,19 +74,16 @@
 % ── 作用量泛函与 Lagrange 量 ─────────────────────────────────────────────────
 \begin{frame}{作用量泛函与 Lagrange 量（7.2）}
   \deflab{作用量泛函（Villani 第 7 章）。}
-
-  设 $M$ 为 Riemann 流形。\TLterm{Lagrange 量} $L(x,v,t)$ 在切丛 $TM\times[0,1]$ 上，
-  \TLterm{作用量}为
+  \deflab{补一个事实：切丛。} $TM$ 把位置 $x\in M$ 与速度 $v\in T_{x}M$ 配成点 $(x,v)$。
+  \deflab{补一个事实：Lagrange 量。} $L(x,v,t)$ 表示时刻 $t$ 以速度 $v$ 经过 $x$ 的瞬时运动成本。
+  \TLterm{作用量}把瞬时成本沿曲线累加：
   \[
     A(\gamma) = \int_{0}^{1} L(\gamma_{t},\dot{\gamma}_{t},t)\,\dd t.
   \]
-
   \textbf{典型形式：} $L=\tfrac{|v|^{2}}{2}$，$A(\gamma)=\int_{0}^{1}\tfrac{|\dot{\gamma}_{t}|^{2}}{2}\dd t$（动能积分）。
 
-  \textbf{作用量最小化曲线：} $A(\gamma)\le A(\tilde{\gamma})$（同端点）的曲线 $\gamma$。
-
-  \textbf{关联最优传输成本：} $c(x,y):=\inf_{\gamma_{0}=x,\,\gamma_{1}=y}A(\gamma)$。
-
+  \textbf{最小化曲线与成本：} 同端点下 $A(\gamma)\le A(\tilde{\gamma})$；关联成本
+  $c(x,y):=\inf_{\gamma_{0}=x,\,\gamma_{1}=y}A(\gamma)$。
   \textbf{例 7.1。} $L=|v|$ 时 $A(\gamma)=\mathrm{length}(\gamma)$，$c(x,y)=|x-y|$。
 
   \TLtakeaway{作用量 = Lagrange 量的时间积分；最小化对应"最省力"路径；关联成本 $c(x,y)$ 是最优作用量值。}
@@ -265,28 +262,47 @@
 \end{frame}
 
 % ── 定理 7.21 证明思路 ────────────────────────────────────────────────────────
-\begin{frame}{定理 7.21 证明思路（概要）}
-  \textbf{目标：} 设 $(\mu_{t})$ 满足条件 (ii)，需构造随机最小化曲线 $\Pi$ 使 $\mu_{t}=(e_{t})_{\#}\Pi$。
+\begin{frame}{定理 7.21 证明思路（一）：三时刻引理}
+  \textbf{目标。} 证明 (ii) $\Rightarrow$ (i)：由三时刻加法等式构造路径空间上的动力学最优耦合 $\Pi$。
 
-  \textbf{关键观察。} 若 $(\gamma_{t_{1}},\gamma_{t_{2}})$、$(\gamma_{t_{2}},\gamma_{t_{3}})$ 各为最优耦合，
-  且 $(\mu_{t_{k}})$ 满足等号关系 (ii)，则 $(\gamma_{t_{1}},\gamma_{t_{3}})$ 也是最优耦合：
+  \deflab{补一个事实：三时刻粘合。}
+  若两个相邻最优耦合共享中间边际 $\mu_{t_{2}}$，则 Gluing Lemma（§0/§3）给出三元随机变量
+  $(\gamma_{t_{1}},\gamma_{t_{2}},\gamma_{t_{3}})$，并保留两段边际耦合。
+
+  \deflab{关键引理。}
+  若 $(\gamma_{t_{1}},\gamma_{t_{2}})$ 与 $(\gamma_{t_{2}},\gamma_{t_{3}})$ 各自最优，且 (ii) 成立，则
+  $(\gamma_{t_{1}},\gamma_{t_{3}})$ 也是最优耦合：
   \[
-    E\,c^{t_{1},t_{3}}(\gamma_{t_{1}},\gamma_{t_{3}})
+    \mathbb{E}\,c^{t_{1},t_{3}}(\gamma_{t_{1}},\gamma_{t_{3}})
     \le C^{t_{1},t_{2}}+C^{t_{2},t_{3}}
     \overset{\mathrm{(ii)}}{=}C^{t_{1},t_{3}}.
   \]
+  左端又不小于最优值 $C^{t_{1},t_{3}}$，故只能处处等号，端点耦合最优。
 
-  \textbf{二进逼近（动力学耦合的构造）：}
+  \deflab{补一个事实：限制性质。}
+  同一条最小化曲线穿过中点时，它在每个子区间仍最小化；这就是命题 7.16(ii) 的 restriction/Markov property。
+
+  \textbf{反向。} (i) $\Rightarrow$ (ii) 由 $\Pi$-a.s. 的最小化曲线直接积分计算得到。
+
+  \TLtakeaway{三时刻引理把局部最优耦合和加法等式升级为跨端点最优；这是二进构造能够保持全局最优性的核心。}
+\end{frame}
+
+\begin{frame}{定理 7.21 证明思路（二）：二进构造与极限}
+  \deflab{补一个事实：二进时刻。}
+  二进时刻是 $j/2^{k}$；它们在 $[0,1]$ 中稠密，所以先控制这些时刻，再用连续性传到所有时刻。
+
+  \textbf{二进逼近（由 (ii) 构造 (i)）：}
   \begin{enumerate}
     \item 取 $(\mu_{0},\mu_{1})$ 的最优耦合 $\pi^{(0)}$。
-    \item 引入 $\mu_{1/2}$，粘合三时刻最优耦合。
-    \item 归纳地在所有 $j/2^{k}$ 时刻定义随机离散路径，由可测选择定理延伸为连续曲线。
-    \item 令 $k\to\infty$，极限测度 $\Pi$ 即为所求动力学最优耦合。
+    \item 在 $0,\tfrac{1}{2},1$ 上粘合两段最优耦合；上一帧引理保证端点耦合仍最优。
+    \item 归纳到所有 $j/2^{k}$：反复粘合三时刻最优耦合，得到一致的离散随机路径。
+    \item 在相邻二进点之间选择作用量最小化曲线，得到分段最小化路径的法律 $\Pi^{(k)}$。
   \end{enumerate}
 
-  \textbf{逆向：} (i) $\Rightarrow$ (ii) 由 $\Pi$ 的定义直接计算（利用 $\gamma$ 的最小化性质）。
+  \deflab{本帧暂缓的技术点。}
+  从 $\Pi^{(k)}$ 过渡到 $\Pi\in\Pp(C([0,1];\X))$ 需要测地线的可测选择，以及路径空间上的 tightness/compactness；Villani 第 7 章处理这些细节，主线只需二进边际一致且极限仍支撑在最小化曲线上。
 
-  \TLtakeaway{证明核心：等号关系 (ii) $\Rightarrow$ 二进逼近 $\Rightarrow$ 动力学最优耦合 $\Pi$；逆向由最小化性质直接得出。}
+  \TLtakeaway{(ii) $\Rightarrow$ (i) 的实质是：二进时刻反复粘合三时刻最优耦合，再用路径空间紧性取得连续随机最小化曲线。}
 \end{frame}
 
 % ── 计算例（一）：两个 Dirac 测度 ──────────────────────────────────────────
@@ -389,12 +405,13 @@
 
 % ── Benamou–Brenier 前瞻 ─────────────────────────────────────────────────────
 \begin{frame}{Benamou–Brenier 公式（前瞻）}
-  \textbf{动力学视角（Benamou–Brenier，1999）。} 在 $\R^{n}$ 中，寻找速度场 $v$ 使
-  \[
-    \partial_{t}\mu_{t}+\nabla\cdot(v_{t}\mu_{t})=0
-    \quad\text{（连续性方程）},
-  \]
-  同时最小化动能 $\mathcal{A}(\mu,v)=\int_{0}^{1}\!\int_{\R^{n}}|v_{t}|^{2}\dd\mu_{t}\dd t$。
+  \textbf{动力学视角（Benamou–Brenier，1999）。} 在 $\R^{n}$ 中，寻找速度场 $v$ 与路径 $(\mu_{t})$。
+
+  \deflab{补一个事实：连续性方程。}
+  $\partial_{t}\mu_{t}+\nabla\cdot(v_{t}\mu_{t})=0$ 表示质量守恒：速度场 $v_{t}$ 只搬运质量，不创造也不消灭质量。
+
+  在此约束下最小化动能
+  $\mathcal{A}(\mu,v)=\int_{0}^{1}\!\int_{\R^{n}}|v_{t}|^{2}\dd\mu_{t}\dd t$。
 
   \deflab{Benamou–Brenier 公式（Villani §7 文献注记）。}
   \[
@@ -402,10 +419,8 @@
     =\min_{\partial_{t}\mu+\nabla\cdot(v\mu)=0}\mathcal{A}(\mu,v).
   \]
 
-  \textbf{联系：} 最优速度场 $v_{t}=\nabla\varphi_{t}$（Brenier 势能的梯度），
-  位移插值路径 $\mu_{t}=((1-t)\Id+tT)_{\#}\mu_{0}$ 是最优流。
-
-  \textbf{意义：} 为 $W_2$ 提供 PDE 表示；Benamou–Brenier 据此设计数值算法；Otto 解读为 $\Ppp{2}(\R^{n})$ 上的 Riemann 度量（"Otto 度量"）。
+  \textbf{联系与意义。} 最优流就是位移插值路径
+  $\mu_{t}=((1-t)\Id+tT)_{\#}\mu_{0}$；公式给出 $\Wtwo$ 的 PDE 表示、数值算法入口与 Otto 几何解释。
 
   \TLtakeaway{Benamou–Brenier：$W_2$ = 最小动能流；联结 PDE、数值计算与 Riemann 几何。}
 \end{frame}
