@@ -124,21 +124,40 @@
 \end{frame}
 
 % ── 引理 4.3 的证明 ──────────────────────────────────────────────────────────
-\begin{frame}{引理 4.3 的证明：逼近 + 单调收敛}
-  \textbf{证明思路（三步）。}
-  \begin{enumerate}\small
-    \item 用 $c-h$ 代替 $c$，不妨设 $c\ge0$（下半连续非负函数）。
-    \item \textbf{逼近}（用 §0 下半连续\emph{性质 (a)}，inf-卷积）：把 $c$ 写成有界连续函数的逐点递增极限 $c=\lim_{\ell} c_\ell$，$c_\ell\nearrow c$，$c_\ell\in C_b(\X\times\Y)$。
-    \item \textbf{先固定 $\ell$，再对 $k$ 取极限。} 弱收敛定义给出 $\int c_\ell\dd\pi_k\to\int c_\ell\dd\pi$；又因 $c_\ell\le c$ 有 $\int c_\ell\dd\pi_k\le\int c\dd\pi_k$，对 $k$ 取下极限：
-    \[
-      \int c_\ell\dd\pi \;=\; \lim_{k}\int c_\ell\dd\pi_k \;\le\; \liminf_{k}\int c\dd\pi_k .
-    \]
-  \end{enumerate}
-  \textbf{收尾：对 $\ell$ 取上确界}（单调收敛定理，$c_\ell\nearrow c$）：左端 $\sup_\ell\int c_\ell\dd\pi=\int c\dd\pi$，右端与 $\ell$ 无关，故
+\begin{frame}{引理 4.3 的证明（一）：为什么可令 $c\ge0$}
+  \textbf{先解释归约。} 因 $c\ge h$，函数 $c-h$ 非负；若已知引理对非负成本 $c-h$ 成立，则
   \[
-    \int c\dd\pi \;\le\; \liminf_{k}\int c\dd\pi_k. \quad\square
+    \begin{aligned}
+      \int c\dd\pi
+      &= \int(c-h)\dd\pi+\int h\dd\pi\\
+      &\le \liminf_{k}\int(c-h)\dd\pi_k+\lim_{k}\int h\dd\pi_k\\
+      &= \liminf_{k}\int c\dd\pi_k .
+    \end{aligned}
   \]
-  \TLtakeaway{关键：lsc 给出连续递增逼近（§0 性质 a），再用 $c_\ell\le c$ 把不等式传到 $\liminf$。}
+  最后一行用的是假设 $\int h\dd\pi_k\To\int h\dd\pi$。所以只需证明非负下半连续情形。
+
+  \textbf{合法性。} $h$ 的积分沿 $\pi_k\wkto\pi$ 收敛，表示辅助下界项不会在极限中丢失；
+  因此给 $c-h$ 证明的下半连续不等式，可以通过加回同一个收敛的 $h$ 项传回原成本 $c$。
+
+  \TLtakeaway{归约不是省略：$c\ge h$ 给出非负成本 $c-h$，而 $\int h\dd\pi_k\to\int h\dd\pi$ 保证加回 $h$ 后不等式仍成立。}
+\end{frame}
+
+\begin{frame}{引理 4.3 的证明：逼近 + 单调收敛}
+  \deflab{补一个事实：单调收敛定理。}
+  若 $0\le c_{\ell}\nearrow c$，则 $\sup_{\ell}\int c_{\ell}\dd\pi=\lim_{\ell}\int c_{\ell}\dd\pi=\int c\dd\pi$。
+
+  \textbf{非负情形。} 用 §0 下半连续性质 (a)（inf-卷积）取有界连续逼近
+  $c_{\ell}\in C_b(\X\times\Y)$，$0\le c_{\ell}\nearrow c$。固定 $\ell$，弱收敛给
+  $\int c_{\ell}\dd\pi_k\to\int c_{\ell}\dd\pi$，且 $c_{\ell}\le c$，故
+  \[
+    \int c_{\ell}\dd\pi
+    = \lim_{k}\int c_{\ell}\dd\pi_k
+    \le \liminf_{k}\int c\dd\pi_k
+    \quad\Longrightarrow\quad
+    \int c\dd\pi\le \liminf_{k}\int c\dd\pi_k .
+  \]
+  右端与 $\ell$ 无关，对 $\ell$ 取上确界，并用上面的单调收敛事实，即得结论。\hfill$\square$
+  \TLtakeaway{非负情形的核心：lsc 给出连续递增逼近；固定 $\ell$ 用弱收敛和 $c_{\ell}\le c$，最后用单调收敛回到 $c$。}
 \end{frame}
 
 % ── 定理 4.1 的证明（一a）：预紧 ─────────────────────────────────────────────
@@ -213,51 +232,68 @@
 
 % ── 定理 4.6 的矛盾证明（一）：构造与验证 ────────────────────────────────────
 \begin{frame}{定理 4.6 的证明（一）：构造竞争计划}
-  \textbf{假设 $\tilde{\pi}$ 不是最优的。} 则存在计划 $\hat{\pi}$ 使得
-  \[
-    \pf{(\mathrm{proj}_{\X})}{\hat{\pi}}=\tilde{\mu},\quad
-    \pf{(\mathrm{proj}_{\Y})}{\hat{\pi}}=\tilde{\nu},\quad
-    \text{但 } \int c\dd\hat{\pi} < \int c\dd\tilde{\pi}.
-  \]
-  令 $Z = \pi'[\X\times\Y]>0$。构造竞争计划：
-  \[
-    \hat{\pi}_{\mathrm{new}} \;:=\; (\pi - \pi') + Z\hat{\pi}.
-  \]
-  \textbf{验证边际：} 由 $\pi'=Z\tilde{\pi}$ 及 $\hat{\pi}$ 的边际，$\hat{\pi}_{\mathrm{new}}$ 的边际等于 $\mu,\nu$。
+  \textbf{反证。} 令 $Z=\pi'[\X\times\Y]>0$，$\tilde{\pi}=\pi'/Z$。若 $\tilde{\pi}$ 不是最优的，
+  则存在同边际计划 $\hat{\pi}\in\coup{\tilde{\mu}}{\tilde{\nu}}$，满足 $I[\hat{\pi}]<I[\tilde{\pi}]$。
 
-  \textbf{验证成本更低：}
+  \deflab{补一个事实：同边际计划的差有零边际。}
+  因 $\hat{\pi}$ 与 $\tilde{\pi}$ 共享边际 $(\tilde{\mu},\tilde{\nu})$，所以
   \[
-    \int c\dd\hat{\pi}_{\mathrm{new}}
-    = \int c\dd\pi - Z\int c\dd\tilde{\pi} + Z\int c\dd\hat{\pi}
-    < \int c\dd\pi.
+    \pf{(\mathrm{proj}_{\X})}{(\hat{\pi}-\tilde{\pi})}=0,\quad
+    \pf{(\mathrm{proj}_{\Y})}{(\hat{\pi}-\tilde{\pi})}=0,\qquad
+    \hat{\pi}_{\mathrm{new}}:=(\pi-\pi')+Z\hat{\pi}=\pi+Z(\hat{\pi}-\tilde{\pi}).
   \]
-  （利用 $C(\mu,\nu)<+\infty$ 保证有限成本运算合法。）
+  这里 $\pi-\pi'$ 非负（因为 $\pi'\le\pi$），$Z\hat{\pi}$ 非负，故 $\hat{\pi}_{\mathrm{new}}$ 是非负测度。
+  又因上式右端的差项有零边际，$\hat{\pi}_{\mathrm{new}}$ 的两个边际仍是 $\mu,\nu$，即它是 $\pi$ 的竞争计划。
+
+  \textbf{成本严格下降。} $C(\mu,\nu)<+\infty$ 保证下面的加减运算合法；于是
+  \[
+    I[\hat{\pi}_{\mathrm{new}}]
+    = I[\pi]-Z I[\tilde{\pi}]+Z I[\hat{\pi}]
+    < I[\pi].
+  \]
   这与 $\pi$ 最优性矛盾，故 $\tilde{\pi}$ 是最优的。\hfill$\square$
+  \TLtakeaway{隐藏步骤是边际核对：把新计划写成 $\pi+Z(\hat{\pi}-\tilde{\pi})$，同边际差项的边际为零，所以替换只改变局部成本，不改变全局边际。}
 \end{frame}
 
 % ── 定理 4.6 的证明（二）：唯一性的传递 ─────────────────────────────────────
 \begin{frame}{定理 4.6 的证明（二）：唯一性的传递}
-  \textbf{唯一性的传递。} 若 $\pi$ 是 $(\mu,\nu)$ 之间的\emph{唯一}最优计划，则类似论证可知 $\tilde{\pi}$ 也是 $(\tilde{\mu},\tilde{\nu})$ 之间的唯一最优计划。
+  \textbf{目标。} 已知 $\pi$ 是 $(\mu,\nu)$ 的\emph{唯一}最优计划；要证 $\tilde{\pi}$ 是
+  $(\tilde{\mu},\tilde{\nu})$ 的唯一最优计划。
 
-  \textbf{理由。} 若 $\tilde{\pi}$ 不唯一，设 $\hat{\pi}\ne\tilde{\pi}$ 也是 $(\tilde{\mu},\tilde{\nu})$ 的最优计划。
-  用同样的"替换"构造 $\hat{\pi}_{\mathrm{new}} = (\pi-\pi') + Z\hat{\pi}$，
-  其成本与 $\pi$ 相同（因 $\hat{\pi}$ 与 $\tilde{\pi}$ 成本相同），
-  但 $\hat{\pi}_{\mathrm{new}}\ne\pi$——与 $\pi$ 的唯一性矛盾。\hfill$\square$
+  \textbf{逐步传递唯一性。}
+  \begin{itemize}\small
+    \item 任取一个 $(\tilde{\mu},\tilde{\nu})$ 的最优计划 $\hat{\pi}$。
+    \item 仍令 $\hat{\pi}_{\mathrm{new}}=(\pi-\pi')+Z\hat{\pi}$。上一帧已验证：它是 $(\mu,\nu)$ 的竞争计划。
+    \item 因 $\hat{\pi}$ 与 $\tilde{\pi}$ 都最优，它们成本相同，故
+  \end{itemize}
+  \[
+    I[\hat{\pi}_{\mathrm{new}}]
+    = I[\pi]-Z I[\tilde{\pi}]+Z I[\hat{\pi}]
+    = I[\pi].
+  \]
+  所以 $\hat{\pi}_{\mathrm{new}}$ 也是 $(\mu,\nu)$ 的最优计划；由 $\pi$ 的唯一性，
+  $\hat{\pi}_{\mathrm{new}}=\pi$。消去公共部分得 $Z\hat{\pi}=\pi'=Z\tilde{\pi}$，
+  又 $Z>0$，故 $\hat{\pi}=\tilde{\pi}$。\hfill$\square$
 
   \textbf{例 4.7（条件化仍最优）。}
   设 $(X,Y)$ 是最优计划 $\pi$ 下的随机向量，$Z\subset\X\times\Y$ Borel 且 $\Prob[(X,Y)\in Z]>0$。
   令 $\pi' = \pi|_{Z}$，则 $\pi'\le\pi$，
   定理 4.6 直接给出：给定 $(X,Y)\in Z$ 的条件耦合在相应边际之间最优。
 
-  \TLtakeaway{证明关键：用子计划的"更好替代"拼出整体更优的计划；唯一性类似传递。条件化保持最优性是直接推论。}
+  \TLtakeaway{唯一性传递的关键等式是 $I[\hat{\pi}_{\mathrm{new}}]=I[\pi]$：整体唯一性迫使局部替代等于原局部计划。}
 \end{frame}
 
 % ── 例 4.7 的原则解释 ──────────────────────────────────────────────────────────
 \begin{frame}{例 4.7：条件化原则的威力}
-  \TLwarnblock{为什么这个原则"简单但有力"}{
-    全书多次用到"取一个最优计划，把注意力限制到某个子集，
-    子集上的计划仍最优"这一论证步骤。每次背后都是定理 4.6。
-  }
+  % Manual warn-style block (avoids 0.4pt draw-border overflow from \TLwarnblock)
+  \begin{tikzpicture}
+    \node[draw=TLneg, fill=TLneg!8, rounded corners=3pt,
+          inner sep=8pt, text width=\linewidth-17pt, align=justify] {%
+      \small\textbf{\color{TLneg}为什么这个原则"简单但有力"}\\[0.3em]
+      全书多次用到"取一个最优计划，把注意力限制到某个子集，
+      子集上的计划仍最优"这一论证步骤。每次背后都是定理 4.6。
+    };
+  \end{tikzpicture}
 
   \textbf{使用场景举例：}
   \begin{itemize}
@@ -272,27 +308,65 @@
 % ── 定理 4.8：最优成本的凸性 ──────────────────────────────────────────────────
 \begin{frame}{第三件好事：最优成本的凸性（定理 4.8）}
   \deflab{定理 4.8（最优成本的凸性，Villani Thm 4.8）。}
-  设 $(\Theta,\lambda)$ 为概率空间，$\theta\mapsto\mu_\theta\in\Pp(\X)$，
-  $\theta\mapsto\nu_\theta\in\Pp(\Y)$ 可测，成本 $c\ge a+b$ 如定理 4.1。则
+  设 $(\Theta,\lambda)$ 为概率空间，$\theta\mapsto\mu_{\theta}\in\Pp(\X)$，
+  $\theta\mapsto\nu_{\theta}\in\Pp(\Y)$ 可测，成本 $c\ge a+b$ 如定理 4.1。记混合边际
+  $\mu=\int_{\Theta}\mu_{\theta}\dd\lambda(\theta)$，
+  $\nu=\int_{\Theta}\nu_{\theta}\dd\lambda(\theta)$。则
   \[
-    C\!\left(\int_{\Theta}\!\mu_\theta\dd\lambda(\theta),\,
-            \int_{\Theta}\!\nu_\theta\dd\lambda(\theta)\right)
+    C(\mu,\nu)
     \;\le\;
-    \int_{\Theta} C(\mu_\theta,\nu_\theta)\dd\lambda(\theta).
+    \int_{\Theta} C(\mu_{\theta},\nu_{\theta})\dd\lambda(\theta).
   \]
 
   \textbf{直觉。} "先混合，再最优传输"的代价不超过"先分别最优传输，再混合"的平均代价。
   混合只会\emph{增加灵活性}（可以选混合后的最优计划），故成本不增。
 
-  \textbf{证明思路。}
-  \begin{itemize}\small
-    \item 对 $\lambda$-a.e.\ $\theta$，定理 4.1 给出最优计划 $\pi_\theta\in\coup{\mu_\theta}{\nu_\theta}$。
-    \item 令 $\pi:=\int_{\Theta}\pi_\theta\dd\lambda(\theta)$，其边际为 $\mu:=\int\mu_\theta\dd\lambda$，$\nu:=\int\nu_\theta\dd\lambda$，故 $\pi\in\coup{\mu}{\nu}$。
-    \item 由 $C(\mu,\nu)\le I[\pi]$ 及 Fubini 定理：
-      $C(\mu,\nu)\le \int_{\Theta} C(\mu_\theta,\nu_\theta)\dd\lambda(\theta)$。\hfill$\square$
-  \end{itemize}
+  \deflab{读法。} 这不是说每个最优计划线性变化；它只比较\emph{最优值}。右端给出一个可行的混合方案，
+  左端允许在混合后的更大可行集中重新优化。
 
-  \TLtakeaway{最优传输成本关于边际测度\emph{凸}：混合测度的传输成本不超过分别传输成本的平均。}
+  \TLtakeaway{最优传输成本关于边际测度\emph{凸}：混合分布的传输成本不超过分别传输成本的平均。}
+\end{frame}
+
+\begin{frame}{定理 4.8 的证明（一）：混合计划有正确边际}
+  \textbf{选取局部最优计划。} 对 $\lambda$-a.e.\ $\theta$，定理 4.1 给出
+  $\pi_{\theta}\in\coup{\mu_{\theta}}{\nu_{\theta}}$ 且
+  $I[\pi_{\theta}]=C(\mu_{\theta},\nu_{\theta})$。
+  Villani 暂时借用推论 5.22，保证可把 $\theta\mapsto\pi_{\theta}$ 选成可测。
+
+  \deflab{补一个事实：测度值积分的边际。}
+  令 $\pi=\int_{\Theta}\pi_{\theta}\dd\lambda(\theta)$。任取 $\varphi\in C_b(\X)$，把边际推出积分号：
+  \[
+    \begin{aligned}
+      \int_{\X}\varphi\dd\pf{(\mathrm{proj}_{\X})}{\pi}
+      &= \int_{\Theta}\!\int_{\X}\varphi\dd\pf{(\mathrm{proj}_{\X})}{\pi_{\theta}}\dd\lambda(\theta)\\
+      &= \int_{\Theta}\!\int_{\X}\varphi\dd\mu_{\theta}\dd\lambda(\theta)
+       = \int_{\X}\varphi\dd\mu .
+    \end{aligned}
+  \]
+  故第一边际为 $\mu$；同理第二边际为 $\nu$，所以 $\pi\in\coup{\mu}{\nu}$。
+
+  \TLtakeaway{边际核对要用检验函数：把 $\mathrm{proj}_{\X}$ 的边际积分推过 $\theta$-积分，得到混合后的第一边际 $\mu$；第二边际同理。}
+\end{frame}
+
+\begin{frame}{定理 4.8 的证明（二）：Fubini 给出成本上界}
+  \textbf{用上帧的可行计划估计最优值。} 已知
+  $\pi=\int_{\Theta}\pi_{\theta}\dd\lambda(\theta)\in\coup{\mu}{\nu}$，所以
+  $C(\mu,\nu)\le I[\pi]$。
+
+  \deflab{补一个事实：Fubini 定理。}
+  在本处它允许交换参数 $\theta$ 与位置 $(x,y)$ 的积分次序，把混合计划的总成本拆成局部计划成本的平均。
+
+  \[
+    \begin{aligned}
+      C(\mu,\nu)
+      &\le I[\pi]
+       = \int_{\X\times\Y} c\dd\pi\\
+      &= \int_{\Theta}\!\left(\int_{\X\times\Y} c\dd\pi_{\theta}\right)\dd\lambda(\theta)
+       = \int_{\Theta} C(\mu_{\theta},\nu_{\theta})\dd\lambda(\theta).
+    \end{aligned}
+  \]
+  最后一行用 $I[\pi_{\theta}]=C(\mu_{\theta},\nu_{\theta})$，这是每个 $\pi_{\theta}$ 的最优性。
+  \TLtakeaway{成本上界只需一个可行计划：混合局部最优计划，再用 Fubini 把其成本拆回局部最优成本的平均。}
 \end{frame}
 
 % ── 最优计划的刻画：开放问题（一）───────────────────────────────────────────
