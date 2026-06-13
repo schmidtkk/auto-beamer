@@ -190,7 +190,7 @@
 
 % ── c-变换 ──────────────────────────────────────────────────────────────────
 \begin{frame}{c-变换的定义}
-  \textbf{如何找到最优价格？} 给定 $\psi$，最佳的 $\phi(y)$ 应取 $\psi(x)+c(x,y)$ 的下确界：
+  \textbf{如何找到最优价格？} 给定 $\psi$，最佳 $\phi(y)$ 是所有 $\psi(x)+c(x,y)$ 的下确界。
 
   \deflab{定义（c-变换）。} 函数 $\psi:\X\to\R\cup\{+\infty\}$ 的\TLterm{c-变换}为
   \[
@@ -199,10 +199,13 @@
   （记号 $\ctr{\psi}=\psi^c$。）对称地，$\phi:\Y\to\R\cup\{-\infty\}$ 的 c-变换为
   $\phi^c(x):=\sup_{y\in\Y}[\phi(y)-c(x,y)]$。
 
-  \begin{itemize}
-    \item 直觉：$\ctr{\psi}(y)$ 是"在 $y$ 处，考虑所有可能的 $x$ 来源后，诚实竞争价格的上界"。
-    \item 由于 $\ctr{\psi}(y)-\psi(x)\le c(x,y)$，$(\psi,\ctr{\psi})$ 自动是竞争价格对。
-  \end{itemize}
+  \deflab{补一个事实：Legendre 变换。}
+  经典 Legendre 变换是 $\psi^*(y)=\sup_{x}[\inner{x}{y}-\psi(x)]$；
+  当 $c(x,y)=-\inner{x}{y}$ 时，$\ctr{\psi}=-\psi^*$。
+  所以 $\psi^c$ 是以一般成本 $c$ 替代双线性项的 Legendre 型变换。
+
+  \textbf{读法。} $\ctr{\psi}(y)$ 是在 $y$ 处、遍历所有来源 $x$ 后的诚实卖价上界。
+  且 $\ctr{\psi}(y)-\psi(x)\le c(x,y)$，所以 $(\psi,\ctr{\psi})$ 自动是竞争价格对。
 
   \TLtakeaway{c-变换把"买方价格 $\psi$"转化为"最优卖方价格 $\ctr{\psi}$"——是 Legendre 变换的推广，也是对偶理论的核心操作。}
 \end{frame}
@@ -233,19 +236,36 @@
   \[
     \psi(x) \;=\; \sup_{y\in\Y}\bigl[\zeta(y)-c(x,y)\bigr] \qquad \forall\,x\in\X.
   \]
-  此时 $\psi$ 的 c-变换为 $\ctr{\psi}(y)=\inf_{x}[\psi(x)+c(x,y)]$，
-  c-次微分为
+
+  \deflab{读法。} $\psi$ 是一族函数 $\zeta(y)-c(\cdot,y)$ 的逐点上确界；
+  图 5.2 的“成本工具从下方接触”就是这句话的几何版本。
+
+  \deflab{等价刻画预告。} 命题 5.8 将证明：$\psi$ c-凸当且仅当 $\cctr{\psi}=\psi$。
+  换言之，经过两次 c-变换后不变，正是 c-凸性的代数判据。
+
+  \TLtakeaway{c-凸函数 = 由成本形状 $\zeta(y)-c(\cdot,y)$ 从下方生成的函数；命题 5.8 会把这个定义改写成 $\cctr{\psi}=\psi$。}
+\end{frame}
+
+\begin{frame}{定义 5.2：c-次微分与接触条件}
+  \deflab{补一个事实：c-次微分。}
+  它推广凸分析中的次微分：经典次微分收集所有支撑斜率；这里收集能让成本工具与 $\psi$ 接触的目的地 $y$。
+
+  \deflab{定义。} 对 c-凸 $\psi$，令 $\ctr{\psi}(y)=\inf_{x\in\X}[\psi(x)+c(x,y)]$。其 c-次微分为
   \[
-    \partial_c\psi \;:=\; \{(x,y)\in\X\times\Y \;:\; \ctr{\psi}(y)-\psi(x)=c(x,y)\}.
+    \begin{aligned}
+      \partial_c\psi
+      &:= \{(x,y)\in\X\times\Y : \ctr{\psi}(y)-\psi(x)=c(x,y)\},\\
+      (x,y)\in\partial_c\psi
+      &\Longleftrightarrow
+      \psi(x)+c(x,y)=\inf_{x'\in\X}[\psi(x')+c(x',y)]\\
+      &\Longleftrightarrow
+      x\in\arg\min_{x'\in\X}[\psi(x')+c(x',y)] .
+    \end{aligned}
   \]
+  这就是接触/最优匹配条件：$y$ 只接受从总成本最低的 $x$ 运来的货物。
   $\psi$ 与 $\ctr{\psi}$ 互称为\TLterm{c-共轭函数}。
 
-  \begin{itemize}\small
-    \item \textbf{等价描述。} $\psi$ c-凸 $\Leftrightarrow$ $\psi(x)=\inf_{y}[\ctr{\psi}(y)+c(x,y)]$ 对所有 $x$ 成立（即 $\cctr{\psi}=\psi$，见命题 5.8）。
-    \item \textbf{c-次微分的含义。} $(x,y)\in\partial_c\psi$ 等价于 $x\in\arg\min_{x'}[\psi(x')+c(x',y)]$——即 $y$ 只接受从\emph{总成本最低}的 $x$ 运来的货物。
-  \end{itemize}
-
-  \TLtakeaway{c-凸函数 = "由 $c(x,\cdot)$ 的平移从下方刻画"的函数（图 5.2 直觉）。$\partial_c\psi$ 是最优匹配关系的几何编码。}
+  \TLtakeaway{$\partial_c\psi$ 不是额外结构，而是等号成立的位置集合；它把“价格等号”翻译成“哪些 $x$ 可以最优地匹配到 $y$”。}
 \end{frame}
 
 % ── c-凸性图示（图 5.2 重绘）────────────────────────────────────────────────
@@ -320,17 +340,67 @@
   \]
   则 $\psi$ 是 c-凸的，当且仅当 $\cctr{\psi}=\psi$（即经过两次 c-变换后函数不变）。
 
-  \medskip
-  \textbf{证明。} 一般地，对任意 $\phi:\Y\to\R\cup\{-\infty\}$，有 $(\phi^c)^{cc}=\phi^c$。
-  这是因为：取 $x'=x$ 可得 $\le$；取 $y'=y$ 可得 $\ge$，两个方向均由定义直接给出。
-  由此：若 $\psi=\zeta^c$（c-凸），则 $\cctr{\psi}=\zeta^{ccc}=\zeta^c=\psi$。
-  反之若 $\cctr{\psi}=\psi$，则 $\psi=(\ctr{\psi})^c$ 是 $\ctr{\psi}$ 的 c-变换，故 c-凸。
+  \deflab{要证的代数事实。}
+  对任意 $\phi:\Y\to\R\cup\{-\infty\}$，先作
+  $\phi^c(x)=\sup_{y\in\Y}[\phi(y)-c(x,y)]$，再作两次 c-变换，得到
+  $\phi^{ccc}=\phi^c$。下一帧把“取 $x'=x$”与“取 $y'=y$”两个方向写开。
 
-  \medskip
-  \deflab{注记 5.9。} 命题 5.8 是 Legendre 对偶的推广：取 $c=-x\cdot y$ 时恢复
-  $\psi^{**}=\psi$（凸的充要条件）。
+  \TLtakeaway{命题 5.8 的核心是 $\phi^{ccc}=\phi^c$：已经是 c-变换的函数，再做双重 c-变换不会改变。}
+\end{frame}
 
-  \TLtakeaway{c-凸 $\Leftrightarrow$ $\cctr{\psi}=\psi$：两次 c-变换后不变。这推广了 Legendre 对偶的"双共轭等于自身"——整个理论的基本代数事实。}
+\begin{frame}{命题 5.8 的证明（一）：先证 $\phi^{ccc}\le\phi^c$}
+  \deflab{展开定义。}
+  固定 $x\in\X$。把三次 c-变换完全展开，得到
+  \[
+    \phi^{ccc}(x)
+    = \sup_{y\in\Y}\inf_{x'\in\X}\sup_{y'\in\Y}
+    [\phi(y')-c(x',y')+c(x',y)-c(x,y)] .
+  \]
+
+  \deflab{方向一：在下确界中试 $x'=x$。}
+  对每个固定的 $y$，
+  \[
+    \begin{aligned}
+      \inf_{x'\in\X}\sup_{y'\in\Y}[\cdots]
+      &\le \sup_{y'\in\Y}[\phi(y')-c(x,y')+c(x,y)-c(x,y)]\\
+      &= \sup_{y'\in\Y}[\phi(y')-c(x,y')]
+       = \phi^c(x).
+    \end{aligned}
+  \]
+  右端与外层变量 $y$ 无关，再取 $\sup_{y\in\Y}$，得到 $\phi^{ccc}(x)\le\phi^c(x)$。
+
+  \TLtakeaway{“$\le$” 的隐藏步骤是：下确界不大于任意试探点；试 $x'=x$ 后，$+c(x,y)-c(x,y)$ 抵消，只剩 $\phi^c(x)$。}
+\end{frame}
+
+\begin{frame}{命题 5.8 的证明（二）：再证 $\phi^{ccc}\ge\phi^c$}
+  \deflab{方向二：在内层上确界中试 $y'=y$。}
+  对任意 $x'\in\X$ 与 $y\in\Y$，
+  \[
+    \begin{aligned}
+      \sup_{y'\in\Y}[\phi(y')-c(x',y')+c(x',y)-c(x,y)]
+      &\ge \phi(y)-c(x',y)+c(x',y)-c(x,y)\\
+      &= \phi(y)-c(x,y).
+    \end{aligned}
+  \]
+  右端与 $x'$ 无关，所以取 $\inf_{x'\in\X}$ 后仍不变；再取 $\sup_{y\in\Y}$：
+  \[
+    \phi^{ccc}(x)\ge\sup_{y\in\Y}[\phi(y)-c(x,y)]=\phi^c(x).
+  \]
+  结合上一帧的反向不等式，得到 $\phi^{ccc}=\phi^c$。
+
+  \TLtakeaway{“$\ge$” 的隐藏步骤是：内层上确界可试 $y'=y$，两个 $c(x',y)$ 项抵消，剩下的正是 $\phi^c(x)$ 的候选项。}
+\end{frame}
+
+\begin{frame}{命题 5.8 的证明（三）：代回 c-凸性}
+  \deflab{代回命题。}
+  若 $\psi$ c-凸，则 $\psi=\zeta^c$ 对某个 $\zeta$ 成立，于是
+  \[
+    \cctr{\psi}=(\zeta^c)^{cc}=\zeta^{ccc}=\zeta^c=\psi .
+  \]
+  反之，若 $\cctr{\psi}=\psi$，则 $\psi=(\ctr{\psi})^c$，它本身就是一个 c-变换，故 $\psi$ c-凸。
+  \deflab{注记 5.9。} 取 $c=-x\cdot y$ 时，命题 5.8 恢复 Legendre 对偶中的 $\psi^{**}=\psi$。
+
+  \TLtakeaway{收尾只用恒等式 $\phi^{ccc}=\phi^c$：c-凸函数已经是某个 c-变换；反过来，$\cctr{\psi}=\psi$ 也把 $\psi$ 写成了 c-变换。}
 \end{frame}
 
 % ── 定理 5.10（一）：对偶等式陈述 ────────────────────────────────────────────
@@ -433,45 +503,98 @@
   \TLtakeaway{势函数 $\psi$ 由"所有以 $x$ 结尾的链的链值上确界"定义，可改写为 $\psi(x)=\sup_y[\zeta(y)-c(x,y)]$，天然是 c-凸函数。}
 \end{frame}
 
-\begin{frame}{定理 5.10 证明思路（一b）：验证 $\Gamma\subset\partial_c\psi$}
+\begin{frame}{定理 5.10 证明思路（一b）：上界与下界目标}
   \textbf{承接前页：$\psi$ c-凸，$\psi(x_0)=0$。目标：对每个 $(x,y)\in\Gamma$ 证 $\ctr{\psi}(y)=\psi(x)+c(x,y)$。}
 
-  \begin{itemize}\small
-    \item \textbf{上界：} 由竞争性不等式（c-变换定义），$\ctr{\psi}(y)=\inf_{x'}[\psi(x')+c(x',y)]\le\psi(x)+c(x,y)$。
-    \item \textbf{下界：} 对任意 $x'\in\X$，考虑以 $(x,y)$ 为最后一步的链
-      $(x_1,y_1),\ldots,(x_m,y_m)=(x,y)$。对 c-循环单调性的链不等式（在 $(x,y)$ 之后插入 $(x',y)$ 并绕回），可得
-      \[
-        \psi(x') \;\ge\; \psi(x) + c(x,y) - c(x',y).
-      \]
-      （即：从 $x'$ 出发把货送到 $y$，成本至少是"从 $x$ 到 $y$ 的成本"加上"放弃 $x'$ 所省的成本"。）\\
-      整理：$\psi(x')+c(x',y)\ge\psi(x)+c(x,y)$ 对所有 $x'$ 成立，故
-      $\ctr{\psi}(y)=\inf_{x'}[\psi(x')+c(x',y)]\ge\psi(x)+c(x,y)$。
-    \item \textbf{结论：} 上下界相等，$\ctr{\psi}(y)=\psi(x)+c(x,y)$，即 $(x,y)\in\partial_c\psi$，所以 $\Gamma\subset\partial_c\psi$。
-  \end{itemize}
+  \deflab{上界：在下确界中试 $x'=x$。}
+  \[
+    \ctr{\psi}(y)
+    =\inf_{x'\in\X}[\psi(x')+c(x',y)]
+    \le \psi(x)+c(x,y).
+  \]
 
-  \TLtakeaway{c-循环单调性让每个 $(x,y)\in\Gamma$ 恰好"满足等号"：$\ctr{\psi}(y)-\psi(x)=c(x,y)$，即 $(x,y)$ 在 c-次微分中。}
+  \deflab{下界目标。}
+  只需证明对所有 $x'\in\X$ 均有
+  \[
+    \psi(x')+c(x',y)\ge\psi(x)+c(x,y).
+  \]
+  因为对左边取 $\inf_{x'\in\X}$ 就会给出
+  $\ctr{\psi}(y)\ge\psi(x)+c(x,y)$，与上界夹出等号。
+
+  \TLtakeaway{上界来自“试 $x'=x$”；真正的缺口是下界，即为什么所有别的 $x'$ 都不能给 $y$ 更低的总成本。}
+\end{frame}
+
+\begin{frame}{定理 5.10 证明思路（一c）：链下界的实际推导}
+  \textbf{固定} $(x,y)\in\Gamma$。下面证明上一帧的下界目标。
+
+  \deflab{补一个事实：近似实现上确界。}
+  任取 $x'\in\X$ 与 $\eps>0$。由 $\psi(x)$ 的定义，取一条在 $x$ 处达到 $\psi(x)-\eps$ 的链，
+  记它在 $x$ 处的链值为 $V_m(x)$。
+
+  \deflab{追加一节。}
+  把 $(x,y)$ 追加为最后一节；追加后仍是 $\Gamma$ 中的链，所以可用于估计 $\psi(x')$：
+  \[
+    \begin{aligned}
+      \psi(x')
+      &\ge V_m(x)+c(x,y)-c(x',y)\\
+      &\ge \psi(x)-\eps+c(x,y)-c(x',y),\\
+      \psi(x')+c(x',y)
+      &\ge \psi(x)+c(x,y)-\eps .
+    \end{aligned}
+  \]
+  令 $\eps\downarrow0$，得 $\psi(x')+c(x',y)\ge\psi(x)+c(x,y)$。再取下确界，
+  $\ctr{\psi}(y)\ge\psi(x)+c(x,y)$。上下界相等，故
+  $\ctr{\psi}(y)=\psi(x)+c(x,y)$，即 $(x,y)\in\partial_c\psi$。
+
+  \TLtakeaway{链下界的实际内容是“近似最优链 + 追加 $(x,y)$”：这把 $\psi(x)$ 的上确界信息转化为所有 $x'$ 的总成本下界。}
 \end{frame}
 
 % ── 证明思路（二）：对偶等式的建立 ──────────────────────────────────────────
-\begin{frame}{定理 5.10 证明思路（二）：对偶等式的完成}
-  \textbf{承接前页的构造（$\psi$ c-凸，$\phi=\ctr{\psi}$，$\pi$ 集中在 $\partial_c\psi$）。}
+\begin{frame}{定理 5.10 证明思路（二a）：积分恒等式}
+  \textbf{承接前页的构造。} 已有 $\psi$ c-凸、$\phi=\ctr{\psi}$，且 $\pi$ 集中在 $\partial_c\psi$。
 
-  \textbf{关键计算。} 由边际条件与 $\phi(y)-\psi(x)=c(x,y)$（$\pi$-a.s.）：
+  \deflab{积分锁定。} 由边际条件与 $\phi(y)-\psi(x)=c(x,y)$（$\pi$-a.s.）：
   \[
-    \int_{\X\times\Y} c(x,y)\dd\pi
-    \;=\; \int_{\X\times\Y}[\phi(y)-\psi(x)]\dd\pi
-    \;=\; \int_{\Y}\phi\dd\nu - \int_{\X}\psi\dd\mu.
+    \begin{aligned}
+      \int_{\X\times\Y} c(x,y)\dd\pi
+      &= \int_{\X\times\Y}[\phi(y)-\psi(x)]\dd\pi\\
+      &= \int_{\Y}\phi\dd\nu - \int_{\X}\psi\dd\mu .
+    \end{aligned}
   \]
-  因此：$\int c\dd\pi = \int\ctr{\psi}\dd\nu - \int\psi\dd\mu \le \sup_{\psi'\text{ c-凸}}\Bigl[\int\ctr{\psi'}\dd\nu-\int\psi'\dd\mu\Bigr]$，
-  但由弱对偶，后者 $\le\int c\dd\pi$。两个方向均成立，故\emph{等号}处处成立。
 
-  \begin{itemize}\small
-    \item \textbf{连续成本的情形：} 上述论证通过"从离散逼近 $\mu_n,\nu_n$ 出发，取弱极限"严格化。
-    \item \textbf{下半连续成本：} 进一步通过 $c=\lim c_k$（单调逼近，$c_k$ 有界连续）完成。
-    \item \textbf{可测性：} $\psi,\ctr{\psi}$ 的可测性需要额外论证（利用 $c$ 的下半连续性和 Luzin 定理），参见 Villani 推论 5.22。本讲义在此处省略该步骤。
-  \end{itemize}
+  \textbf{读法。} 这一个候选 $\psi$ 的对偶值已经等于 $\pi$ 的原始成本。
+  只要再把它放进弱对偶链，就能同时锁住原始最小值与对偶最大值。
 
-  \TLtakeaway{对偶等式的证明方向：先用 c-循环单调集构造 $\psi$，再通过边际条件与等号条件把积分恒等式"锁住"。}
+  \TLtakeaway{边际条件把 $\pi$ 上的点态等号积分成全局等号：成本积分 $=$ 对偶利润。}
+\end{frame}
+
+\begin{frame}{定理 5.10 证明思路（二b）：弱对偶夹逼}
+  令 $\mathcal A_c$ 表示满足可积条件的 c-凸候选集合。上一帧已给出一个候选 $\psi$，
+  其对偶值等于 $\int c\dd\pi$。
+
+  \deflab{夹逼。} 弱对偶给出中间不等式；$\pi$ 本身可行，给出最后一个不等式：
+  \[
+    \int c\dd\pi
+    \le \sup_{\psi'\in\mathcal A_c}\left[\int_{\Y}\ctr{\psi'}\dd\nu-\int_{\X}\psi'\dd\mu\right]
+    \le \inf_{\gamma\in\coup{\mu}{\nu}}\int c\dd\gamma
+    \le \int c\dd\pi .
+  \]
+  因而所有不等式都是等号，$\pi$ 是原始问题最优计划，$\psi$ 是对偶问题最优势函数。
+
+  \TLtakeaway{一旦有可测的 $\psi,\phi$ 且 $\phi-\psi=c$ 在 $\pi$ 上成立，弱对偶立刻把 $\sup=\inf$ 锁死；这部分论证已经完整。}
+\end{frame}
+
+\begin{frame}{定理 5.10 证明思路（二c）：逼近与可测性缺口}
+  \deflab{本帧暂缓的技术点。}
+  只暂缓把链式构造得到的 $\psi,\ctr{\psi}$ 选成可测版本：Villani 用推论 5.22 的可测选择思想配合 Lusin/Egorov，把它们改成几乎处处相同的可测函数。积分锁定本身不依赖这些选择细节。
+
+  \deflab{连续成本的严格化。}
+  先用有限支撑 $\mu_n,\nu_n$ 近似 $\mu,\nu$，在有限线性规划中解出对偶与 c-循环单调最优计划；再用 §1 的胶着、弱收敛与稳定性机制，把 $\pi_n\wkto\pi$ 和等式传到极限。
+
+  \deflab{下半连续成本。}
+  若 $c$ 仅下半连续，再取有界连续 $c_k\uparrow c$ 单调逼近；对每个 $c_k$ 用上一段，最后由单调收敛与弱对偶传回 $c$。
+
+  \TLtakeaway{本帧只标明被推迟的测度论工作；主线仍是“离散对偶 $\to$ 弱极限稳定 $\to$ 下半连续单调逼近”。}
 \end{frame}
 
 % ── Rockafellar 定理（经典情形）────────────────────────────────────────────
