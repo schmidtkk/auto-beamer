@@ -141,46 +141,56 @@
   \TLtakeaway{关键：lsc 给出连续递增逼近（§0 性质 a），再用 $c_\ell\le c$ 把不等式传到 $\liminf$。}
 \end{frame}
 
-% ── 定理 4.1 的证明（一）：紧性 ───────────────────────────────────────────────
-\begin{frame}{定理 4.1 的证明（一）：紧性}
-  \textbf{目标：} 在 $\coup{\mu}{\nu}$ 中找成本最小的耦合——即 §0 "紧集上 lsc 必达最小"在测度空间的实现（$\coup{\mu}{\nu}$ 为"紧集"，$I[\pi]=\int c\dd\pi$ 为"lsc 目标"）。
+% ── 定理 4.1 的证明（一a）：预紧 ─────────────────────────────────────────────
+\begin{frame}{定理 4.1 的证明（一a）：$\coup{\mu}{\nu}$ 为何\emph{预紧}}
+  \textbf{总思路。} 把 §0 的"紧集上 lsc 必达最小"搬到测度空间：取"紧集"$=\coup{\mu}{\nu}$、"lsc 目标"$=I[\pi]=\int_{\X\times\Y} c\dd\pi$。本帧先证可行集\emph{预紧}（弱闭包紧）。
 
-  \textbf{步骤一：$\coup{\mu}{\nu}$ 是弱紧集。}
+  \deflab{补一个事实：Ulam 定理。} Polish 空间上\emph{每个}概率测度 $\mu$ 都自动胶着：完备可分度量空间里 $\mu$ 对紧集\TLterm{内正则 (inner regular)}——任给 $\eps>0$ 总有紧集 $K_\eps$ 使 $\mu[\X\setminus K_\eps]\le\eps$。故单点族 $\{\mu\},\{\nu\}$ 胶着。
+
+  \textbf{推出预紧（三步，每步标注依据）：}
   \begin{itemize}\small
-    \item $\{\mu\}\subset\Pp(\X)$ 胶着（Polish 空间上单点集自动胶着），$\{\nu\}$ 同理。
-    \item 引理 4.4 $\Rightarrow$ $\coup{\mu}{\nu}$ 在 $\Pp(\X\times\Y)$ 中胶着。
-    \item Prokhorov 定理 $\Rightarrow$ $\coup{\mu}{\nu}$ 预紧。
-    \item \emph{闭性：}边际约束 $\int\varphi\dd\pi=\int\varphi\dd\mu$（对一切 $\varphi\in C_b(\X)$）在弱极限下保持，故弱极限仍以 $\mu,\nu$ 为边际 $\Rightarrow$ $\coup{\mu}{\nu}$ 闭。
-    \item 闭 $+$ 预紧 $\Rightarrow$ \textbf{弱紧}。
+    \item $\{\mu\},\{\nu\}$ 胶着\hfill（Ulam 定理）
+    \item $\Rightarrow$ $\coup{\mu}{\nu}$ 在 $\Pp(\X\times\Y)$ 中胶着\hfill（引理 4.4：两端胶着"提升"到耦合集）
+    \item $\Rightarrow$ $\coup{\mu}{\nu}$ \emph{预紧}\hfill（Prokhorov：胶着 $\Leftrightarrow$ 弱预紧）
   \end{itemize}
 
-  \textbf{步骤二：取极小化列并提取极限。}
-  \begin{itemize}\small
-    \item 取 $(\pi_k)\subset\coup{\mu}{\nu}$ 使 $I[\pi_k]\to\inf I$。
-    \item 由弱紧性，存在子列（仍记为 $\pi_k$）使 $\pi_k\wkto\pi^\star\in\coup{\mu}{\nu}$。
-  \end{itemize}
-
+  \TLtakeaway{预紧来自一条链：Ulam（单个测度胶着）$\to$ 引理 4.4（耦合集胶着）$\to$ Prokhorov（胶着即预紧）。}
 \end{frame}
 
-% ── 定理 4.1 的证明（二）：取极限并用下半连续 ────────────────────────────────
-\begin{frame}{定理 4.1 的证明（二）：取极限并用下半连续}
-  \textbf{步骤三：引理 4.3 给出最优性。}
+% ── 定理 4.1 的证明（一b）：闭性 → 紧，取极小化列 ────────────────────────────
+\begin{frame}{定理 4.1 的证明（一b）：从预紧到\emph{紧}，并取极小化列}
+  \textbf{预紧还不够：}极限未必落在 $\coup{\mu}{\nu}$ 里，故须再证它\emph{闭}（闭 $+$ 预紧 $=$ 紧）。
+
+  \deflab{闭性：把"边际是 $\mu$"传给极限。}
+  设 $\pi_k\in\coup{\mu}{\nu}$，$\pi_k\wkto\pi$。任取 $\varphi\in C_b(\X)$，视 $(x,y)\mapsto\varphi(x)$ 为有界连续函数：
+  \begin{align*}
+    \int_{\X}\varphi\dd\big(\pf{(\mathrm{proj}_{\X})}{\pi}\big)
+    &=\int_{\X\times\Y}\!\varphi(x)\dd\pi
+    \;\overset{\pi_k\wkto\pi}{=}\;\lim_{k}\int_{\X\times\Y}\!\varphi(x)\dd\pi_k\\
+    &=\lim_{k}\int_{\X}\varphi\dd\mu=\int_{\X}\varphi\dd\mu .
+  \end{align*}
+  对一切 $\varphi$ 成立 $\Rightarrow$ $\pf{(\mathrm{proj}_{\X})}{\pi}=\mu$，同理第二边际 $=\nu$，故 $\pi\in\coup{\mu}{\nu}$：集合\emph{闭}。\textbf{闭 $+$ 预紧 $\Rightarrow$ $\coup{\mu}{\nu}$ 弱紧。}
+
+  \TLtakeaway{闭性核心只有一行：用检验函数 $\varphi(x)$ 测两边，弱收敛把"边际 $=\mu$"原样传到极限；再配预紧即得\emph{紧}。}
+\end{frame}
+
+% ── 定理 4.1 的证明（二）：下半连续锁定最优性 ────────────────────────────────
+\begin{frame}{定理 4.1 的证明（二）：用下半连续\emph{锁定}最优性}
+  \textbf{取极小化列。} 取 $(\pi_k)$ 使 $I[\pi_k]\to\inf I$，（一b）弱紧性抽出子列 $\pi_k\wkto\pi^\star\in\coup{\mu}{\nu}$。难点：弱收敛\emph{不}保证 $I[\pi_k]\to I[\pi^\star]$；但 lsc（引理 4.3）给的\emph{一个方向}够用。
+
+  \deflab{先核对引理 4.3 的前提。} 取 $h(x,y)=a(x)+b(y)$（下界条件 $c\ge a+b$ 中的 $h$，上半连续）。\textbf{关键：}所有 $\pi_k,\pi^\star$ 共享边际 $\mu,\nu$，故
+  \[
+    \int h\dd\pi_k=\int_{\X} a\dd\mu+\int_{\Y} b\dd\nu=\int h\dd\pi^\star .
+  \]
+  右端与 $k$ 无关（\emph{常数列}），故前提"$\int h\dd\pi_k\to\int h\dd\pi^\star$"自动成立，引理 4.3 适用。
+
+  \textbf{收尾（夹逼）：}
   \begin{itemize}\small
-    \item 令 $h(x,y)=a(x)+b(y)$，则 $h\in L^1(\pi_k)\cap L^1(\pi^\star)$，
-      且 $\int h\dd\pi_k = \int a\dd\mu+\int b\dd\nu = \int h\dd\pi^\star$（边际不变）。
-    \item 引理 4.3 $\Rightarrow$ $I[\pi^\star]\le\liminf_k I[\pi_k]=\inf I$。
-    \item 又 $\pi^\star\in\coup{\mu}{\nu}$ $\Rightarrow$ $I[\pi^\star]\ge\inf I$。
-    \item 故 $I[\pi^\star]=\inf I$，即 $\pi^\star$ 最优。\hfill$\square$
+    \item 引理 4.3 $\Rightarrow$ $I[\pi^\star]\le\liminf_k I[\pi_k]=\inf I$；
+    \item 可行性 $\Rightarrow$ $I[\pi^\star]\ge\inf I$；夹逼得 $I[\pi^\star]=\inf I$，即 $\pi^\star$ \emph{最优}。\hfill$\square$
   \end{itemize}
 
-  \textbf{证明全景回顾：}
-  \begin{itemize}\small
-    \item 步骤一：利用 Prokhorov 定理 $+$ 引理 4.4，证明 $\coup{\mu}{\nu}$ 弱紧。
-    \item 步骤二：从极小化列提取弱收敛子列，极限仍在 $\coup{\mu}{\nu}$ 中。
-    \item 步骤三：引理 4.3 确保极限的成本不超过下确界，故极限最优。
-  \end{itemize}
-
-  \TLtakeaway{三步：紧集 $\to$ 极限存在；下半连续 $\to$ 极限最优。每步都用到 Polish 空间的拓扑结构。}
+  \TLtakeaway{lsc 只需"成本不会向上跳"这一个方向 $I[\pi^\star]\le\liminf I[\pi_k]=\inf I$，配可行性即夹出等号。}
 \end{frame}
 
 % ── 定理 4.6：最优性被子计划继承 ─────────────────────────────────────────────
