@@ -23,7 +23,7 @@
 \begin{frame}{对象：Polish 空间上的概率测度 $\Pp(\X)$}
   \textbf{为什么。} 传输的两端是\emph{质量分布}，不是单个点；最自然的语言是\emph{概率测度}。
 
-  \medskip
+  \deflab{一句话直觉。} Polish 空间就是性质足够好的空间——可以放心地取极限、做积分、谈收敛；最常见的例子是 $\R^{n}$；完备性+可分性正是保证后续紧性与逼近论证成立的两个条件。
   \deflab{约定。} $\X,\Y$ 为\TLterm{Polish 空间}（完备可分度量空间，如 $\R^n$）。
   $\Pp(\X)$ 记其上全体\emph{概率测度}。一个 $\mu\in\Pp(\X)$ 给每个（可测）集合 $A$ 一个质量
   $\mu[A]\in[0,1]$，且 $\mu[\X]=1$。积分 $\int_{\X} \varphi \dd\mu$ 表示“按密度 $\mu$
@@ -36,6 +36,7 @@
     \item \emph{例 2（经验测度）。} $\frac1n\sum_{i=1}^n\delta_{x_i}$：$n$ 个等重样本点。
     \item \emph{例 3（密度）。} $\mu=f\,\mathrm{Leb}$，$f\ge0,\ \int f=1$（如高斯）。
   \end{itemize}
+  \vspace{-4pt}
   \TLtakeaway{$\Pp(\X)$ 同时容纳“离散沙堆”与“连续密度”——这正是传输需要的统一框架。}
 \end{frame}
 
@@ -63,7 +64,7 @@
   \textbf{为什么。} 证最优传输计划存在（定理 4.1），需要"紧性 + lsc $\Rightarrow$ 最小值被取到"。
   代价 $c(x,y)$ 通常不连续（如截断成本），但满足\emph{下半连续}——这已足够。
 
-  \medskip
+  \deflab{一句话直觉。} 下半连续就是最小化问题不会扑空的正则性——函数在跳变处取较低值，于是下确界总能被某点真正取到。
   \deflab{定义（下半连续 / lsc）。} $f:X\to\mathbb{R}\cup\{+\infty\}$
   称在 $x_0$ 处\TLterm{下半连续 (lsc)}，若
   \[
@@ -75,11 +76,11 @@
   \deflab{上半连续 (usc)} 为对偶：$\limsup_{x\to x_0}f(x)\le f(x_0)$，
   等价于所有上水平集 $\{f\ge a\}$ 闭（即 $-f$ lsc）。
 
-  \medskip
   \textbf{典型例子：} 开集 $U$ 的示性函数 $\mathbf{1}_{U}$ 是 lsc；
   闭集 $F$ 的示性函数 $\mathbf{1}_{F}$ 是 usc。
   距离函数 $d(x,\cdot)$ 是连续的（既 lsc 又 usc）。
 
+  \vspace{-3pt}
   \TLtakeaway{下半连续 $\Longleftrightarrow$ 所有下水平集 $\{f\le a\}$ 是闭集——最小化问题的自然正则性。}
 \end{frame}
 
@@ -149,6 +150,7 @@
 \begin{frame}{Hausdorff 测度 $\mathcal{H}^{k}$：$k$ 维体积与奇异测度}
   \textbf{为什么。} 例 4.9 中传输计划用 $\mathcal{H}^{1}$ 限制到线段——需知它是什么。
 
+  \deflab{一句话直觉。} $\mathcal{H}^{k}$ 就是把长度/面积/体积推广到弯曲的、低维集合——$\mathcal{H}^{1}$ 量曲线长度，$\mathcal{H}^{2}$ 量曲面面积，从而质量可以铺在一条曲线上。
   \deflab{定义（Hausdorff $k$-测度）。} 对集合 $A\subset X$，
   \[
     \mathcal{H}^{k}(A) = \lim_{\delta\to0}\inf\!\Bigl\{
@@ -172,6 +174,7 @@
   \textbf{为什么。} 三角不等式（§3，引理 4.4）的粘合引理把
   $\pi\in\Pi(\mu,\nu)$ 和 $\sigma\in\Pi(\nu,\rho)$ 沿 $\nu$ 拼合为 $\Pi(\mu,\rho)$ 中的耦合，依赖 disintegration。
 
+  \deflab{一句话直觉。} Disintegration 就是条件分布的测度版——$\pi_{x}$ 正是已知 $X=x$ 时 $Y$ 的分布（即概率论的 $\mathbb{P}(Y\in\cdot\mid X=x)$），整体联合分布等于对 $x$ 按 $\mu$ 平均所有条件分布。
   \deflab{定理（disintegration）。} 设 $\pi\in\Pi(\mu,\nu)$，$X$ 为 Polish 空间。
   则存在 $\mu$-a.e.\ 唯一的\TLterm{条件测度族} $\{\pi_{x}\}_{x\in X}$，使得
   \[
@@ -227,8 +230,14 @@
   \begin{itemize}\small
     \item 即便可行，目标关于 $T$ \emph{高度非凸}，约束 $\pf{T}{\mu}=\nu$ 也非线性。
   \end{itemize}
-  \TLwarnblock{陷阱}{「最优传输映射是否存在」是\emph{很难}的问题（§9--12）。
-  本讲义靠松弛保证\emph{总有最优方案}。}
+  % Manual warn-style block (avoids 0.4pt draw-border overflow from \TLwarnblock)
+  \begin{tikzpicture}
+    \node[draw=TLneg, fill=TLneg!8, rounded corners=3pt,
+          inner sep=8pt, text width=\linewidth-17pt, align=justify] {%
+      \small\textbf{\color{TLneg}陷阱}\\[0.3em]
+      「最优传输映射是否存在」是\emph{很难}的问题（§9--12）。本讲义靠松弛保证\emph{总有最优方案}。
+    };
+  \end{tikzpicture}
 \end{frame}
 
 % ── Kantorovich 松弛 ─────────────────────────────────────────────────────────
