@@ -262,3 +262,107 @@
 
   \TLtakeaway{§5：无交叉的代数核是 $(x_1-x_2)(y_1-y_2)\ge0$；定理 8.7 的四条假设（$L\in C^2$、$\nabla_v^2L>0$、成本有限、端点之一 $\in\Pac$）缺一不可。}
 \end{frame}
+
+%% ── 技术备用幻灯片 (Backup) ─────────────────────────────
+\section*{技术备用幻灯片 · Backup（推迟的技术估计）}
+
+\begin{frame}{（接 §5 定理 8.1）速度 Hölder 估计：设置与双边界}
+  \deflab{设置。}
+  固定内部时刻 $t_{0}$ 与小窗口 $\tau>0$，记
+  $X_{i}=\gamma_{i}(t_{0})$，$V_{i}=\dot{\gamma}_{i}(t_{0})$。Villani 的目标是证明
+  $|V_{1}-V_{2}|\le C|X_{1}-X_{2}|^{\beta}$，即式 (8.8)。
+
+  \deflab{上界 (8.21)。}
+  把两条曲线在 $[t_{0}-\tau,t_{0}+\tau]$ 的中段互换；\emph{节省}的作用量
+  $G:=A[\gamma_{1}]+A[\gamma_{2}]-A[\widetilde{\gamma}_{1}]-A[\widetilde{\gamma}_{2}]\ge0$
+  由 Taylor 误差从上方控制：
+  \[
+    G \;\le\;
+    C\!\left(
+      \frac{|X_{1}-X_{2}|^{1+\alpha}}{\tau^{1+\alpha}}
+      +\tau |V_{1}-V_{2}|^{1+\alpha}
+    \right).
+  \]
+
+  \deflab{下界 (8.22)。}
+  假设 (iii) 的 $(2+\kappa)$-凸性给出\emph{同一个} $G$ 的下界：
+  \[
+    G \;\ge\;
+    K\bigl(|V_{1}-V_{2}|-A\tau |X_{1}-X_{2}|\bigr)^{2+\kappa}.
+  \]
+
+  \TLtakeaway{上界来自 shortcut 的 Taylor 误差；下界来自速度方向的严格凸性。两者夹住同一个节省量 $G\ge0$。}
+\end{frame}
+
+\begin{frame}{（接 §5 定理 8.1）速度 Hölder 估计：比较与优化}
+  \deflab{情形一。}
+  若 $|V_{1}-V_{2}|\le 2A\tau |X_{1}-X_{2}|$，则速度差已被位置差控制；后面选择允许的 $\tau$ 后即可收尾。
+
+  \deflab{情形二。}
+  否则有 $|V_{1}-V_{2}|-A\tau |X_{1}-X_{2}|\ge |V_{1}-V_{2}|/2$。比较上一帧的上下界，得到 (8.23)：
+  \[
+    |V_{1}-V_{2}|^{2+\kappa}
+    \le
+    C\!\left(
+      \frac{|X_{1}-X_{2}|^{1+\alpha}}{\tau^{1+\alpha}}
+      +\tau |V_{1}-V_{2}|^{1+\alpha}
+    \right).
+  \]
+
+  \deflab{优化。}
+  当 $|V_{1}-V_{2}|>0$ 时，取 $\tau\sim|V_{1}-V_{2}|^{1+\kappa-\alpha}$
+  以吸收右端第二项（Villani 第 178 页），得到
+  \[
+    |V_{1}-V_{2}|\le C|X_{1}-X_{2}|^{\beta},
+    \qquad \beta=\beta(\alpha,\kappa)>0.
+  \]
+  在二次成本 $c=d^{2}$ 中，$\alpha=1,\kappa=0$，于是 $\beta=1$。
+
+  \TLtakeaway{这是 §5 "定理 8.1 证明思路（凸性矛盾）" 暂缓的定量估计：速度差由中间位置差的幂控制。}
+\end{frame}
+
+\begin{frame}{（接 §2 定理 5.10）可测性补证：势函数为何可测}
+  \deflab{问题。}
+  链式公式 (5.22) 中的 $\psi$ 是不可数个 usc 函数的上确界，不自动是 Borel 函数。
+
+  \deflab{Egorov + 内正则。}
+  取 $0\le c_{\ell}\nearrow c$ 为连续逼近。对每个 $k$，可取紧集 $\Gamma_{k}\subset\Gamma$，使得
+  \[
+    \pi[\Gamma_{k}]\ge 1-\frac{2}{k},\qquad
+    c_{\ell}\to c\ \mathrm{uniformly\ on}\ \Gamma_{k},\qquad
+    \Gamma=\bigcup_{k}\Gamma_{k}.
+  \]
+
+  \deflab{截断势函数。}
+  链长截为 $m$，链点限制在 $\Gamma_{k}$，横跳项用 $c_{\ell}$，得 $\psi_{m,k,\ell}(x)$。
+  它关于 $x$ 为 lsc；逐点极限是 Borel，且
+  \[
+    \psi(x)=\sup_{m\in\N}\sup_{k\in\N}\lim_{\ell\to\infty}\psi_{m,k,\ell}(x).
+  \]
+  右端只含可数次上确界与极限，故 $\psi$ 可测。
+
+  \TLtakeaway{Egorov + 内正则把不可数上确界转化为可数紧集族上的截断链极限，从而得到 $\psi$ 可测。}
+\end{frame}
+
+\begin{frame}{（接 §2 定理 5.10）可测性补证：$\phi$ 与可测选择}
+  \deflab{$\phi=\ctr{\psi}$ 的可测版本。}
+  分解 $\pi$ 为以第二边际为基的条件测度：
+  \[
+    \pi(\dd x\,\dd y)=\pi(\dd x\mid y)\,\nu(\dd y),
+    \qquad
+    \widetilde{\phi}(y)=\int_{\X}[\psi(x)+c(x,y)]\,\pi(\dd x\mid y).
+  \]
+  则 $\phi(y)=\widetilde{\phi}(y)$ 对 $\nu$-a.e.\ 的 $y$ 成立。
+
+  \deflab{$\partial_{c}\psi$ 的可测版本。}
+  除去一个 $\pi$-零集后，$\partial_{c}\psi$ 与下列 Borel 集一致：
+  \[
+    \{(x,y):\widetilde{\phi}(y)-\psi(x)=c(x,y)\}.
+  \]
+
+  \deflab{推论 5.22（最优计划的可测选择）。}
+  若 $c$ 连续、$\inf c>-\infty$，且 $\omega\mapsto(\mu_{\omega},\nu_{\omega})$ 可测，则可选可测的最优计划 $\omega\mapsto\pi_{\omega}$。
+  证明思路：最优计划全体 $O$ 是 Polish；边际映射 $\Phi:O\to\Pp(\X)\times\Pp(\Y)$ 连续且 onto，纤维紧，故可用可测选择定理。
+
+  \TLtakeaway{这补上 §2 "定理 5.10 证明思路（二c）" 暂缓的可测性缺口：势函数、c-次微分与最优计划选择都可取为可测对象。}
+\end{frame}
