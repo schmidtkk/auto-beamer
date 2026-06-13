@@ -133,6 +133,7 @@
     \Wp{p}(\mu_{1},\mu_{3})
     \;\le\; \bigl(\E[d(X_{1},X_{3})^{p}]\bigr)^{1/p}.
   \]
+  \deflab{补一个事实：Minkowski 不等式。} $L^{p}$ 三角不等式为 $\|F+G\|_{L^{p}}\le\|F\|_{L^{p}}+\|G\|_{L^{p}}$，即 $\bigl(\E|F+G|^{p}\bigr)^{1/p}\le\bigl(\E|F|^{p}\bigr)^{1/p}+\bigl(\E|G|^{p}\bigr)^{1/p}$；这里取 $F=d(X_{1},X_{2})$、$G=d(X_{2},X_{3})$。
   由 $d(X_{1},X_{3})\le d(X_{1},X_{2})+d(X_{2},X_{3})$ 及 $L^{p}$ Minkowski 不等式：
   \[
     \bigl(\E[d(X_{1},X_{3})^{p}]\bigr)^{1/p}
@@ -209,13 +210,14 @@
 \begin{frame}{注记 6.6：Wasserstein 距离的阶的排序}
   \deflab{注记 6.6（阶的排序，Villani Rem 6.6）。}
 
+  \deflab{补一个事实：Hölder/Jensen。} 固定 $\pi\in\coup{\mu}{\nu}$ 时，$\|d\|_{L^{p}(\pi)}\le\|d\|_{L^{q}(\pi)}$，即 $\bigl(\int d^{p}\dd\pi\bigr)^{1/p}\le\bigl(\int d^{q}\dd\pi\bigr)^{1/q}$；再取下确界得 $\Wp{p}\le\Wp{q}$。
   由 Hölder 不等式：对 $1\le p\le q$，
   \[
     \Wp{p}(\mu,\nu) \;\le\; \Wp{q}(\mu,\nu).
   \]
   特别地，$\Wp{1}$ 是所有 Wasserstein 距离中\emph{最弱}的。
 
-  \begin{center}\small
+  {\centering\small
     \begin{tabular}{lll}
       \toprule
       & $\Wp{1}$ & $\Wtwo$ \\
@@ -226,7 +228,7 @@
       典型应用 & PDE、信息论 & OT 几何、置换插值 \\
       \bottomrule
     \end{tabular}
-  \end{center}
+  \par}
 
   \TLtakeaway{$\Wp{1}\le\Wp{p}$：阶越高距离越强；$p=1$ 最灵活易估，$p=2$ 最能捕捉几何结构。}
 \end{frame}
@@ -369,12 +371,18 @@
 \end{frame}
 
 % ── 定理 6.9 证明（一）──────────────────────────────────────────────────────
-\begin{frame}{定理 6.9 的证明（一）：$\Wp{p}\to0$ 蕴含弱收敛与矩收敛}
+\begin{frame}{定理 6.9 的证明（一a）：$\Wp{p}\to0$ 蕴含弱收敛}
   \textbf{方向 $(\Rightarrow)$：} 设 $\Wp{p}(\mu_{k},\mu)\To0$。
 
-  \textbf{弱收敛。} 由引理 6.14，$(\mu_{k})$ 胶着，存在弱收敛子列 $\mu_{k'}\wkto\mu'$；用引理 4.3 知 $\Wp{p}(\mu',\mu)=0$，故 $\mu'=\mu$。
+  \deflab{补一个事实：引理 6.14。} 在 $\Wp{p}$ 中收敛的序列是 Cauchy；引理 6.14 说 Cauchy 序列胶着，因此由 Prokhorov 可抽出弱收敛子列。
+  \textbf{弱收敛。} 由引理 6.14，$(\mu_{k})$ 胶着，存在弱收敛子列 $\mu_{k'}\wkto\mu'$；用引理 4.3 知 $\Wp{p}(\mu',\mu)=0$，故 $\mu'=\mu$。任意子列同理，所以整列 $\mu_{k}\wkto\mu$。
 
-  \textbf{矩的上界。} 设 $\pi_{k}$ 为 $(\mu_{k},\mu)$ 的最优耦合。对 $\eps>0$ 存在 $C_{\eps}>0$ 使
+  \TLtakeaway{引理 6.14 把 $\Wp{p}$ 收敛转成胶着性；所有弱极限又被下半连续性强迫等于 $\mu$，故得到普通弱收敛。}
+\end{frame}
+
+\begin{frame}{定理 6.9 的证明（一b）：$\Wp{p}\to0$ 蕴含矩收敛}
+  \textbf{矩的上界。} 继续设 $\Wp{p}(\mu_{k},\mu)\To0$，并令 $\pi_{k}$ 为 $(\mu_{k},\mu)$ 的最优耦合。
+  \deflab{补一个事实：凸性/Young 不等式。} 由 $d(x_{0},x)\le d(x_{0},y)+d(y,x)$，且对任意 $\eps>0$ 存在只依赖于 $p,\eps$ 的 $C_{\eps}$ 使 $(a+b)^{p}\le(1+\eps)a^{p}+C_{\eps}b^{p}$，取 $a=d(x_{0},y)$、$b=d(y,x)$ 即得下式。
   \[
     d(x_{0},x)^{p} \;\le\; (1+\eps)d(x_{0},y)^{p} + C_{\eps}d(x,y)^{p}.
   \]
@@ -385,7 +393,7 @@
   \]
   令 $k\to\infty$ 再令 $\eps\to0$：$\limsup_{k}\int d(x_{0},x)^{p}\dd\mu_{k}\le\int d(x_{0},x)^{p}\dd\mu$（条件 (ii) 成立）。$\square$
 
-  \TLtakeaway{$(\Rightarrow)$：胶着性保证弱极限；对不等式积分给出 $p$ 阶矩的上界，从而矩收敛。}
+  \TLtakeaway{矩收敛来自一个带 $\eps$ 的三角估计：耦合距离项随 $\Wp{p}(\mu_k,\mu)$ 消失，剩下的就是 $\mu$ 的 $p$ 阶矩。}
 \end{frame}
 
 % ── 定理 6.9 证明（二）──────────────────────────────────────────────────────
@@ -461,7 +469,7 @@
 \end{frame}
 
 % ── 定理 6.15：全变差控制 ────────────────────────────────────────────────────
-\begin{frame}{定理 6.15：全变差控制 Wasserstein 距离}
+\begin{frame}{定理 6.15：全变差控制 Wasserstein 距离（陈述）}
   \deflab{定理 6.15（全变差上界，Villani Thm 6.15）。}
 
   设 $\mu,\nu$ 为 $(\X,d)$ 上的概率测度，$p\in[1,\infty)$，$x_{0}\in\X$，$1/p+1/p'=1$。则
@@ -471,10 +479,35 @@
   \]
   \deflab{特殊情形 6.16（有界直径）。} 若 $\X$ 直径 $\le D$，则 $\Wp{1}(\mu,\nu)\le D\cdot\|\mu-\nu\|_{TV}$。
 
-  \textbf{证明思路。} 构造耦合
-  $\pi=(\Id,\Id)_{\#}(\mu\wedge\nu)+\frac{1}{a}(\mu-\nu)^{+}\otimes(\mu-\nu)^{-}$（固定公共质量，剩余乘积耦合），再利用 $d(x,y)^{p}\le2^{p-1}(d(x,x_{0})^{p}+d(x_{0},y)^{p})$ 估计。
-
   \TLtakeaway{全变差控制 Wasserstein 须用 $d(x_0,x)^p$ 加权；裸全变差仅在有界空间中适用。}
+\end{frame}
+
+\begin{frame}{定理 6.15 的证明（一）：构造耦合}
+  \deflab{补一个事实：公共部分。} 写 Jordan 分解 $\mu-\nu=(\mu-\nu)^{+}-(\mu-\nu)^{-}$，公共质量为 $\mu\wedge\nu=\mu-(\mu-\nu)^{+}=\nu-(\mu-\nu)^{-}$；剩余质量
+  $a=(\mu-\nu)^{+}[\X]=(\mu-\nu)^{-}[\X]=\frac12\|\mu-\nu\|_{\mathrm{TV}}$。若 $a=0$ 则 $\mu=\nu$，结论平凡。
+
+  \deflab{构造耦合。} 在公共质量上走对角耦合；剩余质量用归一化乘积耦合：
+  \[
+    \pi=(\Id,\Id)_{\#}(\mu\wedge\nu)
+    +\frac{1}{a}(\mu-\nu)^{+}\otimes(\mu-\nu)^{-}.
+  \]
+  第一边际是 $(\mu\wedge\nu)+(\mu-\nu)^{+}=\mu$，第二边际是 $(\mu\wedge\nu)+(\mu-\nu)^{-}=\nu$。
+
+  \TLtakeaway{公共质量不需要移动，直接放在对角线上；只有正负剩余质量之间需要用乘积耦合配对。}
+\end{frame}
+
+\begin{frame}{定理 6.15 的证明（二）：只估计剩余质量}
+  \deflab{估计只发生在剩余质量上。} 对角部分 $d(x,x)^{p}=0$；在剩余乘积部分才用 $d(x,y)^{p}\le2^{p-1}(d(x,x_{0})^{p}+d(x_{0},y)^{p})$：
+  \[
+    \begin{aligned}
+      \Wp{p}(\mu,\nu)^{p}
+      &\le \frac{1}{a}\int d(x,y)^{p}\dd(\mu-\nu)^{+}(x)\dd(\mu-\nu)^{-}(y)\\
+      &\le 2^{p-1}\int d(x_{0},z)^{p}\dd|\mu-\nu|(z).
+    \end{aligned}
+  \]
+  取 $p$ 次根并用 $2^{(p-1)/p}=2^{1/p'}$ 得定理 6.15。\hfill$\square$
+
+  \TLtakeaway{证明的关键不是"任意"全变差，而是把公共质量留在对角线上，只对剩余质量支付到基点 $x_0$ 的加权代价。}
 \end{frame}
 
 % ── §3 小结（一） ─────────────────────────────────────────────────────────────
