@@ -133,23 +133,52 @@
 
 % ── 定理 8.1 证明思路 ────────────────────────────────────────────────────────
 \begin{frame}{定理 8.1 证明思路（概要）}
-  \textbf{核心想法：} 若 $\gamma_{1},\gamma_{2}$ 在 $t_{0}$ 时刻相距极近，构造"快捷路径"互换连接。
+  \textbf{核心想法：} 若 $\gamma_{1},\gamma_{2}$ 在 $t_{0}$ 时刻相交于 $m_{0}$，且速度分别为 $v_{1},v_{2}$，就在短时间窗内构造"快捷路径"互换连接。
 
   \textbf{步骤一（局部化）。} 将流形问题化归为局部 Euclid 计算：紧性覆盖 $\gamma_{1}\cup\gamma_{2}$ 邻域，在小球中引入坐标。
 
-  \textbf{步骤二（快捷路径）。} 在 $[t_{0}-\tau,t_{0}+\tau]$ 内构造 $\gamma_1\leftrightarrow\gamma_2$ 互换的路径，速度约为 $(v_{1}+v_{2})/2$。总作用量改变约为
+  \deflab{补一个事实：$(2+\kappa)$-凸性。}
+  这是 $L$ 关于速度的量化严格凸性：存在 $c_{\mathrm{gap}}>0$，使得
   \[
-    2\tau\!\left[2L\!\left(m_{0},\tfrac{v_{1}+v_{2}}{2},t_{0}\right)
+    L\!\left(x,\frac{v_{1}+v_{2}}{2},t\right)
+    \le \frac{1}{2}L(x,v_{1},t)+\frac{1}{2}L(x,v_{2},t)
+    -c_{\mathrm{gap}}\abs{v_{1}-v_{2}}^{2+\kappa}.
+  \]
+  这就是 Villani 使用的 midpoint-gap 形式。
+
+  \TLtakeaway{定理 8.1 的局部证明只用两个工具：把曲线放进 Euclid 坐标，以及把速度严格凸性读成 midpoint-gap。}
+\end{frame}
+
+\begin{frame}{定理 8.1 证明思路（快捷路径主项）}
+  \textbf{步骤二（快捷路径）。}
+  在 $[t_{0}-\tau,t_{0}+\tau]$ 内，将两段曲线剪开并互换连接；两条新路径都近似以平均速度 $(v_{1}+v_{2})/2$ 穿过 $m_{0}$。主阶作用量改变为
+  \[
+    \Delta A \approx
+    2\tau\!\left[2L\!\left(m_{0},\frac{v_{1}+v_{2}}{2},t_{0}\right)
     -L(m_{0},v_{1},t_{0})-L(m_{0},v_{2},t_{0})\right].
   \]
 
-  \textbf{步骤三（凸性矛盾）。} 由 $(2+\kappa)$-凸性，$v_{1}\ne v_{2}$ 时上式$<0$——总作用量下降，矛盾。
-  故 $v_1(t_0)=v_2(t_0)$，由 Cauchy--Lipschitz 推得两曲线全程重合；量化后得 (8.4)。
+  \TLtakeaway{快捷路径为什么会降作用量：两条原速度 $v_{1},v_{2}$ 被两个平均速度替代，主项正是 midpoint-gap 的负数。}
+\end{frame}
 
-  \emph{精细 Hölder 估计省略，见 Villani 第 172--180 页。}
+\begin{frame}{定理 8.1 证明思路（凸性矛盾）}
+  \textbf{步骤三（严格下降）。}
+  把上一帧的主项代入 midpoint-gap：若 $v_{1}\ne v_{2}$，则
+  \[
+    \Delta A
+    \lesssim -4\tau c_{\mathrm{gap}}\abs{v_{1}-v_{2}}^{2+\kappa}<0.
+  \]
+  因而互换后的两条路径总作用量更小，即
+  $c(x_{1},y_{2})+c(x_{2},y_{1})<c(x_{1},y_{1})+c(x_{2},y_{2})$，这与定理 8.1 的最优性假设矛盾。
+
+  \textbf{步骤四（从相同速度到相同曲线）。}
+  唯一剩下的可能是 $v_{1}=v_{2}$。此时两条曲线在 $t_{0}$ 处有同一位置 $m_{0}$ 和同一速度；最小化曲线满足 Lipschitz 流，故 Cauchy--Lipschitz 唯一性推出 $\gamma_{1}=\gamma_{2}$。
+
+  \deflab{本节诚实省略的技术估计。}
+  省略的是 Villani 第 172--180 页中，从快捷路径误差界 (8.21) 与凸性下界 (8.22) 推出速度 Hölder 控制 (8.8) 的计算；主线只需要知道该估计把"相交矛盾"量化成 (8.4)。
   % SOLUTION: 完整速度估计 (8.8) 的推导留作 Part 6 备用幻灯片。
 
-  \TLtakeaway{证明骨架：局部化 $\to$ 快捷路径 $\to$ $(2+\kappa)$-凸性矛盾 $\to$ Cauchy--Lipschitz 传播。速度差 $|V_1-V_2|$ 被位置差 $|X_1-X_2|^\beta$ 控制是量化的核心。}
+  \TLtakeaway{定性结论来自严格凸性矛盾；定量结论来自 (8.21)--(8.22) 的误差比较，最终得到速度差被位置差的幂控制。}
 \end{frame}
 
 % ── 定理 8.5：陈述 ────────────────────────────────────────────────────────────
@@ -175,23 +204,36 @@
 % ── 定理 8.5：证明思路 ──────────────────────────────────────────────────────
 \begin{frame}{定理 8.5 证明思路}
   \textbf{步骤一（最优性传递）。}
-  $\pi=(e_0,e_1)_{\#}\Pi$ 为最优耦合，故 $c$-循环单调，因此 $\Pi\otimes\Pi$-a.s.：
+  $\pi=(e_{0},e_{1})_{\#}\Pi$ 为最优耦合，故 $c$-循环单调，因此 $\Pi\otimes\Pi$-a.s.：
   \[
     c(\gamma(0),\gamma(1))+c(\tilde{\gamma}(0),\tilde{\gamma}(1))
     \;\le\; c(\gamma(0),\tilde{\gamma}(1))+c(\tilde{\gamma}(0),\gamma(1)).
   \]
 
   \textbf{步骤二（推论 8.2）。} 上式即推论 8.2 前提，直接得到 Lipschitz 估计
-  $\sup_{t}\,d(\gamma(t),\tilde{\gamma}(t))\le\frac{C_K}{\min(t_0,1-t_0)}\,d(\gamma(t_0),\tilde{\gamma}(t_0))$。
+  $\sup_{t}\,d(\gamma(t),\tilde{\gamma}(t))\le\frac{C_{K}}{\min(t_{0},1-t_{0})}\,d(\gamma(t_{0}),\tilde{\gamma}(t_{0}))$。
+
+  \deflab{补一个事实：良定义就是单值。}
+  若同一个中间点可由两条支撑曲线到达，即 $\gamma(t_{0})=\tilde{\gamma}(t_{0})$，则右端为 $0$。
 
   \textbf{步骤三（良定义与唯一性）。}
-  若 $\gamma(t_0)=\tilde{\gamma}(t_0)$，则估计推出 $\gamma=\tilde{\gamma}$，
-  故 $T_{t_0\to t}$ 良定义且 Lipschitz。最优唯一性由 §2 定理 5.30（Monge 可解性）给出。
+  缩短估计强制 $\sup_{t}d(\gamma(t),\tilde{\gamma}(t))=0$，所以 $\gamma=\tilde{\gamma}$。
+  因而 $T_{t_{0}\to t}\colon\gamma(t_{0})\mapsto\gamma(t)$ 不依赖曲线选择，是单值良定义的；同一估计给出 Lipschitz 常数。最优唯一性由 §2 定理 5.30（Monge 可解性）给出。
 
-  \textbf{例 8.6（Villani）。} $c=|\cdot|^2$，$\mu_0=\delta_0$，$\mu=\law(X)$：
-  $\mu_t=\law(tX)$，$T_{t_0\to t}=\tfrac{t}{t_0}\Id$，显然 Lipschitz，验证定理结论。
+  \TLtakeaway{$c$-循环单调 $\Rightarrow$ 推论 8.2 $\Rightarrow$ 缩短估计；中间点若相同，则整条曲线相同，所以 $T_{t_{0}\to t}$ 是单值良定义的。}
+\end{frame}
 
-  \TLtakeaway{$c$-循环单调 $\Rightarrow$ 推论 8.2 $\Rightarrow$ Lipschitz 控制 $\Rightarrow$ $T_{t_0\to t}$ 良定义且为唯一 Monge 解。}
+\begin{frame}{例 8.6：中间映射为何显然 Lipschitz}
+  \textbf{例 8.6（Villani）。} $c=|\cdot|^{2}$，$\mu_{0}=\delta_{0}$，$\mu=\law(X)$：
+  随机测地线为 $\gamma(t)=t\gamma(1)$，所以
+  \[
+    \mu_{t}=\law(tX),
+    \qquad
+    T_{t_{0}\to t}=\frac{t}{t_{0}}\Id .
+  \]
+  该映射的 Lipschitz 常数是 $t/t_{0}$；这正是定理 8.5 在二次成本最简单情形下的显式模型。
+
+  \TLtakeaway{例 8.6 把抽象结论化成公式：中间位置 $t_{0}X$ 唯一决定任意时刻 $tX$，映射就是线性缩放。}
 \end{frame}
 
 % ── 定理 8.7：陈述 ────────────────────────────────────────────────────────────
@@ -216,20 +258,38 @@
 
 % ── 定理 8.7：证明思路 ──────────────────────────────────────────────────────
 \begin{frame}{定理 8.7 证明（紧支撑情形）}
-  \textbf{假设 $\mu_1\in\Pac$，$\mu_0,\mu_1$ 紧支撑，证明 $\mu_{t_0}\in\Pac$，$t_0\in(0,1)$。}
+  \textbf{假设 $\mu_{1}\in\Pac$，$\mu_{0},\mu_{1}$ 紧支撑，证明 $\mu_{t_{0}}\in\Pac$，$t_{0}\in(0,1)$。}
 
-  \textbf{步骤一。} 由定理 8.5（其 Lipschitz 性由推论 8.2 缩短引理给出），存在 Lipschitz 映射 $T$ 解 Monge 问题 $\mu_{t_0}\to\mu_1$。
+  \textbf{步骤一。} 由定理 8.5（Lipschitz 性来自推论 8.2），存在 Lipschitz Monge 映射 $T\colon\mu_{t_{0}}\to\mu_{1}$。
 
-  \textbf{步骤二（零测集）。} 设 $N$ 为零体积集。$T$ 的 Lipschitz 常数为 $C_K/\min(t_0,1-t_0)$（定理 8.5）；Lipschitz 映射的面积公式给出 $\mathrm{vol}(T(N))\le T_{\mathrm{Lip}}^n\cdot\mathrm{vol}(N)=0$，
-  故 $\mu_1[T(N)]=0$（$\mu_1\in\Pac$，绝对连续，见 §0）。
+  \deflab{补一个事实：Lusin (N) 性质 / 面积公式。}
+  若 $T\colon\R^{n}\to\R^{n}$ 是 $L_{T}$-Lipschitz，则
+  $\mathrm{vol}(T(N))\le L_{T}^{n}\mathrm{vol}(N)$；零测集仍送到零测集。流形上用局部坐标。
 
+  \textbf{步骤二（零测集）。} 设 $N$ 为零体积集，并取 $L_{T}=C_{K}/\min(t_{0},1-t_{0})$。于是
+  \[
+    \mathrm{vol}(N)=0
+    \;\Longrightarrow\;
+    \mathrm{vol}(T(N))\le L_{T}^{n}\mathrm{vol}(N)=0
+    \;\Longrightarrow\;
+    \mu_{1}[T(N)]=0.
+  \]
+  最后一箭头用 $\mu_{1}\in\Pac$，见 §0。
+
+  \TLtakeaway{Lusin (N) / 面积公式在这里只做一件事：$N$ 零体积 $\Rightarrow$ $T(N)$ 零体积 $\Rightarrow$ $\mu_{1}[T(N)]=0$。}
+\end{frame}
+
+\begin{frame}{定理 8.7 证明（紧支撑收尾）}
   \textbf{步骤三（绝对连续性）。} 由 $N\subset T^{-1}(T(N))$：
   \[
-    \mu_{t_0}[N]\;\le\;\mu_{t_0}\!\left[T^{-1}(T(N))\right]=\mu_1[T(N)]=0,
+    \mu_{t_{0}}[N]\;\le\;\mu_{t_{0}}\!\left[T^{-1}(T(N))\right]
+    =\pf{T}{\mu_{t_{0}}}[T(N)]=\mu_{1}[T(N)]=0,
   \]
-  故 $\mu_{t_0}\in\Pac$。
+  故 $\mu_{t_{0}}\in\Pac$。
 
-  \TLtakeaway{$T$ Lipschitz $+$ $\mu_1\in\Pac$ $\Rightarrow$ $T(N)$ 零测 $\Rightarrow$ $\mu_{t_0}[N]=0$：绝对连续性沿 Lipschitz 传输反向传递。}
+  \textbf{可测性小修。} Villani 指出 $T(N)$ 未必是 Borel 集；严格写法是用一个零体积 Borel 集包含 $T(N)$，上式按该 Borel 包含集解释即可。
+
+  \TLtakeaway{$T$ Lipschitz $+$ $\mu_{1}\in\Pac$ $\Rightarrow$ $T(N)$ 零测 $\Rightarrow$ $\mu_{t_{0}}[N]=0$：绝对连续性沿 Lipschitz 传输反向传递。}
 \end{frame}
 
 % ── 定理 8.7：证明续（非紧情形）──────────────────────────────────────────────
