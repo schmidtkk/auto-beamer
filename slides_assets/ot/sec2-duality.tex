@@ -598,12 +598,36 @@
 \end{frame}
 
 % ── Rockafellar 定理（经典情形）────────────────────────────────────────────
-\begin{frame}{Rockafellar 定理：$c=-x\cdot y$ 的经典情形}
+\begin{frame}{Rockafellar 定理：经典情形（一）}
   取 $c(x,y)=-x\cdot y$ 在 $\R^n\times\R^n$ 上，则定理 5.10 化为经典的 Rockafellar 定理：
 
   \deflab{Rockafellar 定理（经典凸分析）。}
   $\Gamma\subset\R^n\times\R^n$ 是循环单调的（即"凸分析意义下的循环单调"）当且仅当存在凸 lsc 函数 $f:\R^n\to\R\cup\{+\infty\}$，使得 $\Gamma\subset\partial f$（$f$ 的次微分的图象）。
 
+  \TLtakeaway{Rockafellar 定理说：经典循环单调集正是凸函数次微分图象的子集。下面把“经典循环单调”与定义 5.1 对齐。}
+\end{frame}
+
+\begin{frame}{Rockafellar 定理：经典情形（二）}
+  \deflab{补一个事实：经典循环单调。}
+  对每个循环 $(x_1,y_1),\ldots,(x_N,y_N)\in\Gamma$，要求
+  \[
+    \sum_{i=1}^{N}\inner{y_i}{x_{i+1}-x_i}\le0,
+  \]
+  下标按周期理解。
+
+  \deflab{与定义 5.1 的严格对应。}
+  定义 5.1 在 $c=-\inner{x}{y}$ 下给出
+  \[
+    \sum_i-\inner{x_i}{y_i}\le\sum_i-\inner{x_i}{y_{i+1}}
+    \Longleftrightarrow
+    \sum_i\inner{y_{i+1}}{x_i-x_{i+1}}\le0.
+  \]
+  把循环方向反过来重标号，正是经典不等式。
+
+  \TLtakeaway{$c=-x\cdot y$ 时，c-循环单调性就是凸分析的循环单调性；差别只在 Villani 选择重排 $y_i$，经典写法选择看 $x_i$ 的循环增量。}
+\end{frame}
+
+\begin{frame}{Rockafellar 定理：经典情形（三）}
   \textbf{与定理 5.10 的联系：}
   \begin{itemize}\small
     \item "c-循环单调"（$c=-x\cdot y$）$=$ Rockafellar 意义下的"循环单调"。
@@ -679,7 +703,7 @@
   \TLtakeaway{若极限最优映射\emph{唯一}，则近似问题的最优映射按概率收敛到它——传输的定性性质在弱极限下保持。}
 \end{frame}
 
-% ── Brenier 定理（定理 5.30 准则）────────────────────────────────────────────
+% ── 定理 5.30：Monge 问题的可解性准则 ───────────────────────────────────────
 \begin{frame}{定理 5.30：Monge 问题的可解性准则}
   \deflab{定理 5.30（Monge 问题的可解性准则，Villani Thm 5.30）。}
   在定理 5.10 的条件下，若还满足：
@@ -687,30 +711,116 @@
     \item $C(\mu,\nu)<+\infty$；
     \item 对任意 c-凸函数 $\psi$，使得 $\partial_c\psi(x)$ 包含\emph{多于一个}元素的 $x$ 的集合为 $\mu$-零测。
   \end{enumerate}
-  则存在\emph{唯一的}（律意义下）最优耦合，且它是确定性的 Monge 映射：存在可测 $T:\X\to\Y$ 使得 $\pi=(Id,T)_{\#}\mu$ 是唯一的最优耦合。
+  则存在\emph{唯一的}（律意义下）最优耦合，且它是确定性的 Monge 映射：存在可测 $T:\X\to\Y$ 使得
+  $\pi=\pf{(\Id,T)}{\mu}$ 是唯一的最优耦合。
 
-  \textbf{证明思路。} 存在 c-凸 $\psi$ 使最优 $\pi$ 集中在 $\partial_c\psi$。由条件 (ii)，$\partial_c\psi(x)$ 几乎处处单点，
-  可定义 $T(x)$ 为该唯一的 $y$；任何最优 $\pi$ 均集中在 $T$ 的图上。
+  \deflab{读法。}
+  条件 (ii) 不是要求每个 $x$ 都有唯一目的地，而是要求“多值”的坏集合为 $\mu$-零测。
+  一旦最优耦合已经被定理 5.10 压在同一个 c-次微分图上，这个几乎处处单值性就会把 Kantorovich 耦合压成 Monge 映射。
 
   \TLtakeaway{定理 5.30 是"c-次微分几乎处处单点 $\Rightarrow$ 最优映射存在且唯一"的精确表述，为 Brenier 定理奠定基础。}
 \end{frame}
 
+\begin{frame}{定理 5.30 的证明（一）：同一个势函数控制所有最优计划}
+  \deflab{补一个事实：截面。}
+  对 c-凸势 $\psi$，记 $\partial_c\psi(x):=\{y\in\Y:(x,y)\in\partial_c\psi\}$；
+  若这个集合只有一个元素，就说 c-次微分在 $x$ 处单值。
+
+  \deflab{由定理 5.10(ii)(c) 与共享集版本。}
+  存在一个 c-凸 Kantorovich 势 $\psi$ 与可测集 $\Gamma\subset\partial_c\psi$，
+  使得每个最优 $\pi\in\coup{\mu}{\nu}$ 都集中在同一个 $\Gamma$ 上。因此每个最优 $\pi$ 也集中在 $\partial_c\psi$ 上。
+
+  \deflab{补一个事实：disintegration 的读法。}
+  对任意最优 $\pi$，写
+  $\pi(\dd x\,\dd y)=\mu(\dd x)\pi_x(\dd y)$。若 $\pi$ 集中在 $\partial_c\psi$ 上，则
+  \[
+    1=\pi(\partial_c\psi)
+    =\int_{\X}\pi_x\bigl(\partial_c\psi(x)\bigr)\dd\mu(x).
+  \]
+  所以对 $\mu$-a.e.\ 的 $x$，条件测度 $\pi_x$ 完全集中在截面 $\partial_c\psi(x)$ 上。
+
+  \TLtakeaway{定理 5.10 先给出公共几何约束：所有最优耦合都必须生活在同一个 $\partial_c\psi$ 里面。}
+\end{frame}
+
+\begin{frame}{定理 5.30 的证明（二）：从单值截面定义 $T$}
+  \deflab{使用条件 (ii)。}
+  令 $Z=\{x:\#\partial_c\psi(x)>1\}$，则 $\mu[Z]=0$。
+  上一帧说明对 $\mu$-a.e.\ 的 $x$，截面 $\partial_c\psi(x)$ 非空；在 $x\notin Z$ 时它又至多一个元素。
+  因而对 $\mu$-a.e.\ 的 $x$，
+  \[
+    \partial_c\psi(x)=\{T(x)\}.
+  \]
+  这里 $T(x)$ 定义为唯一满足 $(x,T(x))\in\partial_c\psi$ 的点。
+
+  \deflab{补一个事实：单值可测图给可测映射。}
+  Villani 用紧集穷尽把这个单值图上的选择改成 Borel 版本；于是可把 $T$ 视为可测映射。
+
+  \TLtakeaway{条件 (ii) 把 $\partial_c\psi(x)$ 从“可能多值”变成 $\mu$-a.e.\ 的单点，因此 $T(x)$ 就是唯一满足 $(x,T(x))\in\partial_c\psi$ 的点。}
+\end{frame}
+
+\begin{frame}{定理 5.30 的证明（三）：图耦合与唯一性}
+  \deflab{收尾。}
+  对任意最优 $\pi$，其 disintegration 满足
+  \[
+    \pi_x=\delta_{T(x)}\quad \mu\text{-a.e.},
+    \qquad
+    \pi=\int_{\X}\delta_{T(x)}\,\mu(\dd x)=\pf{(\Id,T)}{\mu}.
+  \]
+  因为同一个 $\psi$ 给出同一个 $T$，每个最优耦合都等于这一个图耦合；唯一性与 Monge 可解性同时得到。
+
+  \TLtakeaway{单值截面把条件测度 $\pi_x$ 强迫成 $\delta_{T(x)}$；于是最优 Kantorovich 耦合就是唯一的 Monge 图耦合。}
+\end{frame}
+
 % ── Brenier 定理的标准应用 ───────────────────────────────────────────────────
-\begin{frame}{Brenier 定理：二次成本下的结论}
-  \textbf{标准应用。} 取 $c(x,y)=|x-y|^2/2$ 在 $\R^n$ 上，$\mu\in\Pac(\R^n)$（绝对连续，见 §0）。
+\begin{frame}{Brenier 定理：二次成本下的结论（一）}
+  \textbf{标准应用。} 取 $c(x,y)=|x-y|^2/2$ 在 $\R^n$ 上，$\mu\in\Pac(\R^n)$（绝对连续，见 §0），并假定 $C(\mu,\nu)<+\infty$。
 
   \deflab{Brenier 定理。}
-  \begin{itemize}
-    \item c-凸函数 = 凸 lsc 函数（由特殊情形 5.3，$c=|x-y|^2/2$ 等价于 $-x\cdot y$）。
-    \item 定理 5.30 条件 (ii) 自动满足：$\mu$ 绝对连续时，凸函数的次梯度集 $\mu$-a.e.\ 单点。
-    \item 结论：唯一最优 Monge 映射为
-      \[
-        T = \nabla\varphi, \qquad \varphi\;\text{凸函数},
-      \]
-      即最优映射是某个凸函数的梯度。
-  \end{itemize}
+  唯一最优 Monge 映射形如
+  \[
+    T=\nabla\varphi,
+    \qquad
+    \varphi \text{ convex}.
+  \]
+  也就是说，二次成本下最优映射是某个凸函数的梯度。
+
+  \deflab{补一个事实：把二次成本转成 Legendre 情形。}
+  因为
+  $|x-y|^2/2=|x|^2/2+|y|^2/2-\inner{x}{y}$，
+  特殊情形 5.3 适用到交互项 $-\inner{x}{y}$：
+  若 $\psi$ 是二次成本的 c-凸势，则
+  $\varphi(x):=\psi(x)+|x|^2/2$ 是凸 lsc 函数，并且
+  \[
+    (x,y)\in\partial_c\psi
+    \Longleftrightarrow
+    \varphi(z)\ge\varphi(x)+\inner{y}{z-x}\quad \forall z
+    \Longleftrightarrow
+    y\in\partial\varphi(x).
+  \]
 
   \TLtakeaway{Brenier 定理：$c=|x-y|^2/2$，$\mu$ 绝对连续 $\Rightarrow$ 最优映射唯一，形如 $T=\nabla\varphi$（凸函数的梯度）。这是最优传输最著名的结果，是 Monge-Ampère 方程的出发点。}
+\end{frame}
+
+\begin{frame}{Brenier 定理：二次成本下的结论（二）}
+  \deflab{补一个事实：凸函数几乎处处可微。}
+  有限凸函数 $\varphi$ 在 $\R^n$ 上局部 Lipschitz；由 Rademacher 定理，$\varphi$ 在 Lebesgue-a.e.\ 点可微。
+  在每个可微点，凸分析次微分是单点：
+  \[
+    \partial\varphi(x)=\{\nabla\varphi(x)\}.
+  \]
+
+  \deflab{为什么定理 5.30 条件 (ii) 自动满足。}
+  不可微集合 $N_{\varphi}$ 是 Lebesgue 零测集；而 $\mu\in\Pac$ 意味着
+  $\mu\ll\mathrm{Leb}$，所以 $\mu[N_{\varphi}]=0$。
+  上一帧的对应关系给出：对 $\mu$-a.e.\ 的 $x$，
+  $\partial_c\psi(x)=\partial\varphi(x)=\{\nabla\varphi(x)\}$。
+  这正是定理 5.30 的条件 (ii)。
+
+  \deflab{代回定理 5.30。}
+  因此最优耦合唯一且确定性，且唯一的目的地为
+  $T(x)=\nabla\varphi(x)$。也就是 $\pi=\pf{(\Id,\nabla\varphi)}{\mu}$。
+
+  \TLtakeaway{绝对连续的作用是“看不见”凸函数的不可微集合；于是 c-次微分 $\mu$-a.e.\ 单点，定理 5.30 立刻给出 $T=\nabla\varphi$。}
 \end{frame}
 
 % ── Brenier：1D 例子 ─────────────────────────────────────────────────────────
