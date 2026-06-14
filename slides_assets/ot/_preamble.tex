@@ -74,6 +74,9 @@
 % 文献注记标签（用于 References / Bibliographical notes 帧，含英文锚点供校验器识别）
 \newcommand{\bibnote}[1]{\emph{文献注记 (bibliographical notes).}~#1}
 
+% 证明帧脚注：提示非数学背景读者可跳过证明（accessibility 层）
+\newcommand{\proofskipnote}{\footnote{\scriptsize 非数学背景读者：本帧为\emph{证明细节}，第一遍可先跳过，记住本帧\emph{要点}即可。}}
+
 % ── 本地化“要点”标签（要点。Key Takeaway）─────────────────────────────────────
 \renewcommand{\TLtakeaway}[1]{%
   \vspace{0.4em}%

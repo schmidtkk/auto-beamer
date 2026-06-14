@@ -350,7 +350,7 @@
 
 \begin{frame}{命题 5.8 的证明（一）：先证 $\phi^{ccc}\le\phi^c$}
   \deflab{展开定义。}
-  固定 $x\in\X$。把三次 c-变换完全展开，得到
+  固定 $x\in\X$。\proofskipnote 把三次 c-变换完全展开，得到
   \[
     \phi^{ccc}(x)
     = \sup_{y\in\Y}\inf_{x'\in\X}\sup_{y'\in\Y}
@@ -386,7 +386,7 @@
   \[
     \phi^{ccc}(x)\ge\sup_{y\in\Y}[\phi(y)-c(x,y)]=\phi^c(x).
   \]
-  结合上一帧的反向不等式，得到 $\phi^{ccc}=\phi^c$。
+  结合上一帧的反向不等式，得到 $\phi^{ccc}=\phi^c$。\proofskipnote
 
   \TLtakeaway{“$\ge$” 的隐藏步骤是：内层上确界可试 $y'=y$，两个 $c(x',y)$ 项抵消，剩下的正是 $\phi^c(x)$ 的候选项。}
 \end{frame}
@@ -397,7 +397,7 @@
   \[
     \cctr{\psi}=(\zeta^c)^{cc}=\zeta^{ccc}=\zeta^c=\psi .
   \]
-  反之，若 $\cctr{\psi}=\psi$，则 $\psi=(\ctr{\psi})^c$，它本身就是一个 c-变换，故 $\psi$ c-凸。
+  反之，若 $\cctr{\psi}=\psi$，则 $\psi=(\ctr{\psi})^c$，它本身就是一个 c-变换，故 $\psi$ c-凸。\proofskipnote
   \deflab{注记 5.9。} 取 $c=-x\cdot y$ 时，命题 5.8 恢复 Legendre 对偶中的 $\psi^{**}=\psi$。
 
   \TLtakeaway{收尾只用恒等式 $\phi^{ccc}=\phi^c$：c-凸函数已经是某个 c-变换；反过来，$\cctr{\psi}=\psi$ 也把 $\psi$ 写成了 c-变换。}
@@ -481,7 +481,7 @@
 
 % ── 证明思路（一）：构造 Kantorovich 势 ──────────────────────────────────────
 \begin{frame}{定理 5.10 证明思路（一a）：定义势函数并验证 c-凸性}
-  \textbf{核心构造（Rüschendorf/Rockafellar）。}
+  \textbf{核心构造（Rüschendorf/Rockafellar）。}\proofskipnote
   给定一个 c-循环单调集 $\Gamma$，固定基点 $(x_0,y_0)\in\Gamma$，令 $\psi(x_0)=0$，
   对任意 $x\in\X$ 定义（Villani 式 5.17）：
   \[
@@ -489,7 +489,6 @@
     \bigl[c(x_0,y_0)-c(x_1,y_0)+c(x_1,y_1)-c(x_2,y_1)
     +\cdots+c(x_m,y_m)-c(x,y_m)\bigr].
   \]
-
   \textbf{关键验证（上半部分）。}
   \begin{itemize}\small
     \item \textbf{$\psi(x_0)=0$。} 由 c-循环单调性，上式对 $(x_1,y_1)=(x_0,y_0)$ 的所有链均 $\le 0$，而取 $m=1,(x_1,y_1)=(x_0,y_0)$ 时为 $0$，故 $\psi(x_0)=0$。
@@ -499,12 +498,11 @@
       则对固定的 $x$，式 5.17 的每一项可写成 $\zeta(y_m)-c(x,y_m)$（终止链在 $y_m$，再跳 $x$），
       故 $\psi(x)=\sup_{y\in\Y}[\zeta(y)-c(x,y)]$，这正是 c-凸性定义（$\psi$ 是 $\zeta$ 的 c-变换）。
   \end{itemize}
-
   \TLtakeaway{势函数 $\psi$ 由"所有以 $x$ 结尾的链的链值上确界"定义，可改写为 $\psi(x)=\sup_y[\zeta(y)-c(x,y)]$，天然是 c-凸函数。}
 \end{frame}
 
 \begin{frame}{定理 5.10 证明思路（一b）：上界与下界目标}
-  \textbf{承接前页：$\psi$ c-凸，$\psi(x_0)=0$。目标：对每个 $(x,y)\in\Gamma$ 证 $\ctr{\psi}(y)=\psi(x)+c(x,y)$。}
+  \textbf{承接前页：$\psi$ c-凸，$\psi(x_0)=0$。}\proofskipnote \textbf{目标：对每个 $(x,y)\in\Gamma$ 证 $\ctr{\psi}(y)=\psi(x)+c(x,y)$。}
 
   \deflab{上界：在下确界中试 $x'=x$。}
   \[
@@ -525,7 +523,7 @@
 \end{frame}
 
 \begin{frame}{定理 5.10 证明思路（一c）：链下界的实际推导}
-  \textbf{固定} $(x,y)\in\Gamma$。下面证明上一帧的下界目标。
+  \textbf{固定} $(x,y)\in\Gamma$。\proofskipnote 下面证明上一帧的下界目标。
 
   \deflab{补一个事实：近似实现上确界。}
   任取 $x'\in\X$ 与 $\eps>0$。由 $\psi(x)$ 的定义，取一条在 $x$ 处达到 $\psi(x)-\eps$ 的链，
@@ -551,7 +549,7 @@
 
 % ── 证明思路（二）：对偶等式的建立 ──────────────────────────────────────────
 \begin{frame}{定理 5.10 证明思路（二a）：积分恒等式}
-  \textbf{承接前页的构造。} 已有 $\psi$ c-凸、$\phi=\ctr{\psi}$，且 $\pi$ 集中在 $\partial_c\psi$。
+  \textbf{承接前页的构造。}\proofskipnote 已有 $\psi$ c-凸、$\phi=\ctr{\psi}$，且 $\pi$ 集中在 $\partial_c\psi$。
 
   \deflab{积分锁定。} 由边际条件与 $\phi(y)-\psi(x)=c(x,y)$（$\pi$-a.s.）：
   \[
@@ -569,7 +567,7 @@
 \end{frame}
 
 \begin{frame}{定理 5.10 证明思路（二b）：弱对偶夹逼}
-  令 $\mathcal A_c$ 表示满足可积条件的 c-凸候选集合。上一帧已给出一个候选 $\psi$，
+  令 $\mathcal A_c$ 表示满足可积条件的 c-凸候选集合。\proofskipnote 上一帧已给出一个候选 $\psi$，
   其对偶值等于 $\int c\dd\pi$。
 
   \deflab{夹逼。} 弱对偶给出中间不等式；$\pi$ 本身可行，给出最后一个不等式：
@@ -586,7 +584,7 @@
 
 \begin{frame}{定理 5.10 证明思路（二c）：逼近与可测性缺口}
   \deflab{本帧暂缓的技术点。}
-  只暂缓把链式构造得到的 $\psi,\ctr{\psi}$ 选成可测版本：Villani 用推论 5.22 的可测选择思想配合 Lusin/Egorov，把它们改成几乎处处相同的可测函数。积分锁定本身不依赖这些选择细节。
+  只暂缓把链式构造得到的 $\psi,\ctr{\psi}$ 选成可测版本：Villani 用推论 5.22 的可测选择思想配合 Lusin/Egorov，把它们改成几乎处处相同的可测函数。\proofskipnote 积分锁定本身不依赖这些选择细节。
 
   \deflab{连续成本的严格化。}
   先用有限支撑 $\mu_n,\nu_n$ 近似 $\mu,\nu$，在有限线性规划中解出对偶与 c-循环单调最优计划；再用 §1 的胶着、弱收敛与稳定性机制，把 $\pi_n\wkto\pi$ 和等式传到极限。
@@ -724,7 +722,7 @@
 \begin{frame}{定理 5.30 的证明（一）：同一个势函数控制所有最优计划}
   \deflab{补一个事实：截面。}
   对 c-凸势 $\psi$，记 $\partial_c\psi(x):=\{y\in\Y:(x,y)\in\partial_c\psi\}$；
-  若这个集合只有一个元素，就说 c-次微分在 $x$ 处单值。
+  若这个集合只有一个元素，就说 c-次微分在 $x$ 处单值。\proofskipnote
 
   \deflab{由定理 5.10(ii)(c) 与共享集版本。}
   存在一个 c-凸 Kantorovich 势 $\psi$ 与可测集 $\Gamma\subset\partial_c\psi$，
@@ -744,7 +742,7 @@
 
 \begin{frame}{定理 5.30 的证明（二）：从单值截面定义 $T$}
   \deflab{使用条件 (ii)。}
-  令 $Z=\{x:\#\partial_c\psi(x)>1\}$，则 $\mu[Z]=0$。
+  令 $Z=\{x:\#\partial_c\psi(x)>1\}$，则 $\mu[Z]=0$。\proofskipnote
   上一帧说明对 $\mu$-a.e.\ 的 $x$，截面 $\partial_c\psi(x)$ 非空；在 $x\notin Z$ 时它又至多一个元素。
   因而对 $\mu$-a.e.\ 的 $x$，
   \[
@@ -766,7 +764,7 @@
     \qquad
     \pi=\int_{\X}\delta_{T(x)}\,\mu(\dd x)=\pf{(\Id,T)}{\mu}.
   \]
-  因为同一个 $\psi$ 给出同一个 $T$，每个最优耦合都等于这一个图耦合；唯一性与 Monge 可解性同时得到。
+  因为同一个 $\psi$ 给出同一个 $T$，每个最优耦合都等于这一个图耦合；唯一性与 Monge 可解性同时得到。\proofskipnote
 
   \TLtakeaway{单值截面把条件测度 $\pi_x$ 强迫成 $\delta_{T(x)}$；于是最优 Kantorovich 耦合就是唯一的 Monge 图耦合。}
 \end{frame}

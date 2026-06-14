@@ -123,7 +123,7 @@
 
 % ── 距离公理（三）三角不等式 ────────────────────────────────────────────────
 \begin{frame}{$\Wp{p}$ 是距离（三）：三角不等式证明}
-  \textbf{公理 3（三角不等式）：} $\Wp{p}(\mu_{1},\mu_{3})\le\Wp{p}(\mu_{1},\mu_{2})+\Wp{p}(\mu_{2},\mu_{3})$。
+  \textbf{公理 3（三角不等式）：} $\Wp{p}(\mu_{1},\mu_{3})\le\Wp{p}(\mu_{1},\mu_{2})+\Wp{p}(\mu_{2},\mu_{3})$。\proofskipnote
 
   \textbf{证明。}
   设 $(X_{1},X_{2})$ 是 $(\mu_{1},\mu_{2})$ 的最优耦合，$(Z_{2},Z_{3})$ 是 $(\mu_{2},\mu_{3})$ 的最优耦合。
@@ -372,7 +372,7 @@
 
 % ── 定理 6.9 证明（一）──────────────────────────────────────────────────────
 \begin{frame}{定理 6.9 的证明（一a）：$\Wp{p}\to0$ 蕴含弱收敛}
-  \textbf{方向 $(\Rightarrow)$：} 设 $\Wp{p}(\mu_{k},\mu)\To0$。
+  \textbf{方向 $(\Rightarrow)$：} 设 $\Wp{p}(\mu_{k},\mu)\To0$。\proofskipnote
 
   \deflab{补一个事实：引理 6.14。} 在 $\Wp{p}$ 中收敛的序列是 Cauchy；引理 6.14 说 Cauchy 序列胶着，因此由 Prokhorov 可抽出弱收敛子列。
   \textbf{弱收敛。} 由引理 6.14，$(\mu_{k})$ 胶着，存在弱收敛子列 $\mu_{k'}\wkto\mu'$；用引理 4.3 知 $\Wp{p}(\mu',\mu)=0$，故 $\mu'=\mu$。任意子列同理，所以整列 $\mu_{k}\wkto\mu$。
@@ -381,7 +381,7 @@
 \end{frame}
 
 \begin{frame}{定理 6.9 的证明（一b）：$\Wp{p}\to0$ 蕴含矩收敛}
-  \textbf{矩的上界。} 继续设 $\Wp{p}(\mu_{k},\mu)\To0$，并令 $\pi_{k}$ 为 $(\mu_{k},\mu)$ 的最优耦合。
+  \textbf{矩的上界。}\proofskipnote 继续设 $\Wp{p}(\mu_{k},\mu)\To0$，并令 $\pi_{k}$ 为 $(\mu_{k},\mu)$ 的最优耦合。
   \deflab{补一个事实：凸性/Young 不等式。} 由 $d(x_{0},x)\le d(x_{0},y)+d(y,x)$，且对任意 $\eps>0$ 存在只依赖于 $p,\eps$ 的 $C_{\eps}$ 使 $(a+b)^{p}\le(1+\eps)a^{p}+C_{\eps}b^{p}$，取 $a=d(x_{0},y)$、$b=d(y,x)$ 即得下式。
   \[
     d(x_{0},x)^{p} \;\le\; (1+\eps)d(x_{0},y)^{p} + C_{\eps}d(x,y)^{p}.
@@ -398,7 +398,7 @@
 
 % ── 定理 6.9 证明（二）──────────────────────────────────────────────────────
 \begin{frame}{定理 6.9 的证明（二）：弱收敛加矩收敛蕴含 $\Wp{p}\to0$}
-  \textbf{方向 $(\Leftarrow)$：} 设 $\mu_{k}\wkto\mu$ 且 $p$ 阶矩收敛。
+  \textbf{方向 $(\Leftarrow)$：} 设 $\mu_{k}\wkto\mu$ 且 $p$ 阶矩收敛。\proofskipnote
 
   设 $\pi_{k}$ 为最优耦合；由引理 4.4 胶着，取子列 $\pi_{k}\wkto\pi$，定理 5.20 给出 $\pi=(\Id,\Id)_{\#}\mu$（对角耦合）。把 $\Wp{p}(\mu_k,\mu)^p\le\int d^p\dd\pi_k$ 拆成两段：
   \begin{itemize}\small
@@ -484,7 +484,7 @@
 
 \begin{frame}{定理 6.15 的证明（一）：构造耦合}
   \deflab{补一个事实：公共部分。} 写 Jordan 分解 $\mu-\nu=(\mu-\nu)^{+}-(\mu-\nu)^{-}$，公共质量为 $\mu\wedge\nu=\mu-(\mu-\nu)^{+}=\nu-(\mu-\nu)^{-}$；剩余质量
-  $a=(\mu-\nu)^{+}[\X]=(\mu-\nu)^{-}[\X]=\frac12\|\mu-\nu\|_{\mathrm{TV}}$。若 $a=0$ 则 $\mu=\nu$，结论平凡。
+  $a=(\mu-\nu)^{+}[\X]=(\mu-\nu)^{-}[\X]=\frac12\|\mu-\nu\|_{\mathrm{TV}}$。\proofskipnote 若 $a=0$ 则 $\mu=\nu$，结论平凡。
 
   \deflab{构造耦合。} 在公共质量上走对角耦合；剩余质量用归一化乘积耦合：
   \[
@@ -505,7 +505,7 @@
       &\le 2^{p-1}\int d(x_{0},z)^{p}\dd|\mu-\nu|(z).
     \end{aligned}
   \]
-  取 $p$ 次根并用 $2^{(p-1)/p}=2^{1/p'}$ 得定理 6.15。\hfill$\square$
+  取 $p$ 次根并用 $2^{(p-1)/p}=2^{1/p'}$ 得定理 6.15。\proofskipnote\hfill$\square$
 
   \TLtakeaway{证明的关键不是"任意"全变差，而是把公共质量留在对角线上，只对剩余质量支付到基点 $x_0$ 的加权代价。}
 \end{frame}

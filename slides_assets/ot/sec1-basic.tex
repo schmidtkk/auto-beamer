@@ -125,7 +125,7 @@
 
 % ── 引理 4.3 的证明 ──────────────────────────────────────────────────────────
 \begin{frame}{引理 4.3 的证明（一）：为什么可令 $c\ge0$}
-  \textbf{先解释归约。} 因 $c\ge h$，函数 $c-h$ 非负；若已知引理对非负成本 $c-h$ 成立，则
+  \textbf{先解释归约。}\proofskipnote 因 $c\ge h$，函数 $c-h$ 非负；若已知引理对非负成本 $c-h$ 成立，则
   \[
     \begin{aligned}
       \int c\dd\pi
@@ -144,7 +144,7 @@
 
 \begin{frame}{引理 4.3 的证明：逼近 + 单调收敛}
   \deflab{补一个事实：单调收敛定理。}
-  若 $0\le c_{\ell}\nearrow c$，则 $\sup_{\ell}\int c_{\ell}\dd\pi=\lim_{\ell}\int c_{\ell}\dd\pi=\int c\dd\pi$。
+  若 $0\le c_{\ell}\nearrow c$，则 $\sup_{\ell}\int c_{\ell}\dd\pi=\lim_{\ell}\int c_{\ell}\dd\pi=\int c\dd\pi$。\proofskipnote
 
   \textbf{非负情形。} 用 §0 下半连续性质 (a)（inf-卷积）取有界连续逼近
   $c_{\ell}\in C_b(\X\times\Y)$，$0\le c_{\ell}\nearrow c$。固定 $\ell$，弱收敛给
@@ -162,7 +162,7 @@
 
 % ── 定理 4.1 的证明（一a）：预紧 ─────────────────────────────────────────────
 \begin{frame}{定理 4.1 的证明（一a）：$\coup{\mu}{\nu}$ 为何\emph{预紧}}
-  \textbf{总思路。} 把 §0 的"紧集上 lsc 必达最小"搬到测度空间：取"紧集"$=\coup{\mu}{\nu}$、"lsc 目标"$=I[\pi]=\int_{\X\times\Y} c\dd\pi$。本帧先证可行集\emph{预紧}（弱闭包紧）。
+  \textbf{总思路。}\proofskipnote 把 §0 的"紧集上 lsc 必达最小"搬到测度空间：取"紧集"$=\coup{\mu}{\nu}$、"lsc 目标"$=I[\pi]=\int_{\X\times\Y} c\dd\pi$。本帧先证可行集\emph{预紧}（弱闭包紧）。
 
   \deflab{补一个事实：Ulam 定理。} Polish 空间上\emph{每个}概率测度 $\mu$ 都自动胶着：完备可分度量空间里 $\mu$ 对紧集\TLterm{内正则 (inner regular)}——任给 $\eps>0$ 总有紧集 $K_\eps$ 使 $\mu[\X\setminus K_\eps]\le\eps$。故单点族 $\{\mu\},\{\nu\}$ 胶着。
 
@@ -178,7 +178,7 @@
 
 % ── 定理 4.1 的证明（一b）：闭性 → 紧，取极小化列 ────────────────────────────
 \begin{frame}{定理 4.1 的证明（一b）：从预紧到\emph{紧}，并取极小化列}
-  \textbf{预紧还不够：}极限未必落在 $\coup{\mu}{\nu}$ 里，故须再证它\emph{闭}（闭 $+$ 预紧 $=$ 紧）。
+  \textbf{预紧还不够：}极限未必落在 $\coup{\mu}{\nu}$ 里，故须再证它\emph{闭}（闭 $+$ 预紧 $=$ 紧）。\proofskipnote
 
   \deflab{闭性：把"边际是 $\mu$"传给极限。}
   设 $\pi_k\in\coup{\mu}{\nu}$，$\pi_k\wkto\pi$。任取 $\varphi\in C_b(\X)$，视 $(x,y)\mapsto\varphi(x)$ 为有界连续函数：
@@ -195,7 +195,7 @@
 
 % ── 定理 4.1 的证明（二）：下半连续锁定最优性 ────────────────────────────────
 \begin{frame}{定理 4.1 的证明（二）：用下半连续\emph{锁定}最优性}
-  \textbf{取极小化列。} 取 $(\pi_k)$ 使 $I[\pi_k]\to\inf I$，（一b）弱紧性抽出子列 $\pi_k\wkto\pi^\star\in\coup{\mu}{\nu}$。难点：弱收敛\emph{不}保证 $I[\pi_k]\to I[\pi^\star]$；但 lsc（引理 4.3）给的\emph{一个方向}够用。
+  \textbf{取极小化列。}\proofskipnote 取 $(\pi_k)$ 使 $I[\pi_k]\to\inf I$，（一b）弱紧性抽出子列 $\pi_k\wkto\pi^\star\in\coup{\mu}{\nu}$。难点：弱收敛\emph{不}保证 $I[\pi_k]\to I[\pi^\star]$；但 lsc（引理 4.3）给的\emph{一个方向}够用。
 
   \deflab{先核对引理 4.3 的前提。} 取 $h(x,y)=a(x)+b(y)$（下界条件 $c\ge a+b$ 中的 $h$，上半连续）。\textbf{关键：}所有 $\pi_k,\pi^\star$ 共享边际 $\mu,\nu$，故
   \[
@@ -232,7 +232,7 @@
 
 % ── 定理 4.6 的矛盾证明（一）：构造与验证 ────────────────────────────────────
 \begin{frame}{定理 4.6 的证明（一）：构造竞争计划}
-  \textbf{反证。} 令 $Z=\pi'[\X\times\Y]>0$，$\tilde{\pi}=\pi'/Z$。若 $\tilde{\pi}$ 不是最优的，
+  \textbf{反证。}\proofskipnote 令 $Z=\pi'[\X\times\Y]>0$，$\tilde{\pi}=\pi'/Z$。若 $\tilde{\pi}$ 不是最优的，
   则存在同边际计划 $\hat{\pi}\in\coup{\tilde{\mu}}{\tilde{\nu}}$，满足 $I[\hat{\pi}]<I[\tilde{\pi}]$。
 
   \deflab{补一个事实：同边际计划的差有零边际。}
@@ -257,9 +257,8 @@
 
 % ── 定理 4.6 的证明（二）：唯一性的传递 ─────────────────────────────────────
 \begin{frame}{定理 4.6 的证明（二）：唯一性的传递}
-  \textbf{目标。} 已知 $\pi$ 是 $(\mu,\nu)$ 的\emph{唯一}最优计划；要证 $\tilde{\pi}$ 是
+  \textbf{目标。}\proofskipnote 已知 $\pi$ 是 $(\mu,\nu)$ 的\emph{唯一}最优计划；要证 $\tilde{\pi}$ 是
   $(\tilde{\mu},\tilde{\nu})$ 的唯一最优计划。
-
   \textbf{逐步传递唯一性。}
   \begin{itemize}\small
     \item 任取一个 $(\tilde{\mu},\tilde{\nu})$ 的最优计划 $\hat{\pi}$。
@@ -274,12 +273,10 @@
   所以 $\hat{\pi}_{\mathrm{new}}$ 也是 $(\mu,\nu)$ 的最优计划；由 $\pi$ 的唯一性，
   $\hat{\pi}_{\mathrm{new}}=\pi$。消去公共部分得 $Z\hat{\pi}=\pi'=Z\tilde{\pi}$，
   又 $Z>0$，故 $\hat{\pi}=\tilde{\pi}$。\hfill$\square$
-
   \textbf{例 4.7（条件化仍最优）。}
   设 $(X,Y)$ 是最优计划 $\pi$ 下的随机向量，$Z\subset\X\times\Y$ Borel 且 $\Prob[(X,Y)\in Z]>0$。
   令 $\pi' = \pi|_{Z}$，则 $\pi'\le\pi$，
   定理 4.6 直接给出：给定 $(X,Y)\in Z$ 的条件耦合在相应边际之间最优。
-
   \TLtakeaway{唯一性传递的关键等式是 $I[\hat{\pi}_{\mathrm{new}}]=I[\pi]$：整体唯一性迫使局部替代等于原局部计划。}
 \end{frame}
 
@@ -328,7 +325,7 @@
 \end{frame}
 
 \begin{frame}{定理 4.8 的证明（一）：混合计划有正确边际}
-  \textbf{选取局部最优计划。} 对 $\lambda$-a.e.\ $\theta$，定理 4.1 给出
+  \textbf{选取局部最优计划。}\proofskipnote 对 $\lambda$-a.e.\ $\theta$，定理 4.1 给出
   $\pi_{\theta}\in\coup{\mu_{\theta}}{\nu_{\theta}}$ 且
   $I[\pi_{\theta}]=C(\mu_{\theta},\nu_{\theta})$。
   Villani 暂时借用推论 5.22，保证可把 $\theta\mapsto\pi_{\theta}$ 选成可测。
@@ -349,7 +346,7 @@
 \end{frame}
 
 \begin{frame}{定理 4.8 的证明（二）：Fubini 给出成本上界}
-  \textbf{用上帧的可行计划估计最优值。} 已知
+  \textbf{用上帧的可行计划估计最优值。}\proofskipnote 已知
   $\pi=\int_{\Theta}\pi_{\theta}\dd\lambda(\theta)\in\coup{\mu}{\nu}$，所以
   $C(\mu,\nu)\le I[\pi]$。
 
