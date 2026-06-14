@@ -1,0 +1,1193 @@
+% =============================================================================
+%  KV-Cache 与注意力复杂度 — 自回归推理中 QKV 计算与显存的系统性剖析
+%  模式：被动式学习讲义 (passive-study)  ·  主题：teal
+%  语言：中文叙述 + 英文术语 + LaTeX 数学
+%  所有示意图用 TikZ（teal 配色）绘制。不使用 beamer overlay 命令。
+%
+%  CJK 字体：font-config 自动检测 .fonts/SourceHanSerifSC-Medium.otf
+%  数学字体：KpMath（模板默认）
+% =============================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[teal]{template-lib/template-lib}
+\uselayout{text}
+\uselayout{eq}
+\uselayout{twocol}
+\uselayout{table}
+
+\usetikzlibrary{arrows.meta,calc,positioning,fit,backgrounds,decorations.pathreplacing}
+
+% ── 记号缩写 ─────────────────────────────────────────────────────────────────
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\T}{^{\mathsf{T}}}
+\newcommand{\softmax}{\operatorname{softmax}}
+\newcommand{\bigO}[1]{\mathcal{O}\!\left(#1\right)}
+\newcommand{\Kc}{K_{\text{cache}}}
+\newcommand{\Vc}{V_{\text{cache}}}
+\newcommand{\half}{\tfrac{1}{2}}
+\newcommand{\third}{\tfrac{1}{3}}
+% 难度星标（amssymb \bigstar，安全可渲染）
+\newcommand{\diff}[1]{\textcolor{TLaccent}{\ensuremath{#1}}}
+% 练习提示前缀
+\newcommand{\hint}[1]{\textit{\textcolor{TLinkSoft}{提示 (hint) #1.}}}
+\newcommand{\proofskipnote}{\footnote{\scriptsize 非数学背景读者：本帧为\emph{推导细节}，第一遍可先跳过，记住本帧\emph{要点}即可。}}
+
+% ── 本地化“要点 / Key Takeaway”标签 ─────────────────────────────────────────
+\renewcommand{\TLtakeaway}[1]{%
+  \vspace{0.4em}%
+  \begin{tikzpicture}
+    \node[fill=TLaccentLight, rounded corners=3pt, inner sep=8pt,
+          text width=\linewidth-16pt, align=justify] {%
+      \small\textcolor{TLaccent}{\textbf{要点 (Key Takeaway).}} #1%
+    };
+  \end{tikzpicture}%
+  \vspace{0.2em}%
+}
+
+\TLsetfoot{KV-Cache 与注意力复杂度 \textperiodcentered{} 被动式学习讲义}
+
+\begin{document}
+
+% =============================================================================
+\TLtitlecenter
+  {KV-Cache 与注意力复杂度}
+  {自回归推理中 QKV 计算与显存的系统性剖析：从 Softmax 到 Linear Attention 与 SSM}
+  {面向 AI 工程师 / 研究者的专业级讲义}
+  {Passive-Study Deck}
+
+% =============================================================================
+\begin{frame}{如何使用本讲义 · How to use this deck}
+  这是一份\TLterm{被动式 (passive-study)} 自学讲义：即使你没有现场讲者，也能独立读完并掌握全部推导。
+  \begin{itemize}
+    \item 每个概念都遵循\textbf{动机 $\to$ 形式定义 $\to$ 立即举例}的顺序；不会先抛公式再解释。
+    \item \textbf{非 ML 背景？} 先读下一节“先建直觉”（用大白话讲清 token / 注意力 / 复杂度），再回来看记号与推导。
+    \item 复杂度结论\emph{都给出完整推导}，而非直接给答案；每个量级都配一个真实数值算例。
+    \item 标注 \textbf{练习 (Exercise)} 的页面请先动笔再看；完整解答 (solutions) 放在文末附录。
+    \item 常见误区用红色\TLterm{警示框}标出；统一记号 (notation) 与术语表 (glossary) 见下两页。
+  \end{itemize}
+  \TLtakeaway{读完全篇后，你应能从零推导出 Softmax / Linear / SSM 三类注意力在 prefill 与 decode 两阶段的\emph{时间与显存}复杂度，并能解释每一项工程优化\emph{攻击的是哪个瓶颈}。}
+\end{frame}
+
+% =============================================================================
+\begin{frame}{路线图 · Roadmap}
+  \vspace{2pt}
+  \begin{TLtable}{@{}cll@{}}
+    \TLthead \textbf{\#} & \textbf{主题} & \textbf{核心问题} \\
+    \midrule
+    1 & 自回归推理的两个阶段 & Prefill 与 Decode 为何要分开看？ \\
+    2 & Softmax 注意力复杂度 & 有 / 无 KV-cache，时间从 $\bigO{n^3 d}$ 到 $\bigO{n^2 d}$ \\
+    \TLthl 3 & KV-cache 的显存代价 & 缓存到底占多少显存？为何随 $n$ 线性增长？ \\
+    4 & 压缩缓存：MHA→MQA→GQA→MLA & 如何在不改复杂度量级下把缓存\emph{缩小}？ \\
+    \TLthl 5 & 系统级技巧 & FlashAttention / PagedAttention / KV 量化 \\
+    6 & Linear Attention 与 $d\times d$ 状态 & 去掉 Softmax，显存能否降到 $\bigO{1}$？ \\
+    \TLthl 7 & SSM：Mamba / RWKV & 带衰减的线性注意力与状态空间模型 \\
+    8 & 总表、权衡、练习、参考文献 & 如何在真实系统中选型？ \\
+    \bottomrule
+  \end{TLtable}
+  \TLtakeaway{全篇围绕一个问题展开：\emph{当序列变长时，每多生成一个 token 要付出多少计算与显存？} 三类注意力给出三种答案。}
+\end{frame}
+
+% =============================================================================
+\TLsection{先建直觉 · KV-Cache in Plain Words（非 ML 背景先读这里）}
+
+\begin{frame}{一句话：这份讲义在解决什么}
+  \small
+  大语言模型逐字生成文本：每写一个新字，都要“回看”前面所有字来决定下一个写什么。朴素做法每一步都把整段历史重算一遍，越写越慢、越占显存。KV-cache 的点子：把“回看”时算出的中间结果（每个字的 $K,V$ 向量）存下来，下一步直接复用、不重算。整篇讲义就在问：这个缓存能做到多小、多快？
+
+  \vspace{3pt}
+  \centering
+  \begin{tikzpicture}[font=\scriptsize, >={Stealth[length=5pt]},
+      tok/.style={draw=TLprimary, fill=TLprimaryTint, text=TLink, rounded corners=2pt,
+                  minimum width=0.82cm, minimum height=0.58cm, align=center},
+      newtok/.style={draw=TLaccent, fill=TLaccentLight, text=TLink, rounded corners=2pt,
+                  minimum width=0.82cm, minimum height=0.58cm, align=center}]
+    \foreach \i/\name in {1/字 1,2/字 2,3/字 3,4/字 4,5/字 5}{
+      \node[tok] (tok\i) at ({(\i-1)*0.95},0) {\name};
+    }
+    \node[newtok] (tok6) at (4.75,0) {新字};
+    \draw[->, thick, TLprimary] ($(tok1.south west)+(0,-0.38)$) -- ($(tok6.south east)+(0,-0.38)$)
+      node[midway,below=2pt,text=TLinkSoft]{生成方向};
+    \draw[->, thick, TLaccent] (tok6.north) to[out=145,in=35,looseness=1.05]
+      node[midway,above=4pt,text=TLaccent]{回看历史} (tok1.north);
+    \node[draw=TLprimary, fill=TLprimaryTint, rounded corners=2pt, text=TLink,
+          minimum width=1.9cm, minimum height=0.44cm, align=center] at (2.38,-1.18)
+      {保存每个字的 $K,V$};
+    \draw[->, TLprimary, thick] (tok3.south) -- (2.38,-0.95);
+  \end{tikzpicture}
+
+  {\scriptsize\textcolor{TLinkSoft}{示意图。}}
+  \TLtakeaway{KV-cache 用空间换时间：存中间结果，避免重算。}
+\end{frame}
+
+\begin{frame}{30 秒看懂注意力 (Attention)}
+  \small
+  \begin{columns}[T,totalwidth=\textwidth]
+    \column{0.61\textwidth}
+    模型给每个字配三个向量：$Q$（我在找什么）、$K$（我能提供什么）、$V$（我携带的信息）。生成下一个字时，用它的 $Q$ 与前面每个字的 $K$ 做点积得到“相关分”，$\softmax$ 归一成权重，再按权重把各字的 $V$ 加权汇总——这就是注意力。
+
+    \vspace{3pt}
+    把所有字两两打分得到 $n\times n$ 的打分矩阵——这是后面 $\bigO{n^{2}}$ 的来源。
+
+    \column{0.35\textwidth}
+    \centering
+    \begin{tikzpicture}[x=0.34cm,y=0.34cm,font=\scriptsize, >={Stealth[length=5pt]}]
+      \foreach \i in {0,...,5}{
+        \foreach \j in {0,...,5}{
+          \pgfmathtruncatemacro{\shade}{12+5*(\i+\j)}
+          \filldraw[draw=TLprimary!65, fill=TLprimary!\shade] (\j,-\i) rectangle ++(1,-1);
+        }
+      }
+      \draw[TLaccent, line width=0.7pt] (0,0) rectangle (6,-6);
+      \draw[->, thick, TLprimary] (-0.35,0.2) -- (6.45,0.2) node[right,text=TLinkSoft]{keys};
+      \draw[->, thick, TLprimary] (-0.35,0.2) -- (-0.35,-6.45) node[below,text=TLinkSoft]{queries};
+      \node[text=TLink,align=center] at (3,-2.95) {$n\times n$\\scores};
+    \end{tikzpicture}
+
+    {\scriptsize\textcolor{TLinkSoft}{示意图。}}
+  \end{columns}
+  \TLtakeaway{注意力 = 加权检索；$n\times n$ 打分矩阵是复杂度的根源。}
+\end{frame}
+
+\begin{frame}{为什么复杂度重要：一个数字}
+  \small
+  序列有 $n$ 个字时，打分矩阵 $QK\T$ 是 $n\times n$；取 $n=4096,\ d=4096$，单层一次注意力约为下面这个量级：
+  \[
+    \bigO{n^{2}d}\approx 7\times 10^{13}.
+  \]
+  也就是约 $7\times 10^{13}$ 次乘加。KV-cache 把每个 decode 步从 $\bigO{n^{2}}$ 降到 $\bigO{n}$；显存随 $n$ 线性增长——Llama-2-7B 在 4096 上下文、单条序列约占 $2$ GB 缓存（详见 §3 算例）。这就是“省缓存 / 省算力”成为全篇主题的原因。
+
+  \TLtakeaway{KV-cache 让单步开销从 $\bigO{n^{2}}$ 降至 $\bigO{n}$，显存线性增长。}
+\end{frame}
+
+\begin{frame}{大 $O$ 记号一分钟 + 怎么读这份讲义}
+  \small
+  \begin{itemize}
+    \item 大 $O$：$\bigO{n^{2}}$ 读作“计算量大致随 $n^{2}$ 增长”——只看随规模怎么涨，忽略常数。
+    \item \textcolor{TLaccent}{$\bigstar$} \textbf{必读}：8 节主线 + 每个\emph{算例}（把量级落到真实数字）+ 每帧\emph{要点}。
+    \item \textcolor{TLprimary}{$\blacktriangleright$} \textbf{第一遍可跳}：附录里的\emph{推导}（在线 softmax 等价、FLOP 账本）——想深究再回看。
+    \item \textbf{背景}：线性代数（矩阵乘法）+ 对 Transformer/注意力有个大概印象即可；不熟就回看前两帧。
+  \end{itemize}
+  \TLtakeaway{大 $O$ = 趋势，忽略常数；不熟注意力就先看“先建直觉”一节。}
+\end{frame}
+
+% =============================================================================
+\begin{frame}{统一记号 · Notation}
+  下表贯穿全篇（notation summary）。符号超过 10 个，故单列一页。
+  \vspace{1pt}
+  \begin{TLtable}{@{}cll@{}}
+    \TLthead \textbf{符号} & \textbf{含义} & \textbf{典型取值 (Llama-2-7B)} \\
+    \midrule
+    $n$       & 序列长度（已生成 + prompt 的 token 数） & $\le 4096$ \\
+    $t$       & 当前 decode 步的索引（$1\le t\le n$）   & 逐步增长 \\
+    \TLthl $d$ & 模型隐藏维度 (hidden size)              & $4096$ \\
+    $h$       & 注意力头数 (heads)                       & $32$ \\
+    $d_k,d_v$ & 每头的 key / value 维度，$d=h\,d_k$      & $128$ \\
+    \TLthl $L$ & 层数 (layers)                           & $32$ \\
+    $b$       & 批大小 (batch size)                      & $1\sim 64$ \\
+    $p$       & 每个数的字节数 (precision)，fp16 即 $2$   & $2$ \\
+    \TLthl $\phi(\cdot)$ & 线性注意力的特征映射 (feature map) & $\mathrm{elu}{+}1$ \\
+    $S_t$     & 线性注意力的递推状态，$d_k\times d_v$ 矩阵 & $128\times128$ \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  \footnotesize\textcolor{TLinkSoft}{核心直觉：$n$ 会增长，而 $d,h,L,p$ 都是常数——所有复杂度结论本质上都是在问\emph{某个量随 $n$ 如何变化}。}
+\end{frame}
+
+% =============================================================================
+\begin{frame}{前置回顾 · 单层自注意力 (Self-Attention) 的 QKV}
+  本讲义假设你熟悉 Transformer。这里只把\emph{记号}钉死，供后续复杂度计算引用。
+  对长度为 $n$ 的输入 $X\in\R^{n\times d}$，单头注意力为
+  \[
+    Q = X W_Q,\quad K = X W_K,\quad V = X W_V,\qquad W_{(\cdot)}\in\R^{d\times d_k},
+  \]
+  \[
+    \mathrm{Attn}(Q,K,V) \;=\; \softmax\!\Big(\tfrac{QK\T}{\sqrt{d_k}}\Big)\,V \;\in\; \R^{n\times d_v}.
+  \]
+  三步开销（这就是后面所有推导的“积木”）：
+  \begin{itemize}
+    \item \textbf{投影 (projection)}：$X\!\mapsto\!Q,K,V$，三次 $\R^{n\times d}\!\times\!\R^{d\times d_k}$ 矩乘 $\Rightarrow \bigO{n d^2}$。
+    \item \textbf{打分 (scores)}：$QK\T\in\R^{n\times n}$ $\Rightarrow \bigO{n^2 d_k}=\bigO{n^2 d}$（求和所有头）。
+    \item \textbf{加权 (aggregate)}：$(\text{softmax})\,V$ 又是 $\R^{n\times n}\!\times\!\R^{n\times d}$ $\Rightarrow \bigO{n^2 d}$。
+  \end{itemize}
+  \TLtakeaway{自注意力一次前向是 $\bigO{n^2 d}$ 时间——那个 $n^2$ 来自 $QK\T$ 的 $n\times n$ 打分矩阵。记住它，后面一切都从这里派生。}
+\end{frame}
+
+% #############################################################################
+\TLsection{1 \ 自回归推理的两个阶段 · Prefill vs.\ Decode}
+% #############################################################################
+
+\begin{frame}{为什么推理是“逐 token”的？}
+  训练时整段文本一次性可见，可以并行；但\TLterm{生成 (generation)} 是\emph{自回归}的：
+  \[
+    p(x_{1:n}) \;=\; \prod_{t=1}^{n} p\big(x_t \,\big|\, x_{<t}\big),
+    \qquad x_t \sim p(\cdot\mid x_{<t}).
+  \]
+  第 $t$ 个 token 必须先采样出来，才能作为第 $t{+}1$ 步的输入。于是推理天然分成两段：
+  \begin{itemize}
+    \item \textbf{Prefill（预填充）}：用户给定的 prompt（$x_1,\dots,x_m$）一次性、\emph{并行}喂入。
+    \item \textbf{Decode（逐步解码）}：从第 $m{+}1$ 个 token 起，一次只能算\emph{一个}新 token。
+  \end{itemize}
+  \TLtakeaway{并行性在 prefill 阶段被充分利用；decode 阶段被“一次一个”的因果依赖卡死——这正是 KV-cache 发挥作用的地方。}
+\end{frame}
+
+\begin{frame}{Prefill 阶段：一次并行处理整个 prompt}
+  设 prompt 长度为 $m$。Prefill 就是对 $X\in\R^{m\times d}$ 做\emph{一次}标准前向：
+  \[
+    Q,K,V \in \R^{m\times d},\qquad
+    \mathrm{Attn} = \softmax\!\Big(\tfrac{QK\T}{\sqrt{d_k}} + M\Big)V,
+  \]
+  其中 $M$ 是\TLterm{因果掩码 (causal mask)}：$M_{ij}=-\infty$ 当 $j>i$，保证 token $i$ 只能看见 $\le i$。
+  \begin{itemize}
+    \item 时间：一次 $\bigO{m^2 d}$（与一次训练前向同量级），\emph{所有 $m$ 个 token 并行}。
+    \item 这一步\emph{本来就是} $\bigO{m^2 d}$；\TLterm{KV-cache 不改变 prefill 的计算量}。
+    \item 它的副产品是关键：算出并\emph{留下} prompt 全部 $m$ 个 token 的 $K,V$，作为缓存初值。
+  \end{itemize}
+  \TLtakeaway{Prefill 是一次性、计算密集 (compute-bound) 的大矩阵乘；它\emph{顺手}把整段 prompt 的 $K,V$ 填进缓存。}
+\end{frame}
+
+\begin{frame}{Decode 阶段：一次只生成一个 token}
+  进入 decode 后，模型每一步只把\emph{上一步刚生成的那一个} token $x_t$ 作为输入：
+  \[
+    x_t \;\longmapsto\; q_t,k_t,v_t \in \R^{1\times d},
+    \qquad
+    o_t = \softmax\!\Big(\tfrac{q_t K_{1:t}\T}{\sqrt{d_k}}\Big) V_{1:t}.
+  \]
+  注意 $o_t$ 需要与\emph{全部历史} $K_{1:t},V_{1:t}$ 交互——这是 attention 的本质，无法回避。
+  \begin{itemize}
+    \item 每步只产生一个 token：GPU 的并行算力\emph{严重闲置}。
+    \item 瓶颈从“算得快不快”变成“\TLterm{显存搬得快不快}”——decode 是\emph{显存带宽受限 (memory-bound)}。
+    \item 核心浪费点：历史 $K_{1:t-1},V_{1:t-1}$ 在每一步都\emph{原封不动}地被需要。
+  \end{itemize}
+  \TLtakeaway{Decode 受因果依赖串行化、且显存带宽受限。既然历史 $K,V$ 不变，就不该每步重算——这就是 KV-cache 的全部动机。}
+\end{frame}
+
+\begin{frame}{两阶段时间线与缓存增长（示意）}
+  \vspace{2pt}
+  \centering
+  \begin{tikzpicture}[font=\footnotesize,
+      tok/.style={draw=TLprimary, fill=TLprimaryTint, text=TLink, rounded corners=2pt,
+                  minimum width=0.95cm, minimum height=0.7cm, align=center},
+      newtok/.style={draw=TLaccent, fill=TLaccentLight, text=TLink, rounded corners=2pt,
+                  minimum width=0.95cm, minimum height=0.7cm, align=center}]
+    % prompt tokens (prefill)
+    \foreach \i/\x in {1/0,2/1,3/2,4/3}{
+      \node[tok] (p\i) at (\x*1.05,0) {$x_{\i}$};}
+    % decoded tokens
+    \node[newtok] (d5) at (4*1.05,0) {$x_5$};
+    \node[newtok] (d6) at (5*1.05,0) {$x_6$};
+    \node[newtok] (d7) at (6*1.05,0) {$x_7$};
+    % prefill brace
+    \draw[decorate,decoration={brace,amplitude=5pt},TLprimary,thick]
+      ($(p1.north west)+(0,0.15)$) -- ($(p4.north east)+(0,0.15)$)
+      node[midway,above=6pt,text=TLprimary]{\textbf{Prefill：} $m{=}4$ 并行};
+    % decode brace
+    \draw[decorate,decoration={brace,amplitude=5pt},TLaccent,thick]
+      ($(d5.north west)+(0,0.15)$) -- ($(d7.north east)+(0,0.15)$)
+      node[midway,above=6pt,text=TLaccent]{\textbf{Decode：} 串行，每步 $+1$};
+    % cache bars
+    \node[text=TLinkSoft] at (-1.7,-1.4) {KV-cache 大小};
+    \foreach \t/\len in {4/4,5/5,6/6,7/7}{
+      \pgfmathsetmacro\xx{(\t-1)*1.05}
+      \draw[TLprimary,line width=3pt] (-0.5,{-1.4-(\t-4)*0.32}) -- ({-0.5+\len*0.5},{-1.4-(\t-4)*0.32});
+      \node[text=TLinkSoft,anchor=west] at ({-0.5+\len*0.5+0.1},{-1.4-(\t-4)*0.32}) {$t{=}\t:\ \len$ 个 token 的 $K,V$};}
+  \end{tikzpicture}
+
+  \vspace{2pt}
+  \footnotesize\textcolor{TLinkSoft}{缓存随 decode 单调增长：每一步把新 token 的 $k_t,v_t$ 追加进去，长度从 $m$ 一直涨到 $n$。}
+\end{frame}
+
+\begin{frame}{为何必须区分两阶段？（一张对照表）}
+  \vspace{2pt}
+  \begin{TLtable}{@{}lll@{}}
+    \TLthead \textbf{维度} & \textbf{Prefill} & \textbf{Decode（逐步）} \\
+    \midrule
+    处理粒度       & 整段 prompt（$m$ 个 token）并行 & 一次一个新 token \\
+    \TLthl 并行度  & 高，充分利用算力 & 极低，算力闲置 \\
+    瓶颈类型       & 计算受限 (compute-bound) & 显存带宽受限 (memory-bound) \\
+    \TLthl 单次开销 & $\bigO{m^2 d}$（一次） & 见第 2 节 \\
+    KV-cache 作用  & 顺手\emph{写入}缓存初值 & \emph{读取并续写}缓存，避免重算 \\
+    \TLthl 延迟构成 & 首 token 延迟 (TTFT) & 每 token 延迟 (TPOT / inter-token) \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{1pt}
+
+  工程含义：优化 prefill 看 \emph{FLOPs/算力}（如 FlashAttention）；优化 decode 看 \emph{显存与带宽}（KV-cache 的大小与读写）。
+  \TLtakeaway{“TTFT 由 prefill 决定、每 token 速度由 decode 决定”——两阶段的瓶颈不同，优化手段也不同。后六节几乎全在攻 decode。}
+\end{frame}
+
+% #############################################################################
+\TLsection{2 \ Softmax 注意力复杂度 · 有 / 无 KV-cache}
+% #############################################################################
+
+\begin{frame}{朴素解码：不用缓存，每步重算整段历史}
+  最朴素的实现把每一步都当成一次全新的 prefill：要生成第 $t$ 个 token，就把前缀 $x_{1:t}$
+  整段塞进模型，重新算出 $Q_{1:t},K_{1:t},V_{1:t}$，取最后一行作为输出。
+  \begin{itemize}
+    \item 投影：对 $t$ 个 token 重算 $Q,K,V$ $\Rightarrow \bigO{t\,d^2}$。
+    \item 打分 + 加权：$Q_{1:t}K_{1:t}\T$ 是 $t\times t$ 矩阵 $\Rightarrow \bigO{t^2 d}$。
+  \end{itemize}
+  \[
+    \text{第 } t \text{ 步开销} \;=\; \bigO{t^2 d + t\,d^2}\;\xrightarrow{\,t>d\,}\;\bigO{t^2 d}.
+  \]
+  \TLwarnblock{浪费在哪？}{前缀 $x_{1:t-1}$ 的 $K,V$ 在第 $t{-}1$ 步\emph{已经算过一遍}，第 $t$ 步又从头算一遍。冗余随 $t$ 线性堆积。}
+\end{frame}
+
+\begin{frame}{无缓存：把每一步加起来 $\Rightarrow \bigO{n^3 d}$}
+  生成完整长度-$n$ 序列，总时间是各步之和：
+  \begin{TLeqderiv}
+  \begin{align*}
+    T_{\text{naive}}
+      &= \sum_{t=1}^{n} \bigO{t^2 d + t\,d^2}
+       = \bigO{d \sum_{t=1}^{n} t^2 \;+\; d^2 \sum_{t=1}^{n} t} \\[2pt]
+      &= \bigO{d\cdot \tfrac{n(n+1)(2n+1)}{6} \;+\; d^2\cdot\tfrac{n(n+1)}{2}}
+       = \bigO{\third n^3 d + \half n^2 d^2}.
+  \end{align*}
+  \end{TLeqderiv}
+  当 $n > d$（长上下文常态）注意力项主导：
+  \[
+    \boxed{\,T_{\text{naive}} = \bigO{n^3 d}\,}\qquad\text{单步（末步 $t{=}n$）为 } \bigO{n^2 d}.
+  \]
+  \TLtakeaway{朴素解码是\emph{三次方} $\bigO{n^3 d}$。罪魁是“每步重算全部历史”——一个纯粹的冗余，不是 attention 的本质要求。}
+\end{frame}
+
+\begin{frame}{关键洞察：历史 token 的 $K,V$ 根本不会变}
+  为什么可以缓存？因为两个事实同时成立：
+  \begin{itemize}
+    \item \textbf{权重冻结}：推理时 $W_K,W_V$ 固定，$k_i = x_i W_K,\ v_i = x_i W_V$ 只依赖 $x_i$ 自己。
+    \item \textbf{因果掩码}：token $i$ 的 $k_i,v_i$ 不依赖任何 $j>i$ 的未来 token。
+  \end{itemize}
+  因此一旦 $x_i$ 确定，$k_i,v_i$ 就\emph{永久不变}，未来每一步都在重复使用同样的值：
+  \[
+    \underbrace{k_1,\dots,k_{t-1}}_{\text{第 }t\text{ 步要用}}
+    \;=\;
+    \underbrace{k_1,\dots,k_{t-1}}_{\text{第 }t{-}1\text{ 步已算出}}.
+  \]
+  \TLtakeaway{$K,V$ 是历史的\emph{无损函数}且对未来不变——所以“算一次、存起来、反复读”是\emph{精确}的，不引入任何近似。这就是 KV-cache。}
+\end{frame}
+
+\begin{frame}{KV-cache 解码：三步，单步降到 $\bigO{td}$}
+  维护两个不断增长的缓存 $\Kc,\Vc$（初值为 prefill 写入的 $K_{1:m},V_{1:m}$）。第 $t$ 步：
+  \begin{enumerate}
+    \item \textbf{只算新 token}：$q_t,k_t,v_t = x_t W_Q, x_t W_K, x_t W_V$ \hfill $\bigO{d^2}$
+    \item \textbf{追加 (append)}：$\Kc \mathrel{+}{=} k_t,\ \Vc \mathrel{+}{=} v_t$（拼接，无浮点运算） \hfill $\bigO{1}$
+    \item \textbf{注意力}：$o_t=\softmax\!\big(q_t \Kc\T/\sqrt{d_k}\big)\Vc$，$q_t\Kc\T$ 是 $1\times t$ \hfill $\bigO{t\,d}$
+  \end{enumerate}
+  \[
+    \text{第 }t\text{ 步开销} = \bigO{t\,d + d^2}\;\xrightarrow{\,t>d\,}\;\bigO{t\,d}.
+  \]
+  \TLtakeaway{把“重算 $t$ 个 token”换成“算 1 个新 token + 读 $t$ 个缓存”。单步从 $\bigO{t^2 d}$ 降为 $\bigO{td}$——少了一整个 $t$ 因子。}
+\end{frame}
+
+\begin{frame}{有缓存：求和得 $\bigO{n^2 d}$，且省下整整一个量级}
+  \begin{TLeqderiv}
+  \begin{align*}
+    T_{\text{cache}}
+      &= \sum_{t=1}^{n} \bigO{t\,d + d^2}
+       = \bigO{d\cdot\tfrac{n(n+1)}{2} + n\,d^2}
+       = \bigO{\half n^2 d + n\,d^2}
+       \;\xrightarrow{\,n>d\,}\; \bigO{n^2 d}.
+  \end{align*}
+  \end{TLeqderiv}
+  与朴素法对比，省下的倍数是一个完整的 $n$ 量级：
+  \[
+    \frac{T_{\text{naive}}}{T_{\text{cache}}}
+    \;\approx\; \frac{\third n^3 d}{\half n^2 d}
+    \;=\; \frac{2n}{3}.
+  \]
+  \TLtakeaway{KV-cache 把\emph{总解码时间}从 $\bigO{n^3 d}$ 降到 $\bigO{n^2 d}$，加速比约 $2n/3$——序列越长，省得越多。代价见第 3 节：显存。}
+\end{frame}
+
+\begin{frame}{数值算例：$n{=}2048,\ d{=}4096$ 的加速比}
+  把抽象量级落到具体数字（只数注意力主项的相对量，忽略常数）。
+  \vspace{2pt}
+  \begin{TLtable}{@{}lll@{}}
+    \TLthead \textbf{} & \textbf{无 KV-cache} & \textbf{有 KV-cache} \\
+    \midrule
+    单步（末步 $t{=}n$） & $\bigO{n^2 d}\approx 2048^2\!\cdot\!4096$ & $\bigO{n d}\approx 2048\!\cdot\!4096$ \\
+    \TLthl 总解码        & $\sim\third n^3 d$ & $\sim\half n^2 d$ \\
+    相对加速比           & \multicolumn{2}{l}{$\dfrac{2n}{3}=\dfrac{2\cdot 2048}{3}\approx \mathbf{1365\times}$} \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  \TLwarnblock{别误读}{这 $1365\times$ 是\emph{相对朴素重算}的加速，不是“比 prefill 快”。Prefill 仍是 $\bigO{n^2 d}$，KV-cache 对它\emph{毫无影响}——它只消除 decode 阶段的重复计算。}
+\end{frame}
+
+\begin{frame}{练习 1 · Exercise 1 \quad\diff{\bigstar}}
+  \TLalertblock[\textbf{动手试试 (attempt)} —— 翻页前先估一估]{%
+  某模型 $d=2048$。在\emph{不}使用 KV-cache 时，生成第 $t=1000$ 个 token 这一步，
+  注意力打分项与投影项各是多少量级？哪一项主导？}
+  \begin{itemize}
+    \item \hint{1} 打分项来自 $t\times t$ 矩阵，约 $t^2 d$；投影项约 $t\,d^2$。
+    \item \hint{2} 比较 $t^2 d$ 与 $t d^2$，等价于比较 $t$ 与 $d$。
+    \item \hint{3} 这里 $t=1000 < d=2048$，所以\emph{投影项}反而主导——“$t>d$ 时注意力主导”的前提在短序列时未必成立。
+  \end{itemize}
+  \TLtakeaway{量级主导项依赖 $t$ 与 $d$ 的相对大小；课文里的 $\bigO{n^3 d}$ 是 $n\gg d$ 的渐近结论。完整解答见附录。}
+\end{frame}
+
+% #############################################################################
+\TLsection{3 \ KV-cache 的显存代价 · Memory}
+% #############################################################################
+
+\begin{frame}{缓存里到底存了什么？}
+  KV-cache 不是一个矩阵，而是\emph{每层、每头}都各存一份 $K$ 和 $V$。对每个已见 token：
+  \begin{itemize}
+    \item 每层每头存 1 个 key（$d_k$ 维）+ 1 个 value（$d_v$ 维）。
+    \item 跨 $h$ 个头、$L$ 层累加，单 token 占 $2\,L\,h\,d_k = 2\,L\,d$ 个数（因 $h d_k = d$）。
+    \item 注意：缓存的是\emph{投影后}的 $k,v$，不是原始 $x$；也\emph{不}缓存 $Q$（query 用完即弃）。
+  \end{itemize}
+  按字节计，单 token、batch 为 $b$ 时占用
+  \[
+    \text{每 token 字节数} \;=\; 2\,b\,L\,d\,p \quad(\text{factor }2 = K \text{ 与 } V).
+  \]
+  \TLtakeaway{为什么叫 “KV”-cache 而非 “QKV”-cache？因为 $Q$ 不必保留——它只参与当前步打分，不被未来步复用。}
+\end{frame}
+
+\begin{frame}{显存公式：随序列长度\emph{线性}增长}
+  对长度 $n$、批大小 $b$ 的整段序列，总 KV 显存为
+  \begin{TLeqderiv}
+  \[
+    \boxed{\,M_{\text{KV}} \;=\; 2 \cdot b \cdot n \cdot L \cdot d \cdot p \ \text{bytes}\,}
+    \qquad
+    \big(=\;2\,b\,n\,L\,h\,d_k\,p\big).
+  \]
+  \end{TLeqderiv}
+  逐项理解每个因子\emph{为什么}在那里：
+  \begin{itemize}
+    \item $2$：分别存 $K$ 与 $V$；\quad $n$：每个历史 token 一份 $\Rightarrow$ \TLterm{随 $n$ 线性增长}。
+    \item $L,d$：每层每个隐藏维都要存；\quad $p$：精度字节（fp16$\to$2，fp8$\to$1）。
+    \item $b$：每条并发请求各有独立缓存——服务端高并发时这一项极其昂贵。
+  \end{itemize}
+  \TLtakeaway{时间复杂度是 $\bigO{n^2 d}$，但\emph{显存}只是 $\bigO{n}$（线性）。然而线性 $\times$ 大常数 $2bLdp$，在长上下文下足以撑爆显存。}
+\end{frame}
+
+\begin{frame}{算例 · Llama-2-7B 的 KV-cache 有多大？}
+  代入 $L{=}32,\ d{=}4096,\ p{=}2$（fp16），$b{=}1$：
+  \vspace{2pt}
+  \begin{TLtable}{@{}lll@{}}
+    \TLthead \textbf{量} & \textbf{计算} & \textbf{结果} \\
+    \midrule
+    每 token KV   & $2\cdot32\cdot4096\cdot2$ B & $524{,}288$ B $=\mathbf{0.5}$ MiB \\
+    \TLthl $n{=}4096$（满上下文） & $4096 \times 0.5$ MiB & $\mathbf{2}$ GiB \\
+    模型权重（参考） & $7\times10^9 \times 2$ B & $\approx 14$ GB \\
+    \TLthl KV / 权重 占比 & $2 / 14$ & $\approx 14\%$（单条请求） \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  单条 4K 请求的缓存就要 2\,GiB——已经是模型权重的七分之一，且\emph{每条并发请求都要再来一份}。
+  \TLtakeaway{“0.5\,MiB/token”是个值得记住的数量级感：把它乘以上下文长度和并发数，立刻就知道显存够不够。}
+\end{frame}
+
+\begin{frame}{算例 · 当并发与上下文一起放大}
+  同一模型，看 $b$ 与 $n$ 同时增长时缓存如何爆炸（$0.5$ MiB/token/条）：
+  \vspace{2pt}
+  \begin{TLtable}{@{}llll@{}}
+    \TLthead \textbf{batch $b$} & \textbf{上下文 $n$} & \textbf{KV-cache} & \textbf{对比} \\
+    \midrule
+    $1$  & $4{,}096$  & $2$ GiB   & $14\%$ 权重 \\
+    \TLthl $8$  & $4{,}096$  & $16$ GiB  & $>$ 权重 \\
+    $32$ & $8{,}192$  & $128$ GiB & 装不下单卡 \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  这解释了一个工程事实：长上下文 / 高并发服务的瓶颈\emph{往往不是算力，而是 KV-cache 显存}。
+  第 4、5 节的所有技巧都在围攻这个 $2bnLdp$。
+  \TLwarnblock{服务端真相}{在 LLM serving 中，能同时跑多少条请求（吞吐）常常由\emph{KV-cache 显存上限}决定，而非 FLOPs。这就是 PagedAttention（第 5 节）要解决的问题。}
+\end{frame}
+
+\begin{frame}{为什么 Softmax 注意力\emph{必须}保留完整历史？}
+  能不能把缓存压成固定大小？对\emph{精确} Softmax 而言——不能。原因在归一化：
+  \[
+    o_t \;=\; \sum_{j=1}^{t} \frac{\exp\!\big(q_t\!\cdot\! k_j/\sqrt{d_k}\big)}{\sum_{i=1}^{t}\exp\!\big(q_t\!\cdot\! k_i/\sqrt{d_k}\big)}\, v_j .
+  \]
+  \begin{itemize}
+    \item 分母（配分函数）耦合\emph{全部} $t$ 个 token；新来的 $q_t$ 会重新分配对\emph{每个}历史 $k_j$ 的权重。
+    \item 任何历史 token 都\emph{可能}在未来某步获得高权重——无法提前知道哪个能丢。
+    \item 因此精确 softmax 需要无损保留 $\{k_j,v_j\}_{j\le t}$，缓存随 $t$ 线性增长是\emph{内在的}。
+  \end{itemize}
+  \TLtakeaway{Softmax 的非线性（跨整段归一化）正是“缓存无法压成常数”的根因。第 6 节去掉它，换来 $\bigO{1}$ 显存——但要付出有损压缩的代价。}
+\end{frame}
+
+\begin{frame}{下界视角：什么能优化，什么不能}
+  把“可优化”与“不可优化”分清楚，是后续选型的基础：
+  \vspace{2pt}
+  \begin{TLtable}{@{}lll@{}}
+    \TLthead \textbf{量} & \textbf{精确 Softmax 的下界} & \textbf{能否绕过} \\
+    \midrule
+    注意力 FLOPs（一次前向） & $\Theta(n^2 d)$ & 否（精确）；FlashAttn 只减\emph{IO} \\
+    \TLthl decode 显存（KV） & $\Theta(n)$（每 token 必存） & 否（精确）；只能减\emph{常数} $L,d,p$ \\
+    decode 单步 FLOPs & $\Theta(n d)$ & 否；与缓存大小同阶 \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{3pt}
+
+  所以两条优化路线泾渭分明：\quad(i) \emph{不改下界、砍常数}（MQA/GQA/MLA、量化、FlashAttention）；\quad
+  (ii) \emph{改变模型、换掉下界}（Linear Attention / SSM，把 $\Theta(n)$ 显存变 $\Theta(1)$）。
+  \TLtakeaway{“$\bigO{n^2}$ 是 Softmax 注意力的固有下界”——FlashAttention/MQA 改善的是\emph{实际运行}，不是渐近量级。要换量级，只能换注意力的数学形式。}
+\end{frame}
+
+\begin{frame}{练习 2 · Exercise 2 \quad\diff{\bigstar\bigstar}}
+  \TLalertblock[\textbf{动手试试 (attempt)}]{%
+  GPT-3 体量的模型：$L{=}96,\ d{=}12288$，标准 MHA，fp16。
+  (a) 单 token KV 字节数？\ (b) $n{=}2048,\ b{=}1$ 时 KV-cache 多大？\ (c) 若换 fp8，省多少？}
+  \begin{itemize}
+    \item \hint{1} 套公式 $2\,L\,d\,p$；先算单 token，再乘 $n$。
+    \item \hint{2} $2\cdot96\cdot12288\cdot2 = 4{,}718{,}592$ B $\approx 4.5$ MiB/token。
+    \item \hint{3} $n{=}2048\Rightarrow 4.5\,\text{MiB}\times2048 \approx 9$ GiB；fp8（$p{=}1$）整体\emph{减半} $\to 4.5$ GiB。
+  \end{itemize}
+  \TLtakeaway{显存与 $L\cdot d\cdot p$ 成正比、与 $n$ 成正比——量化（减 $p$）和压缩（减有效 $d$，见第 4 节）是仅有的两个常数级旋钮。完整解答见附录。}
+\end{frame}
+
+% #############################################################################
+\TLsection{4 \ 压缩 KV-cache · MHA → MQA → GQA → MLA}
+% #############################################################################
+
+\begin{frame}{动机：decode 是\emph{显存带宽}受限的}
+  为什么“缩小缓存”几乎等价于“decode 更快”？看 decode 单步的\TLterm{算术强度 (arithmetic intensity)}：
+  \[
+    \text{每步 FLOPs} \approx \bigO{n\,d},
+    \qquad
+    \text{每步需从 HBM 读取的 KV 字节} \approx 2\,n\,L\,d\,p .
+  \]
+  \begin{itemize}
+    \item 计算/访存比 $\sim \bigO{1}$：GPU 大量算力空转，时间几乎全花在\emph{把 KV 从显存搬进片上}。
+    \item 于是 decode 的每 token 延迟 $\approx \dfrac{\text{KV-cache 字节数}}{\text{显存带宽}}$——\emph{缓存越小，decode 越快}。
+    \item 结论：缩小 KV 一举两得——既省显存（能跑更大 batch），又降延迟（搬得更少）。
+  \end{itemize}
+  \TLtakeaway{decode 是 memory-bound：每 token 时间正比于要搬运的 KV 字节。MQA/GQA/MLA 的全部意义，就是在尽量不掉点的前提下\emph{减少这个字节数}。}
+\end{frame}
+
+\begin{frame}{三种共享方式：MHA / GQA / MQA}
+  核心想法：让多个 query 头\emph{共享}同一组 $K,V$ 头，从而少存几份缓存。
+  \vspace{4pt}
+  \centering
+  \begin{tikzpicture}[font=\scriptsize,>=Stealth,
+      qh/.style={circle,draw=TLprimary,fill=TLprimaryTint,text=TLink,minimum size=0.42cm,inner sep=0},
+      kv/.style={circle,draw=TLaccent,fill=TLaccentLight,text=TLink,minimum size=0.5cm,inner sep=0},
+      lk/.style={TLinkSoft,thin}]
+    % ---- MHA ----
+    \begin{scope}[xshift=0cm]
+      \foreach \i in {1,2,3,4}{\node[qh] (mq\i) at (\i*0.55,1.1) {};}
+      \foreach \i in {1,2,3,4}{\node[kv] (mk\i) at (\i*0.55,0) {};}
+      \foreach \i in {1,2,3,4}{\draw[lk] (mq\i)--(mk\i);}
+      \node[text=TLink] at (1.4,1.7) {\textbf{MHA}};
+      \node[text=TLinkSoft,align=center] at (1.4,-0.6) {$h$ 个 KV 头\\缓存 $\times 1$};
+    \end{scope}
+    % ---- GQA ----
+    \begin{scope}[xshift=3.4cm]
+      \foreach \i in {1,2,3,4}{\node[qh] (gq\i) at (\i*0.55,1.1) {};}
+      \node[kv] (gk1) at (0.825,0) {}; \node[kv] (gk2) at (2.475,0) {};
+      \draw[lk] (gq1)--(gk1); \draw[lk] (gq2)--(gk1);
+      \draw[lk] (gq3)--(gk2); \draw[lk] (gq4)--(gk2);
+      \node[text=TLink] at (1.4,1.7) {\textbf{GQA} ($g{=}2$)};
+      \node[text=TLinkSoft,align=center] at (1.4,-0.6) {$g$ 组 KV 头\\缓存 $\div\,(h/g)$};
+    \end{scope}
+    % ---- MQA ----
+    \begin{scope}[xshift=6.8cm]
+      \foreach \i in {1,2,3,4}{\node[qh] (xq\i) at (\i*0.55,1.1) {};}
+      \node[kv] (xk1) at (1.375,0) {};
+      \foreach \i in {1,2,3,4}{\draw[lk] (xq\i)--(xk1);}
+      \node[text=TLink] at (1.4,1.7) {\textbf{MQA}};
+      \node[text=TLinkSoft,align=center] at (1.4,-0.6) {$1$ 个 KV 头\\缓存 $\div\,h$};
+    \end{scope}
+  \end{tikzpicture}
+
+  \vspace{6pt}
+  \footnotesize\textcolor{TLinkSoft}{上排：query 头（蓝）；下排：共享的 KV 头（橙）。连线表示“哪些 Q 头读同一份 K,V”。}
+\end{frame}
+
+\begin{frame}{MQA 与 GQA：用质量换缓存}
+  \begin{itemize}
+    \item \textbf{MHA（基线）}：$h$ 个独立 KV 头，缓存最大，质量最好。
+    \item \textbf{MQA (Multi-Query, Shazeer 2019)}：所有 $h$ 个 query 头\emph{共享 1 组 $K,V$}。
+      缓存 $\div h$，decode 大幅加速；但容量骤减，可能掉点、训练不稳。
+    \item \textbf{GQA (Grouped-Query, Ainslie 2023)}：折中——分 $g$ 组，每组共享一份 $K,V$。
+      缓存 $\div (h/g)$。$g{=}1$ 退化为 MQA，$g{=}h$ 退化为 MHA。
+  \end{itemize}
+  缓存大小（每 token 字节）随之缩小：
+  \[
+    M_{\text{KV}}^{\text{head}} \;=\; 2\,L\,(\,\underbrace{n_{kv}}_{\text{KV 头数}}\,d_k)\,p,
+    \qquad n_{kv} \in \{\,h\ (\text{MHA}),\ g\ (\text{GQA}),\ 1\ (\text{MQA})\,\}.
+  \]
+  \TLtakeaway{GQA 是当今主流（Llama-2/3-70B、Mistral 等都用）：以接近 MHA 的质量，拿到接近 MQA 的缓存与速度。$g{=}8$ 是常见甜点。}
+\end{frame}
+
+\begin{frame}{算例 · Llama-2-70B：GQA 把缓存砍了 8 倍}
+  $L{=}80,\ d{=}8192,\ h{=}64,\ d_k{=}128,\ n_{kv}{=}8$（GQA），fp16：
+  \vspace{2pt}
+  \begin{TLtable}{@{}llll@{}}
+    \TLthead \textbf{方案} & \textbf{$n_{kv}$} & \textbf{每 token KV} & \textbf{相对 MHA} \\
+    \midrule
+    MHA（假想）   & $64$ & $2\cdot80\cdot8192\cdot2 = 2.5$ MiB & $1\times$ \\
+    \TLthl GQA（实际） & $8$  & $2\cdot80\cdot1024\cdot2 = 320$ KiB & $\div 8$ \\
+    MQA（假想）   & $1$  & $2\cdot80\cdot128\cdot2 = 40$ KiB & $\div 64$ \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  GQA 让 70B 的每 token 缓存从 $2.5$ MiB 降到 $320$ KiB——同样显存能塞下 $8\times$ 的并发或上下文。
+  \TLtakeaway{缓存缩小倍数 $= h / n_{kv}$。这是\emph{常数级}优化：量级仍是 $\bigO{n}$，但常数小了 $8\!\sim\!64$ 倍，足以改变能否上线。}
+\end{frame}
+
+\begin{frame}{MLA：低秩潜在压缩（DeepSeek-V2）}
+  GQA 是“减少头数”；\TLterm{MLA (Multi-head Latent Attention)} 换个思路——把 $K,V$
+  压成一个\emph{低秩潜在向量}再缓存：
+  \[
+    c_t \;=\; x_t W_{DKV} \in \R^{d_c},\quad d_c \ll d;
+    \qquad
+    k_t,v_t \;=\; c_t W_{UK},\ c_t W_{UV}\ (\text{用时再上投影}).
+  \]
+  \begin{itemize}
+    \item \textbf{只缓存 $c_t$}（维度 $d_c$），不缓存完整 $K,V$ $\Rightarrow$ 缓存 $\propto d_c$ 而非 $h d_k$。
+    \item 上投影矩阵 $W_{UK},W_{UV}$ 可\emph{吸收进}邻接权重，推理时几乎不增算力。
+    \item RoPE 与低秩压缩冲突，MLA 用\emph{解耦的} RoPE 维度单独处理位置信息。
+  \end{itemize}
+  \TLwarnblock{与 GQA 的区别}{GQA 靠\emph{共享}减头数（有损于表达多样性）；MLA 靠\emph{低秩投影}压缩（保留全部头的等效表达），在相近缓存下质量通常更优。}
+\end{frame}
+
+\begin{frame}{四种方案小结与练习 3}
+  \begin{TLtable}{@{}llll@{}}
+    \TLthead \textbf{方案} & \textbf{缓存随} & \textbf{机制} & \textbf{代表} \\
+    \midrule
+    MHA & $h\,d_k$ & 每头独立 $K,V$ & 原始 Transformer \\
+    \TLthl MQA & $d_k$ & 全头共享 1 组 $K,V$ & PaLM \\
+    GQA & $g\,d_k$ & 分组共享 & Llama-2/3-70B, Mistral \\
+    \TLthl MLA & $d_c$（低秩） & 潜在向量压缩 & DeepSeek-V2/V3 \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{3pt}
+
+  \TLalertblock[\textbf{练习 3 · Exercise 3} \ \diff{\bigstar\bigstar}]{%
+  某模型 $h{=}32,\ d_k{=}128$。改用 GQA $g{=}4$ 后，单 token 的 KV 缓存缩小几倍？
+  若进一步用 MLA 把潜在维 $d_c{=}512$，相对原 MHA（$h d_k{=}4096$）又缩小几倍？}
+  \footnotesize\textcolor{TLinkSoft}{\hint{} GQA：$h/g = 32/4 = 8\times$；\ MLA：$h d_k / d_c = 4096/512 = 8\times$（外加 $K,V$ 合一，实际更省）。解答见附录。}
+\end{frame}
+
+% #############################################################################
+\TLsection{5 \ 系统级技巧 · FlashAttention / PagedAttention / 量化}
+% #############################################################################
+
+\begin{frame}{两类优化，别混为一谈}
+  第 4 节砍的是缓存\emph{大小}（改了多头结构）。本节的技巧\emph{不改注意力的数学}，只改“怎么算、怎么存”：
+  \begin{itemize}
+    \item \textbf{FlashAttention}：同样的精确 softmax，但改变\emph{计算顺序与显存访问}，更快更省。
+    \item \textbf{PagedAttention}：同样的 KV 数值，但改变\emph{内存分配方式}，消除碎片、支持共享。
+    \item \textbf{KV 量化}：同样的 $K,V$，但用更少\emph{比特}存储（减小 $p$）。
+  \end{itemize}
+  这些都是\emph{无损或近似无损}的“常数级”优化——量级仍是 $\bigO{n^2}$ 时间 / $\bigO{n}$ 显存。
+  \TLtakeaway{记住第 3 节的下界：系统级技巧不改渐近量级，但能把墙钟时间和显存占用改善数倍——足以决定一个模型能否真正上线。}
+\end{frame}
+
+\begin{frame}{FlashAttention：IO 感知的精确注意力}
+  朴素注意力把 $n\times n$ 的打分矩阵\emph{整个写进} HBM 再读回，访存 $\bigO{n^2}$ 成为真正瓶颈。
+  \TLterm{FlashAttention (Dao et al.\ 2022)} 用\emph{分块 (tiling)} + \emph{在线 softmax} 避免materialize：
+  \begin{itemize}
+    \item 把 $Q,K,V$ 切成能放进 SRAM 的小块，分块计算并\emph{增量}合并 softmax 结果。
+    \item 永远不在 HBM 上保存完整 $n\times n$ 矩阵 $\Rightarrow$ 额外显存从 $\bigO{n^2}$ 降到 $\bigO{n}$。
+    \item HBM 访存从 $\bigO{n^2}$ 降到 $\bigO{n^2 d / M}$（$M$ 为 SRAM 大小），实测数倍加速。
+  \end{itemize}
+  \TLwarnblock{关键澄清}{FlashAttention 的 FLOPs \emph{仍是} $\bigO{n^2 d}$——它是\emph{精确}算法，不是近似，也\emph{不改变}二次复杂度下界。它优化的是\emph{访存 (IO)}，主要加速 prefill / 训练。}
+\end{frame}
+
+\begin{frame}{在线 softmax：FlashAttention 的数学内核}
+  如何不存全部分数就算出 softmax？\proofskipnote 维护\emph{运行最大值} $m$ 与\emph{运行和} $\ell$，逐块更新：
+  \begin{TLeqderiv}
+  \begin{align*}
+    m_j &= \max(m_{j-1},\, s_j), \\
+    \ell_j &= \ell_{j-1}\,e^{\,m_{j-1}-m_j} + e^{\,s_j - m_j}, \\
+    o_j &= o_{j-1}\,e^{\,m_{j-1}-m_j} + e^{\,s_j-m_j}\,v_j,
+    \qquad \text{最终 } o = o_t/\ell_t .
+  \end{align*}
+  \end{TLeqderiv}
+  其中 $s_j = q\cdot k_j/\sqrt{d_k}$。每来一个新块就用 $e^{m_{j-1}-m_j}$ 把旧的累加量\emph{重新缩放}，
+  数学上与一次性 softmax \emph{完全等价}（减最大值保证数值稳定）。
+  \TLtakeaway{在线 softmax 把“全局归一化”改写成“可增量合并”的递推——既是 FlashAttention 的基石，也是理解线性注意力递推形式（第 6 节）的热身。}
+\end{frame}
+
+\begin{frame}{PagedAttention：像操作系统一样管理 KV-cache}
+  问题：朴素实现给每条请求\emph{预留连续}的最大长度缓存，导致严重\emph{碎片 (fragmentation)}——
+  实测有效利用率常只有 $20\%\!\sim\!40\%$。
+  \TLterm{PagedAttention (Kwon et al.\ 2023, vLLM)} 借用虚拟内存分页思想：
+  \begin{itemize}
+    \item 把 KV-cache 切成固定大小的\emph{块 (blocks)}，按需分配、可\emph{非连续}存放。
+    \item 几乎消除内部/外部碎片，显存利用率接近 $100\%$ $\Rightarrow$ 同样显存跑更大 batch。
+    \item 块可\emph{共享}（copy-on-write）：beam search、并行采样、公共系统提示词都能共用 KV。
+  \end{itemize}
+  \TLtakeaway{PagedAttention 不减少单条请求的 KV 总量，而是\emph{消除浪费、允许共享}——把第 3 节算出的“理论显存”真正变成“可用并发”。它是现代 LLM serving（vLLM）的核心。}
+\end{frame}
+
+\begin{frame}{KV-cache 量化：用更少比特存历史}
+  公式 $M_{\text{KV}} = 2bnLd\,p$ 中，$p$（精度字节）是一个直接的旋钮：
+  \vspace{2pt}
+  \begin{TLtable}{@{}llll@{}}
+    \TLthead \textbf{精度} & \textbf{$p$ (bytes)} & \textbf{相对 fp16} & \textbf{典型方法} \\
+    \midrule
+    fp16 / bf16 & $2$    & $1\times$    & 基线 \\
+    \TLthl fp8 / int8 & $1$ & $\div 2$ & SmoothQuant 类 \\
+    int4 & $0.5$ & $\div 4$ & KIVI（K 按通道、V 按 token） \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  细节：$K$ 与 $V$ 的分布不同，常\emph{分别}量化（per-channel vs per-token scale）；
+  极低比特（int2/int4）对 $K$ 更敏感，需保留少量“离群”全精度。
+  \TLwarnblock{权衡}{量化省显存、提吞吐，但有\emph{精度损失}（尤其长上下文累积误差）。是否可接受取决于任务——这正是工程上要实测的点。}
+\end{frame}
+
+\begin{frame}{其他方向：限制注意力\emph{范围}本身}
+  前面都在\emph{无损}地省；若允许\emph{有损}，可直接限制每个 token 能看多少历史，把缓存压成\emph{有界}：
+  \begin{itemize}
+    \item \textbf{滑动窗口 (Sliding Window, Mistral)}：只attend 最近 $w$ 个 token $\Rightarrow$ 缓存上界 $\bigO{w}$，与 $n$ 无关。
+    \item \textbf{注意力沉点 (Attention Sink / StreamingLLM)}：保留最初几个“sink”token + 近窗，稳定超长流式生成。
+    \item \textbf{重要性驱逐 (H2O, Heavy-Hitter)}：动态保留高注意力的“重击者”token，驱逐其余。
+    \item \textbf{前缀缓存 (Prefix Caching)}：跨请求复用公共系统提示词的 KV，省 prefill。
+  \end{itemize}
+  \TLtakeaway{这些方法在“无损但 $\bigO{n}$”与“有损但 $\bigO{1}$”之间取折中——本质上已经在向第 6 节的\emph{固定大小状态}思想靠拢。}
+\end{frame}
+
+\begin{frame}{系统技巧总览：各打哪个瓶颈？}
+  \vspace{2pt}
+  \begin{TLtable}{@{}llll@{}}
+    \TLthead \textbf{技巧} & \textbf{攻击的瓶颈} & \textbf{是否精确} & \textbf{改变量级？} \\
+    \midrule
+    FlashAttention & 访存 IO / prefill 速度 & \TLyes\ 精确 & 否 \\
+    \TLthl MQA/GQA/MLA & 缓存大小 / decode 带宽 & 近似无损 & 否（减常数） \\
+    PagedAttention & 显存碎片 / 并发吞吐 & \TLyes\ 精确 & 否 \\
+    \TLthl KV 量化 & 缓存字节 ($p$) & 有损 & 否 \\
+    滑窗 / 驱逐 & 缓存上界 & 有损 & 是（$\bigO{n}\!\to\!\bigO{w}$） \\
+    \TLthl Linear / SSM（第 6--7 节） & 缓存量级本身 & 有损 & \textbf{是（$\to\bigO{1}$）} \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  \TLtakeaway{除了最后一行，所有技巧都在“不改 Softmax 数学”的前提下做减法。要真正把 decode 显存变成\emph{常数}，必须换掉注意力的数学形式——这就是下两节。}
+\end{frame}
+
+% #############################################################################
+\TLsection{6 \ Linear Attention 与 $d\times d$ 状态}
+% #############################################################################
+
+\begin{frame}{动机：能不能让 decode 显存变成 $\bigO{1}$？}
+  Softmax 的 $\bigO{n}$ 缓存源于“归一化耦合全部历史”（第 3 节）。若我们\emph{去掉 softmax}，
+  把指数相似度 $\exp(q\!\cdot\! k)$ 换成一个可分解的\TLterm{核 (kernel)}：
+  \[
+    \exp\!\big(q\!\cdot\! k\big)\;\approx\;\phi(q)\cdot\phi(k),
+    \qquad \phi:\R^{d_k}\to\R^{d_k'}\ (\text{特征映射，逐元素、非负}).
+  \]
+  \begin{itemize}
+    \item 常见选择：$\phi(x)=\mathrm{elu}(x)+1$（Katharopoulos 2020）、随机特征（Performer）等。
+    \item 关键性质：相似度\emph{可写成两个独立映射的内积}——这一步打开了重排求和的大门。
+  \end{itemize}
+  \TLtakeaway{把不可分解的 $\exp(q\!\cdot\!k)$ 换成可分解的 $\phi(q)\!\cdot\!\phi(k)$，是线性注意力的全部魔法起点。下一页看它如何换来 $\bigO{1}$ 状态。}
+\end{frame}
+
+\begin{frame}{结合律魔法：先算 $\phi(K)\T V$，得到固定 $d\times d$ 矩阵}
+  去 softmax 后，注意力输出（暂略归一化）为
+  \[
+    \mathrm{LinAttn}(Q,K,V) \;=\; \phi(Q)\,\big(\phi(K)\T V\big).
+  \]
+  \begin{TLeqderiv}
+  \begin{align*}
+    \underbrace{\big(\phi(Q)\,\phi(K)\T\big)\,V}_{\text{先乘出 }n\times n\text{：}\ \bigO{n^2 d}}
+    \;=\;
+    \phi(Q)\,\underbrace{\big(\phi(K)\T V\big)}_{\text{先乘出 }d\times d\text{：}\ \bigO{n d^2}}
+  \end{align*}
+  \end{TLeqderiv}
+  矩阵乘法\emph{结合律}让我们改变括号位置：先算 $\phi(K)\T V \in \R^{d_k'\times d_v}$，这是一个
+  \emph{与序列长度 $n$ 无关}的固定大小矩阵（即 “Fast Weight”）。
+  \TLtakeaway{$\big(\phi(Q)\phi(K)\T\big)V = \phi(Q)\big(\phi(K)\T V\big)$：左边 $\bigO{n^2d}$，右边 $\bigO{nd^2}$。当 $n>d$，右边\emph{线性于 $n$}——这就是 “Linear” Attention 之名。}
+\end{frame}
+
+\begin{frame}{因果线性注意力：写成 RNN 式递推}
+  自回归需要因果性（token $t$ 只看 $\le t$）。把“先算 $\phi(K)\T V$”做成\emph{前缀和}，
+  就得到一个\emph{常数大小状态}的递推：
+  \[
+    S_t = \sum_{j=1}^{t}\phi(k_j)\,v_j\T \in \R^{d_k'\times d_v},
+    \qquad
+    z_t = \sum_{j=1}^{t}\phi(k_j)\in\R^{d_k'},
+  \]
+  \[
+    \boxed{\;S_t = S_{t-1} + \phi(k_t)\,v_t\T,\quad z_t = z_{t-1}+\phi(k_t),\quad
+    o_t = \frac{\phi(q_t)\T S_t}{\phi(q_t)\T z_t}\;}
+  \]
+  \begin{itemize}
+    \item 状态 $(S_t,z_t)$ 大小\emph{固定}（$d_k'\times d_v$），\emph{不随 $t$ 增长}。
+    \item 每步：一个外积更新 $\bigO{d_k' d_v}=\bigO{d^2}$ + 一次读出 $\bigO{d^2}$，与历史长度\emph{无关}。
+  \end{itemize}
+  \TLtakeaway{线性注意力的“缓存”不再是不断变长的 $K,V$ 列表，而是一个\emph{被反复覆写的固定矩阵} $S_t$——这正是它能 $\bigO{1}$ 显存的关键。}
+\end{frame}
+
+\begin{frame}{状态缓存 vs.\ KV-cache：逐项对比}
+  \vspace{2pt}
+  \begin{TLtable}{@{}lll@{}}
+    \TLthead \textbf{维度} & \textbf{Softmax + KV-cache} & \textbf{Linear Attention 状态缓存} \\
+    \midrule
+    缓存结构 & 全部历史 $K,V$ 向量列表 & 单个 $d_k'\times d_v$ 累积矩阵 $S_t$ \\
+    \TLthl 显存随 $n$ & $\bigO{n}$（线性增长） & $\mathbf{\bigO{1}}$（常数） \\
+    单步计算 & $\bigO{n d}$（与全历史点积） & $\mathbf{\bigO{d^2}}$（常数时间） \\
+    \TLthl 总解码时间 & $\bigO{n^2 d}$ & $\bigO{n d^2}$ \\
+    精确重建历史 & \TLyes\ 精确 & \TLno\ 有损（固定容量压缩） \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  当 $n\gg d$（超长上下文），$\bigO{nd^2}<\bigO{n^2d}$ 且显存 $\bigO{1}\ll\bigO{n}$——线性注意力\emph{全面占优}。
+  \TLtakeaway{这张表是全篇的“收束点”：去掉 softmax 把“随 $n$ 增长的列表”换成“固定大小的矩阵”，时间、显存双双受益——代价写在下一页。}
+\end{frame}
+
+\begin{frame}{代价：固定容量 $=$ 有损压缩}
+  天下没有免费的 $\bigO{1}$。把无限增长的历史塞进固定 $d_k'\times d_v$ 状态，必然\emph{有损}：
+  \begin{itemize}
+    \item \textbf{容量瓶颈}：$S_t$ 的秩 $\le \min(d_k',d_v)$；历史信息超过容量后\emph{相互干扰、被覆盖}。
+    \item \textbf{精确检索弱}：从压缩状态里\emph{逐字复述}远处某个 token（如长文 copy / 关联召回）很困难。
+    \item \textbf{特征映射敏感}：$\phi$ 选不好会破坏正定性、放大归一化误差；近似 $\exp$ 也有偏差。
+  \end{itemize}
+  这解释了为何纯线性注意力在需要\emph{精确长程召回}的任务上常逊于 Softmax。
+  \TLwarnblock{一句话总结取舍}{Softmax：\emph{精确但贵}（$\bigO{n}$ 显存）；Linear：\emph{便宜但有损}（$\bigO{1}$ 显存）。第 7 节的 SSM 用“选择性遗忘”来缓解有损问题。}
+\end{frame}
+
+% #############################################################################
+\TLsection{7 \ SSM · Mamba / RWKV 作为带衰减的线性注意力}
+% #############################################################################
+
+\begin{frame}{加一个遗忘门：从线性注意力到“带衰减”状态}
+  纯线性注意力的状态 $S_t = S_{t-1}+\phi(k_t)v_t\T$ \emph{只加不减}——旧信息永不衰减，易饱和。
+  给它配一个\TLterm{遗忘门 (forget gate)} $\lambda\in(0,1)$：
+  \[
+    \boxed{\,S_t \;=\; \lambda\,S_{t-1} \;+\; \phi(k_t)\,v_t\T\,}
+    \qquad(\text{gated / decayed linear attention}).
+  \]
+  \begin{itemize}
+    \item $\lambda$ 让久远的历史\emph{指数衰减}，近期信息权重更高——一个可学习的“记忆时间常数”。
+    \item $\lambda$ 可以是标量、按通道的对角阵，甚至\emph{依赖输入}（见 Mamba 的 selectivity）。
+    \item 仍是固定大小状态、$\bigO{1}$ 显存、$\bigO{d^2}$/步——只是更新规则多了一项衰减。
+  \end{itemize}
+  \TLtakeaway{“遗忘门 + 固定状态”正是现代 SSM（RWKV、Mamba）的共同骨架；它们与线性注意力是同一枚硬币的两面。}
+\end{frame}
+
+\begin{frame}{与状态空间模型 (SSM) 的等价性}
+  连续系统的离散化给出一个\emph{线性递推}，这正是 SSM 的标准形式：
+  \[
+    h_t = A\,h_{t-1} + B\,x_t,
+    \qquad
+    y_t = C\,h_t \;(+\,D x_t).
+  \]
+  把它与上一页对照——\emph{结构完全一致}：
+  \vspace{2pt}
+  \begin{TLtable}{@{}lll@{}}
+    \TLthead \textbf{SSM 记号} & \textbf{线性注意力对应物} & \textbf{角色} \\
+    \midrule
+    隐状态 $h_t$ & 矩阵状态 $S_t$ & 历史的固定大小压缩 \\
+    \TLthl 转移 $A$ & 衰减门 $\lambda$ & 如何遗忘旧信息 \\
+    输入门 $B x_t$ & 写入 $\phi(k_t)v_t\T$ & 如何写入新信息 \\
+    \TLthl 读出 $C$ & 查询 $\phi(q_t)$ & 如何读出当前输出 \\
+    \bottomrule
+  \end{TLtable}
+  \TLtakeaway{“线性注意力 $=$ 带衰减的 SSM $=$ 矩阵值隐状态的 RNN”——三个名字、一套数学。理解了 $S_t$ 的递推，就理解了它们全部。}
+\end{frame}
+
+\begin{frame}{RWKV 与 Mamba：两条现代路线}
+  \TLtwocol[0.48]{%
+    \textbf{RWKV (Peng 2023)}
+    \begin{itemize}
+      \item \emph{token-shift}：混合当前与上一 token。
+      \item \emph{time-decay} $w$：按通道的指数衰减（WKV 算子）。
+      \item 训练像 Transformer（可并行），推理像 RNN（$\bigO{1}$ 状态）。
+      \item 衰减\emph{静态}（不依赖输入）。
+    \end{itemize}
+  }{%
+    \textbf{Mamba / S6 (Gu \& Dao 2023)}
+    \begin{itemize}
+      \item \emph{选择性 (selectivity)}：$A,B,C$（经 $\Delta$）\emph{依赖输入}。
+      \item 能根据内容\emph{动态}决定记住 / 遗忘。
+      \item 硬件感知的\emph{并行扫描 (selective scan)}。
+      \item 解决了 LTI-SSM “静态衰减”的表达瓶颈。
+    \end{itemize}
+  }
+  \vspace{2pt}
+
+  \TLtakeaway{RWKV $=$ 固定衰减的高效 RNN；Mamba $=$ 让衰减\emph{随内容自适应}（选择性遗忘）。selectivity 是 Mamba 显著强于早期线性注意力的关键。}
+\end{frame}
+
+\begin{frame}{训练并行、推理串行：chunked 形式}
+  线性 / SSM 模型有\emph{两副面孔}，按场景切换：
+  \begin{itemize}
+    \item \textbf{递推 (recurrent) 形式}：推理时逐 token 更新 $S_t$，$\bigO{1}$ 显存、$\bigO{nd^2}$ 总时间。
+    \item \textbf{并行 (parallel/scan) 形式}：训练时用关联扫描或分块，把序列\emph{并行}展开。
+    \item \textbf{分块 (chunked)}：块内用小的二次注意力、块间传递状态 $S$——兼得并行度与线性总量。
+  \end{itemize}
+  \[
+    \text{训练：} \bigO{n d^2}\ (\text{可并行})
+    \qquad
+    \text{推理：每步 } \bigO{d^2},\ \text{状态 } \bigO{d^2}.
+  \]
+  \TLtakeaway{“训练像 Transformer、推理像 RNN”是这类模型的卖点：用并行扫描拿到训练吞吐，用固定状态拿到 $\bigO{1}$ 推理显存。}
+\end{frame}
+
+\begin{frame}{三大范式对比 \& 混合架构}
+  \vspace{2pt}
+  \begin{TLtable}{@{}llll@{}}
+    \TLthead \textbf{} & \textbf{Transformer} & \textbf{Linear Attn} & \textbf{SSM (Mamba)} \\
+    \midrule
+    训练 & $\bigO{n^2 d}$ 并行 & $\bigO{nd^2}$ 并行 & $\bigO{nd^2}$ 扫描 \\
+    \TLthl 推理/步 & $\bigO{nd}$ & $\bigO{d^2}$ & $\bigO{d^2}$ \\
+    推理显存 & $\bigO{n}$ & $\bigO{1}$ & $\bigO{1}$ \\
+    \TLthl 精确召回 & \TLyes\ 强 & \TLno\ 弱 & 中（选择性改善） \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  纯 SSM 在\emph{上下文精确复制 / 关联召回}（induction、copying）上仍弱于注意力。
+  实践折中是\TLterm{混合架构}：少量 attention 层 + 多数 Mamba 层（如 \emph{Jamba}），兼得召回与效率。
+  \TLtakeaway{没有银弹：Transformer 强召回贵显存，SSM 省显存弱召回。混合架构（Jamba 等）是当前把两者优点缝合的主流答案。}
+\end{frame}
+
+% #############################################################################
+\TLsection{8 \ 总表、权衡、练习与参考文献}
+% #############################################################################
+
+\begin{frame}{复杂度总表（全篇收束）}
+  \vspace{2pt}
+  \begin{TLtable}{@{}llll@{}}
+    \TLthead \textbf{} & \textbf{Softmax 无缓存} & \textbf{Softmax 有缓存} & \textbf{Linear / SSM} \\
+    \midrule
+    单步时间 & $\bigO{n^2 d}$ & $\bigO{n d}$ & $\bigO{d^2}$ \\
+    \TLthl 总解码时间 & $\bigO{n^3 d}$ & $\bigO{n^2 d}$ & $\bigO{n d^2}$ \\
+    显存占用 & $\bigO{nd}$（重算） & $\bigO{nd}$（缓存） & $\mathbf{\bigO{d^2}}$ \\
+    \TLthl 信息保真 & 精确 & 精确 & 有损（固定容量） \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  \footnotesize\textcolor{TLinkSoft}{注：无缓存的“显存 $\bigO{nd}$”是末步处理 $n$ 个 token 的\emph{瞬时激活}；有缓存的 $\bigO{nd}$ 是\emph{持久}保存。Linear 的 $\bigO{d^2}$ 既是状态、也是瞬时。}
+  \TLtakeaway{读懂这张表，就掌握了全篇：KV-cache 把解码从 $\bigO{n^3 d}$ 降到 $\bigO{n^2 d}$（时间换显存）；Linear/SSM 再把显存从 $\bigO{n}$ 降到 $\bigO{1}$（保真换显存）。}
+\end{frame}
+
+\begin{frame}{实际权衡：两条技术路线的“做减法”与“做加法”}
+  苏剑林（kexue.fm）的一个洞察值得记住：
+  \begin{itemize}
+    \item \textbf{Softmax 这一支在“做减法”}：为压缩 KV-cache 不断牺牲结构——MHA $\to$ GQA $\to$ MQA $\to$ MLA。
+      出发点高（表达力强），但一路在\emph{减负}。
+    \item \textbf{Linear/SSM 这一支在“做加法”}：天生 $\bigO{1}$ 显存、无缓存包袱，于是把精力全用于\emph{提升表达力}（门控、选择性、delta 规则……），近年进步迅速。
+    \item 两支开始\emph{互相借鉴}：线性注意力的门控思想反哺标准注意力的设计，反之亦然。
+  \end{itemize}
+  \TLtakeaway{不要把它看成“谁取代谁”，而是\emph{两条收敛的路线}：一个从“精确但贵”往下压成本，一个从“便宜但糙”往上提质量，在中间相遇。}
+\end{frame}
+
+\begin{frame}{怎么选？一张决策指南}
+  \vspace{2pt}
+  \begin{TLtable}{@{}lll@{}}
+    \TLthead \textbf{场景} & \textbf{首选} & \textbf{理由} \\
+    \midrule
+    短/中上下文、需精确召回 & Softmax + GQA + Flash & 质量优先，缓存可控 \\
+    \TLthl 高并发服务 & GQA/MLA + PagedAttn + 量化 & 吞吐由 KV 显存决定 \\
+    超长上下文、吞吐导向 & Linear / SSM / 混合 & $\bigO{1}$ 状态，显存不随 $n$ 爆 \\
+    \TLthl 长序列且容许有损 & SSM (Mamba) / 滑窗 & 固定状态 + 选择性遗忘 \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  \TLalertblock[\textbf{对你的场景}（3D 生成 / 医学图像）]{%
+  体素序列、点云序列往往\emph{极长}。此时 KV-cache 的 $\bigO{n}$ 显存增长可能成为硬约束，
+  而 Linear/SSM 的\emph{固定 $\bigO{1}$ 状态}在工程上更可控；若任务需要精确局部对应，可用\emph{混合架构}保留少量注意力层。}
+\end{frame}
+
+\begin{frame}{常见误区 · Common Misconceptions}
+  \vspace{2pt}
+  \begin{TLtable}{@{}l@{\hspace{2.2em}}l@{}}
+    \TLthead \textbf{误解 (Myth)} & \textbf{真相 (Reality)} \\
+    \midrule
+    KV-cache 也加速 prefill & 只加速 decode；prefill 仍 $\bigO{n^2 d}$ \\
+    \TLthl FlashAttention 改了 $\bigO{n^2}$ 复杂度 & 只减\emph{访存 IO}；FLOPs/量级不变，且精确 \\
+    线性注意力总是更好 & 精确长程召回任务常更差（有损） \\
+    \TLthl $Q$ 也要进缓存 & 不需要；$Q$ 用完即弃，故名 “KV”-cache \\
+    KV 量化无损 & 有精度损失，长上下文会累积 \\
+    \TLthl MQA/GQA 改变复杂度量级 & 只减\emph{常数} $h/n_{kv}$，量级仍 $\bigO{n}$ \\
+    \bottomrule
+  \end{TLtable}
+  \TLtakeaway{把“减常数 / 减 IO / 减碎片”和“改量级”分清楚，是不被各种‘加速’宣传误导的关键。}
+\end{frame}
+
+\begin{frame}{自测清单 · Check Your Understanding}
+  读完本讲义，你应该能不看笔记地回答：
+  \begin{enumerate}
+    \item 为什么 prefill 是 compute-bound 而 decode 是 memory-bound？
+    \item 从求和推出朴素解码 $\bigO{n^3 d}$、缓存解码 $\bigO{n^2 d}$，并解释差的那个 $n$。
+    \item 写出 KV-cache 显存公式 $2bnLdp$，并说明每个因子\emph{为什么}在那里。
+    \item MQA / GQA / MLA 各用什么机制缩小缓存？缩小倍数分别是多少？
+    \item FlashAttention 为什么\emph{不}改变复杂度量级？它优化的是什么？
+    \item 线性注意力凭什么做到 $\bigO{1}$ 显存？代价是什么？
+    \item 用 softmax 分母论证：为什么精确注意力\emph{无法}压成固定大小状态？
+  \end{enumerate}
+  \TLtakeaway{若第 2、6、7 条能流畅推导，你已掌握本讲义的核心：三类注意力在两阶段下的时间—显存—保真三角权衡。}
+\end{frame}
+
+% #############################################################################
+\TLsection{练习集 · Exercises（含提示，解答见附录）}
+% #############################################################################
+
+\begin{frame}{综合练习 · Exercises 4--5}
+  \TLalertblock[\textbf{练习 4 · Exercise 4} \ \diff{\bigstar\bigstar}]{%
+  线性注意力模型：$d_k'{=}d_v{=}128,\ h{=}8,\ L{=}24$，fp16，$b{=}1$。
+  (a) 每层每头状态 $S_t$ 多少个数？\ (b) 全模型状态总显存？\ (c) 它随 $n$ 变化吗？}
+  \footnotesize\textcolor{TLinkSoft}{\hint{} $S_t$ 是 $128\times128$；总数 $=L\,h\,d_k'd_v$；乘 $p$ 得字节；与 $n$ \emph{无关}（这正是 $\bigO{1}$ 的含义）。}
+  \vspace{4pt}
+
+  \normalsize
+  \TLalertblock[\textbf{练习 5 · Exercise 5} \ \diff{\bigstar\bigstar}]{%
+  Llama-2-7B（fp16，权重 $14$ GB）部署在 $80$ GB GPU 上，$n{=}4096$。
+  若余下显存\emph{全}给 KV-cache，最多能并发多少条请求（忽略激活与开销）？}
+  \footnotesize\textcolor{TLinkSoft}{\hint{} 单条 KV $=2$ GiB（第 3 节）；可用 $\approx 80-14=66$ GB；$66/2\approx 33$ 条。这就是 PagedAttention 想榨干的并发上限。}
+\end{frame}
+
+\begin{frame}{综合练习 · Exercise 6（洞察题）}
+  \TLalertblock[\textbf{练习 6 · Exercise 6} \ \diff{\bigstar\bigstar\bigstar}]{%
+  深入题：为什么\emph{精确} Softmax 注意力\emph{无法}像线性注意力那样，
+  把历史压成一个固定大小的递推状态？请用 softmax 的分母（配分函数）给出论证。}
+  \begin{itemize}
+    \item \hint{1} 固定状态要成立，需存在\emph{有限的充分统计量}，使任意未来 $q_t$ 都能仅凭它算出输出。
+    \item \hint{2} 输出含 $\sum_j \exp(q_t\!\cdot\! k_j)v_j$ 与 $\sum_j \exp(q_t\!\cdot\! k_j)$，两者都随\emph{每个新 $q_t$ 改变}。
+    \item \hint{3} $\exp(q\!\cdot\! k)$ 不可分解为 $\phi(q)\!\cdot\!\phi(k)$（有限维），故没有不依赖 $q_t$ 的有限状态——必须保留全部 $k_j$。
+  \end{itemize}
+  \TLtakeaway{“可分解性”是分水岭：线性核 $\phi(q)\!\cdot\!\phi(k)$ 可分解 $\Rightarrow$ 有限状态；$\exp$ 不可分解 $\Rightarrow$ 必存全历史。完整解答见附录。}
+\end{frame}
+
+% #############################################################################
+\TLsection{参考文献 · References / Bibliographical Notes}
+% #############################################################################
+
+\begin{frame}{参考文献 · References（一）：基础与缓存压缩}
+  \footnotesize
+  \begin{itemize}
+    \item Vaswani et al.\ (2017). \emph{Attention Is All You Need.} NeurIPS. —— Transformer 与 Softmax 注意力原始定义。
+    \item Shazeer (2019). \emph{Fast Transformer Decoding: One Write-Head is All You Need.} arXiv. —— \textbf{MQA}。
+    \item Ainslie et al.\ (2023). \emph{GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints.} EMNLP. —— \textbf{GQA}。
+    \item DeepSeek-AI (2024). \emph{DeepSeek-V2 / V3 Technical Report.} —— \textbf{MLA}（低秩潜在 KV 压缩 + 解耦 RoPE）。
+    \item Pope et al.\ (2022). \emph{Efficiently Scaling Transformer Inference.} —— 推理两阶段、KV-cache 成本分析。
+  \end{itemize}
+  \vspace{2pt}
+  \textcolor{TLinkSoft}{这些文献覆盖第 1--4 节：注意力定义、prefill/decode、以及 MHA→MQA→GQA→MLA 的缓存压缩谱系。}
+\end{frame}
+
+\begin{frame}{参考文献 · References（二）：系统级优化}
+  \footnotesize
+  \begin{itemize}
+    \item Dao et al.\ (2022). \emph{FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness.} NeurIPS；Dao (2023) \emph{FlashAttention-2}。
+    \item Milakov \& Gimelshein (2018). \emph{Online normalizer calculation for softmax.} —— 在线 softmax。
+    \item Rabe \& Staats (2021). \emph{Self-attention Does Not Need $O(n^2)$ Memory.}
+    \item Kwon et al.\ (2023). \emph{Efficient Memory Management for LLM Serving with PagedAttention.} SOSP. —— \textbf{vLLM}。
+    \item Xiao et al.\ (2023). \emph{StreamingLLM: Efficient Streaming LMs with Attention Sinks};\ \ Zhang et al.\ (2023). \emph{H2O: Heavy-Hitter Oracle}；\ \ Liu et al.\ (2023). \emph{KIVI}（KV 量化）。
+  \end{itemize}
+  \vspace{2pt}
+  \textcolor{TLinkSoft}{覆盖第 5 节：IO 感知注意力、分页内存管理、流式/驱逐、低比特 KV 量化。}
+\end{frame}
+
+\begin{frame}{参考文献 · References（三）：线性注意力、SSM 与中文资料}
+  \footnotesize
+  \begin{itemize}
+    \item Katharopoulos et al.\ (2020). \emph{Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention.} ICML.
+    \item Choromanski et al.\ (2021). \emph{Rethinking Attention with Performers.} ICLR.
+    \item Gu et al.\ (2022). \emph{S4: Efficiently Modeling Long Sequences with Structured State Spaces};\ Gu \& Dao (2023). \emph{Mamba.}
+    \item Peng et al.\ (2023). \emph{RWKV: Reinventing RNNs for the Transformer Era};\ Yang et al.\ (2024). \emph{Gated Linear Attention (GLA).}
+    \item Lieber et al.\ (2024). \emph{Jamba: A Hybrid Transformer-Mamba LM.}
+    \item 苏剑林. \emph{线性注意力综述.} \texttt{kexue.fm/archives/11033}（及本讲义所据的若干中文博客来源）。
+  \end{itemize}
+  \vspace{2pt}
+  \textcolor{TLinkSoft}{覆盖第 6--7 节：核化线性注意力、随机特征、SSM（S4/Mamba）、RWKV、门控线性注意力、混合架构。}
+\end{frame}
+
+% #############################################################################
+\appendix
+% #############################################################################
+
+\TLsection{附录 · Appendix（解答与补充推导）}
+
+\begin{frame}{附录 A · 练习解答 1--3}
+  \footnotesize
+  \textbf{Exercise 1.} 第 $t{=}1000$ 步、$d{=}2048$：打分项 $\sim t^2 d=10^6\cdot2048$；投影项 $\sim t d^2=1000\cdot2048^2$。
+  比值 $t^2d : td^2 = t:d = 1000:2048$，故\emph{投影项主导}。课文 $\bigO{n^3d}$ 的渐近以 $n\gg d$ 为前提。
+  \medskip
+
+  \textbf{Exercise 2.} (a) $2Ldp=2\cdot96\cdot12288\cdot2=4{,}718{,}592$ B $\approx 4.5$ MiB/token。
+  (b) $\times n{=}2048 \approx 9.2$ GiB。 (c) fp8 即 $p{=}1$，整体减半 $\to \approx 4.6$ GiB。
+  \medskip
+
+  \textbf{Exercise 3.} GQA $g{=}4$：缩小 $h/g=32/4=\mathbf{8\times}$。
+  MLA $d_c{=}512$ vs $hd_k{=}4096$：$4096/512=\mathbf{8\times}$（再加 $K,V$ 合一缓存，实际更省）。
+\end{frame}
+
+\begin{frame}{附录 A · 练习解答 4--6}
+  \footnotesize
+  \textbf{Exercise 4.} (a) $S_t$ 为 $128\times128=16{,}384$ 个数。
+  (b) 总数 $=L\,h\,d_k'd_v=24\cdot8\cdot16{,}384=3{,}145{,}728$；$\times2$ B $=\mathbf{6}$ MiB。
+  (c) \emph{与 $n$ 无关}——这正是 $\bigO{1}$ 状态的含义（对比：Softmax 在 $n{=}32$K 时 KV 会涨到数 GiB）。
+  \medskip
+
+  \textbf{Exercise 5.} 可用显存 $\approx 80-14=66$ GB；单条 $n{=}4096$ KV $=2$ GiB；
+  $\lfloor 66/2\rfloor \approx \mathbf{33}$ 条（忽略激活/碎片/系统开销；PagedAttention 的目标就是逼近这个上限）。
+  \medskip
+
+  \textbf{Exercise 6.} 固定状态 $\Leftrightarrow$ 存在不依赖未来 $q_t$ 的\emph{有限充分统计量}。Softmax 输出
+  $o_t=\frac{\sum_j e^{q_t\cdot k_j}v_j}{\sum_j e^{q_t\cdot k_j}}$ 中，分子分母都随\emph{每个新 $q_t$ 重新加权};
+  因 $e^{q\cdot k}$ 无有限维分解 $\phi(q)\!\cdot\!\phi(k)$，不存在能复现任意 $q_t$ 结果的有限状态 $\Rightarrow$ 必须保留\emph{全部} $\{k_j,v_j\}$。线性核\emph{可}分解，故\emph{有}有限状态 $S_t$。
+\end{frame}
+
+\begin{frame}{附录 B · 在线 softmax 与一次性 softmax 等价}
+  \footnotesize 断言：逐项更新 $m_j,\ell_j,o_j$ 后，$o_t/\ell_t$ 恰等于一次性 softmax。\proofskipnote 归纳证明：
+  \begin{TLeqderiv}
+  \begin{align*}
+    \text{设归纳假设 } \ell_{j-1}=\sum_{i\le j-1} e^{\,s_i-m_{j-1}},\quad
+    o_{j-1}=\sum_{i\le j-1} e^{\,s_i-m_{j-1}}v_i.\\
+    \text{更新到 } m_j:\quad
+    \ell_{j-1}e^{\,m_{j-1}-m_j}=\sum_{i\le j-1}e^{\,s_i-m_j},\ \text{再加 } e^{\,s_j-m_j}
+    \Rightarrow \ell_j=\sum_{i\le j}e^{\,s_i-m_j}.\\
+    \text{同理 } o_j=\sum_{i\le j}e^{\,s_i-m_j}v_i
+    \ \Rightarrow\ \frac{o_t}{\ell_t}=\frac{\sum_i e^{\,s_i-m_t}v_i}{\sum_i e^{\,s_i-m_t}}
+    =\frac{\sum_i e^{\,s_i}v_i}{\sum_i e^{\,s_i}}.\qquad\blacksquare
+  \end{align*}
+  \end{TLeqderiv}
+  减去公共 $m_t$ 在分子分母同时出现、相互抵消，故\emph{精确}等价；其作用纯粹是数值稳定（防 $e^{\text{大数}}$ 上溢）。
+\end{frame}
+
+\begin{frame}{附录 C · decode 单步 FLOP 账本（有缓存）}
+  \footnotesize 第 $t$ 步、单层、$h$ 头、隐藏维 $d$、$d=hd_k$：\proofskipnote
+  \vspace{2pt}
+  \begin{TLtable}{@{}lll@{}}
+    \TLthead \textbf{子步骤} & \textbf{矩阵形状} & \textbf{FLOPs（量级）} \\
+    \midrule
+    $q,k,v$ 投影 & $1\times d \;\cdot\; d\times d$（$\times3$） & $\bigO{d^2}$ \\
+    \TLthl 打分 $q_t\Kc\T$ & $1\times d\;\cdot\;d\times t$ & $\bigO{t d}$ \\
+    softmax & $t$ 个分数归一化 & $\bigO{t}$ \\
+    \TLthl 加权 $\cdot\Vc$ & $1\times t\;\cdot\;t\times d$ & $\bigO{t d}$ \\
+    输出投影 & $1\times d\;\cdot\;d\times d$ & $\bigO{d^2}$ \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{2pt}
+
+  单层单步合计 $\bigO{td + d^2}$；乘 $L$ 层、对 $t=1..n$ 求和 $\Rightarrow \bigO{n^2 d + n d^2}=\bigO{n^2 d}$，与正文一致。
+  注意 decode 的瓶颈\emph{不}在这些 FLOPs，而在为打分/加权\emph{读取} $\bigO{td L p}$ 字节的 KV（第 4 节带宽分析）。
+\end{frame}
+
+\begin{frame}{附录 D · 记号速查卡 · Notation Card}
+  \footnotesize
+  \begin{TLtable}{@{}llll@{}}
+    \TLthead \textbf{符号} & \textbf{含义} & \textbf{符号} & \textbf{含义} \\
+    \midrule
+    $n$ & 序列长度 & $L$ & 层数 \\
+    \TLthl $t$ & decode 步索引 & $b$ & 批大小 \\
+    $d$ & 隐藏维 ($=hd_k$) & $p$ & 精度字节 \\
+    \TLthl $h$ & 头数 & $\phi$ & 特征映射 \\
+    $d_k,d_v$ & 每头 K/V 维 & $S_t$ & 线性注意力状态 ($d_k'\times d_v$) \\
+    \TLthl $n_{kv}$ & KV 头数 (MHA/GQA/MQA) & $\lambda$ & 遗忘门 / 衰减 \\
+    $d_c$ & MLA 潜在维 & $m,\ell$ & 在线 softmax 的最大值/和 \\
+    \bottomrule
+  \end{TLtable}
+  \vspace{4pt}
+
+  \centering\textcolor{TLaccent}{\textbf{—— 讲义完 · End ——}}\\[2pt]
+  \textcolor{TLinkSoft}{从 $\bigO{n^3 d}$ 到 $\bigO{n^2 d}$ 到 $\bigO{nd^2}$：三类注意力、两阶段、一个权衡三角。}
+\end{frame}
+
+\end{document}
