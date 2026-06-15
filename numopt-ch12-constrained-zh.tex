@@ -72,6 +72,16 @@
 % =============================================================================
 \TLsection{先建直觉 · 约束优化在解决什么（新手先读这里）}
 
+\begin{frame}{先认三个记号（看不懂公式只看这页就够）}
+  \begin{itemize}
+    \item $\grad f$（梯度）：指向“最快变好”方向的箭头；这就是训练里做梯度下降时用的那个梯度。
+    \item $\grad f=0$：四面八方都平了，往哪边小走一步都没有一阶改善。
+    \item 法向：垂直戳出约束曲线的方向，像车轮的辐条；在边界上，它告诉你限制从哪边顶住你。
+    \item $\lambda$（拉格朗日乘子）：一个“价格”数字，告诉你把限制放松一点点能省多少；这里的 $\lambda$ 不是学习率。
+  \end{itemize}
+  \TLtakeaway{先把梯度、法向、价格这三件事放进脑子；后面的公式只是把这三句话写精确。}
+\end{frame}
+
 \begin{frame}{一句话：约束优化在解决什么}
   \begin{columns}[T]
     \column{0.48\textwidth}
@@ -102,7 +112,7 @@
       \end{tikzpicture}\\[-2pt]
       {\scriptsize 示意图。}
   \end{columns}
-  \TLtakeaway{约束优化不是把 $\grad f=0$ 硬套到边界上，而是问：在允许的移动里，是否还有下降方向。}
+  \TLtakeaway{约束优化不是硬套“无约束时的最优条件”；而是看允许方向里是否还能下降。}
 \end{frame}
 
 \begin{frame}{为什么 $\grad f=0$ 失效：一张图}
@@ -134,24 +144,16 @@
       \end{tikzpicture}\\[-2pt]
       {\scriptsize 示意图。}
   \end{columns}
-  \TLtakeaway{边界最优点的关键不是 $\grad f$ 消失，而是 $\grad f$ 只能沿约束法向表达。}
+  \TLtakeaway{关键不是“目标的梯度消失”，而是“目标的下降方向与约束边界对齐（成比例）”。}
 \end{frame}
 
 \begin{frame}{KKT 一句话 + 乘子是影子价格}
   \begin{itemize}
     \item KKT 把“相切”推广到很多等式和不等式约束。
-    \item 在最优点，目标梯度由起作用约束的梯度拼出来：
-  \end{itemize}
-  \[
-    \grad f(\xs)=\sum_{i\in\Aset(\xs)}\lambda_{i}^{*}\grad c_i(\xs),
-    \qquad
-    \lambda_{i}^{*}\ge0,\quad \lambda_{i}^{*}c_i(\xs)=0 .
-  \]
-  \begin{itemize}
-    \item 还要满足可行性；符号条件只约束起作用的不等式乘子。
-    \item 本章不等式统一写成 $c_i(x)\ge0$；放松第 $i$ 个限制一单位时，影子价格满足
-    $\partial f^{*}/\partial\epsilon_{i}=-\lambda_{i}^{*}$。
-    \item 直觉：$\lambda_{i}^{*}$ 越大，放松第 $i$ 个限制越值钱。
+    \item 在最优点，目标的“推力”可以由真正卡住你的约束共同解释；不起作用的限制不施力。
+    \item 还要满足可行性、乘子符号与互补性：没有卡住的限制，对应价格为零。
+    \item 乘子的影子价格直觉：把某条限制放松一单位，最优目标值大约能改善多少。
+    \item 直觉：乘子越大，放松那条限制越值钱；乘子为零，说明它不是瓶颈。
     \item 这会在定理 12.1 和后面的影子价格页正式出现。
   \end{itemize}
   \TLtakeaway{KKT 是“相切图像”的代数版；乘子不仅是比例数，也是约束的边际价值。}
@@ -163,12 +165,9 @@
     \item \textbf{运筹与经济}：资源分配、定价、影子价格。
     \item \textbf{工程与控制}：受限设计、最优控制。
   \end{itemize}
-  \[
-    \frac{\partial f^{*}}{\partial\epsilon_{i}}=-\lambda_{i}^{*}
-  \]
   \begin{itemize}
     \item $\bigstar$ \textbf{主线}：每节的 动手试试 $\to$ 揭示 $\to$ 反思（建议都读）。
-    \item $\blacktriangleright$ \textbf{第一遍可跳}：标“证明”的引理证明帧（Farkas、切锥、向锥投影等）——为严谨补的，想深究再回看。
+    \item $\blacktriangleright$ \textbf{证明读法}：第一遍先抓每个证明帧的“要点”；第二遍回来看 Farkas、切锥、向锥投影等证明细节——这些正是你需要的数学，已为你拆成小步。
     \item \textbf{背景}：多元微积分（梯度、Taylor 展开）+ 线性代数即可；KKT 不熟就先看本节。
   \end{itemize}
   \TLtakeaway{第一遍先抓住“相切、起作用约束、乘子、影子价格”这四个直觉，再回头补证明。}
@@ -177,24 +176,39 @@
 % =============================================================================
 \TLsection{1 \ 定位：约束如何改变一切}
 
-\begin{frame}{一般约束优化问题}
-  本章始终研究
+\begin{frame}{一般约束优化问题：先看问题长什么样}
+  这是你在 constrained training 里已经见过的形状：最小化 loss，同时满足硬约束。
   \[
     \min_{x\in\R^{n}} f(x)
     \quad\text{s.t.}\quad
-    \begin{cases}
-      c_i(x) = 0, & i\in\Eset \quad(\text{等式约束}),\\[2pt]
-      c_i(x) \ge 0, & i\in\Iset \quad(\text{不等式约束}),
-    \end{cases}
+    c_i(x)=0\ (i\in\Eset),\qquad
+    c_i(x)\ge0\ (i\in\Iset).
   \]
-  其中 $f$ 与所有 $c_i$ 都光滑。\TLterm{可行集}为
+  \begin{itemize}
+    \item $x$ 是模型参数向量；$f(x)$ 是要最小化的目标，也就是 loss。
+    \item $c_i(x)$ 是第 $i$ 条限制；等式限制必须刚好满足，不等式限制像预算下限或安全余量。
+    \item $\Eset$ 收集等式限制的编号，$\Iset$ 收集不等式限制的编号。
+  \end{itemize}
+  \TLterm{可行集}就是所有守规矩的参数：
   \[
-    \feas = \{\, x \mid c_i(x)=0,\ i\in\Eset;\ \ c_i(x)\ge 0,\ i\in\Iset \,\},
+    \feas=\{\,x\mid c_i(x)=0\ (i\in\Eset),\ c_i(x)\ge0\ (i\in\Iset)\,\},
     \qquad \min_{x\in\feas} f(x).
   \]
-  \TLinfoblock{反复使用的记号}{$\Eset,\Iset$ 为等式/不等式的指标集；$\grad c_i$ 为\emph{约束梯度}；
-  稍后 $\Lag$ 表示拉格朗日函数，$\Aset(x)$ 表示起作用集。假设你已掌握第 2 章的泰勒定理与无约束最优性
-  条件（$\grad f=0$，$\grad^2 f\succeq 0$）。}
+  \TLtakeaway{先把它读成一个受限训练问题：参数要让 loss 小，但只能在可行集里移动。}
+\end{frame}
+
+\begin{frame}{一般约束优化问题：为什么旧条件会坏}
+  无约束优化里，局部极小点常用两条条件检查：
+  \[
+    \grad f(\xs)=0,\qquad \grad^{2} f(\xs)\succeq0.
+  \]
+  \begin{itemize}
+    \item 这两条条件默认你能朝任意小方向试探。
+    \item 约束会删掉一部分方向；在边界上，有些“会让目标更好”的方向是禁止的。
+    \item 所以梯度不必消失；真正需要检查的是：所有允许方向里是否还存在下降方向。
+    \item 后面会把“允许方向”精确化为切锥，再把“无下降方向”精确化为 KKT。
+  \end{itemize}
+  \TLtakeaway{约束打破的不是微积分，而是“可以朝任意方向走”这个隐含前提。}
 \end{frame}
 
 \begin{frame}{动手试试：$\grad f = 0$ 还成立吗？}
@@ -393,6 +407,16 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}{先认两个术语}
+  \begin{itemize}
+    \item \TLterm{锥 (cone)}：一族方向，对正数缩放封闭；如果 $d$ 是合法方向，那么 $\alpha d$（$\alpha>0$）也合法。
+    \item ML 锚点：把“所有合法的梯度步方向”想成一个楔形；步子放大或缩小，方向族仍然合法。
+    \item 小 $o$（$o(\cdot)$，little-o）：比步长更快趋于零的“零头”。
+    \item 如果步长是 $h$，$o(h)/h\to0$；它就是 Taylor 展开里你丢掉的高阶项。
+  \end{itemize}
+  \TLtakeaway{锥负责描述“能往哪些方向走”；小零头负责说明“线性近似之外还剩多少误差”。}
+\end{frame}
+
 \begin{frame}{动手试试：哪些方向是“好”的？}
   \turn{从 $\xs$ 出发的步 $d$ 若一阶保持可行\emph{且}使 $f$ 下降，则称为\emph{可行下降}方向。
   写出 $d$ 必须满足的不等式，再用几何描述这些 $d$ 的集合。这个集合何时为\emph{空}？}
@@ -513,6 +537,16 @@
 
 % =============================================================================
 \TLsection{6 \ 推导 KKT：锥、序列与 Farkas}
+
+\begin{frame}{记号别搞混}
+  \TLinfoblock{记号别搞混（尤其写代码的人）}{%
+  \begin{itemize}
+    \item $\lambda$ 是乘子 / 价格，不是学习率。
+    \item $T_{\feas}$ 是\emph{切锥}，不是转置；转置在本讲义写成上标 $\T$（$d\T\grad f$）。
+    \item $N$（法锥）不是维数 $n$。
+    \item $\Aset$（起作用集）不是某个矩阵 $A$（\S\,6 后面确实另有一个矩阵 $A$，注意区分）。
+  \end{itemize}}
+\end{frame}
 
 \begin{frame}{为何需要仔细推导}
   我们的例子用了模糊的说法“可行方向”。在弯曲的边界上，一个看似\emph{一阶}可行的方向，
@@ -864,7 +898,9 @@
     \item $\lambda_i^{*}$ 大 $\Rightarrow$ 该约束“昂贵”：放松它能大幅改善最优值。
     \item $\lambda_i^{*}=0$（不起作用，由互补性）$\Rightarrow$ 小变化无关紧要。
   \end{itemize}
-  \TLtakeaway{乘子是约束的边际价值——它的\emph{影子价格}。这正是 $\ls$ 与 $\xs$ 同样有趣的原因。}
+  例 12.4 里 $\lambda_{1}^{*}=3/4$：把约束 1 放松 $\epsilon=0.1$，最优值约改善
+  $0.1\times3/4=0.075$；而 $\lambda^{*}=0$ 的约束放松了也没有收益。
+  \TLtakeaway{乘子是约束的边际价值——它的\emph{影子价格}。这就像 loss 对预算的敏感度（目标对约束的一个“梯度”）。}
 \end{frame}
 
 % =============================================================================
