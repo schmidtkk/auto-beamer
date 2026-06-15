@@ -25,6 +25,7 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "AskUs
 | `pedagogy` | Teaching effectiveness, 13 patterns | Content review, journal clubs |
 | `excellence` | Multi-perspective parallel review | Pre-submission, important talks |
 | `devils-advocate` | Challenge assumptions, find weaknesses | Pre-defense, critical review |
+| `naive-reader` | Confused-student adversarial simulation: ceiling-bounded personas read in character and report where a *beginner* gets lost | Accessibility decks for cross-disciplinary / mixed-background readers; "students can't follow the proofs"; any time the lead model is too expert to feel beginner confusion |
 
 ## Mode-Specific Review Routing
 
@@ -371,6 +372,70 @@ Challenge assumptions and find weaknesses. Especially useful for pre-defense or 
 
 ---
 
+## Action: `naive-reader`
+
+Confused-student adversarial simulation. Use when the deck claims cross-disciplinary
+accessibility, when readers report "the proofs jump / I can't follow," or any time the
+reviewer is **too expert to feel a beginner's confusion** — which is always, for a strong
+model. The QA and pedagogy actions check whether the deck is *correct and well-structured*;
+this action checks whether a reader with a **bounded knowledge ceiling** can actually
+follow it.
+
+> **Also available as the standalone command [`/naive-reader`](../naive-reader/SKILL.md).**
+> Same capability and shared persona library; invoke `/naive-reader [deck] [personas]` directly,
+> or run it here as part of a broader review. The prescriptive counterpart that *calibrates*
+> scaffolding + per-slide cognitive load to a profile is [autobeamer-calibrate](../autobeamer-calibrate/SKILL.md).
+
+### The principle
+
+A brilliant model silently fills every gap from its own knowledge, so it certifies as
+"clear" proofs a beginner cannot follow. To get the missing information, simulate readers
+with a **hard knowledge ceiling** and an **anti-cheat rule**: a persona is forbidden from
+using knowledge above its ceiling, and if it catches itself following a step only because
+it secretly knows more, it flags that step as a wall. A beginner's confusion is data the
+lead model does not have; this action manufactures it.
+
+Full persona roster, anti-cheat rule, target-zone logic, and report schemas:
+[references/naive-reader-personas.md](references/naive-reader-personas.md). **Read that
+file before running.**
+
+### Procedure
+
+1. **Identify the deck's claimed audience** and pick ≥3 personas from the roster (P1 AI
+   engineer · P2 undergraduate · P3 high-school · P4 biomed · P5 humanities · P6
+   cross-field grad). Always include **P2** (the gap-free-proof arbiter) and one **floor
+   reader** (P3 or P5) to test the zero-prereq on-ramp.
+2. **Assign each persona a target zone** — the frames the deck *promises* this reader will
+   understand. Confusion *inside* the zone is a defect; outside-and-warned is expected.
+3. **Prepare the deck** for reading: flatten if it `\input`s sections, and extract the
+   **macro legend** from the preamble (e.g. `\grad`→∇, `\T`→transpose, `\xs`→x*) so
+   personas read the math as rendered, not as LaTeX noise. (High-fidelity option: 2-pass
+   build → read PDF page images.)
+4. **Spawn one subagent per persona, in parallel** (single message, multiple `Agent`
+   calls). Each gets: its persona block verbatim, the anti-cheat rule, its target zone, the
+   deck text + macro legend, and the per-persona report schema. Personas never see each
+   other's output. Use `general-purpose` agents.
+5. **Synthesize** into the confusion heatmap + ranked defects (schema in the reference),
+   sorting confusion into: real defects (fix), gating defects (cheap signpost fix), and
+   expected confusion (leave). The ranked worklist feeds the gap-fill.
+
+### Health check (did the simulation work?)
+
+- If every persona "understood everything," the run is **broken** — a subagent cheated.
+  A healthy run has floor readers (P3/P5) stopping early on proof frames; the signal is
+  *in-target-zone* failures, not raw failure count.
+- Findings must be **frame-specific and token-specific** ("Frame 18: `Z` spanning the null
+  space was never defined"), not vague ("proofs are hard"). Re-prompt subagents that return
+  mush.
+- A legitimately *hard* step is not a defect; an *unjustified* step is. P2 arbitrates the
+  difference: "skipped a step" ≠ "deep idea."
+
+### Relation to other actions
+
+`pedagogy` judges structure against 13 patterns from the expert's chair; `naive-reader`
+judges *felt* comprehension from the beginner's chair. Run `naive-reader` to find the
+walls, then `pedagogy`/gap-fill to fix them. They are complementary, not redundant.
+
 ## Integration with Our Tools
 
 | Tool | Action | Usage |
@@ -389,3 +454,5 @@ Challenge assumptions and find weaknesses. Especially useful for pre-defense or 
 | Build errors, compilation | [autobeamer-build](../autobeamer-build/SKILL.md) |
 | TikZ quality, patterns | [autobeamer-tikz](../autobeamer-tikz/SKILL.md) |
 | Automated validation, visual check | [autobeamer-validate](../autobeamer-validate/SKILL.md) |
+| Confused-student simulation (standalone command) | [naive-reader](../naive-reader/SKILL.md) |
+| Calibrate scaffolding + per-slide cognitive load to a reader profile | [autobeamer-calibrate](../autobeamer-calibrate/SKILL.md) |

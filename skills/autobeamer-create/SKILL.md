@@ -125,6 +125,13 @@ Ask only what cannot be inferred safely:
 
 Avoid generic questionnaires. Use the material to ask concrete choices.
 
+**Map the audience to a reader profile.** Once the audience answer is in, resolve it to a profile via
+[autobeamer-calibrate](../autobeamer-calibrate/SKILL.md) `set-profile` (P1 AI engineer · P2 undergrad ·
+P3 high-school · P4 biomed · P5 humanities · P6 cross-field grad, or nearest + axis deltas). This drives a
+**per-slide cognitive-load budget** instead of the flat "≤5 new symbols" cap, and the per-profile
+scaffolding obligations. **Governing tenet:** for applied readers (P1/P4), proofs are *in-zone* and must be
+*scaffolded* (more steps), never gated away.
+
 ## Structure Plan Gate
 
 Before drafting, present a plan containing:
@@ -133,9 +140,17 @@ Before drafting, present a plan containing:
 - Per-section learning objective or narrative purpose.
 - Planned figures, tables, TikZ diagrams, or source images.
 - New notation and prerequisite reminders.
+- **Reader-profile budget card** from [autobeamer-calibrate](../autobeamer-calibrate/SKILL.md) `budget`:
+  per-slide `L_max`, abstraction-jump cap `τ`, working-set `W` (recap cadence), `teaching_style` opener,
+  `anchor_domain`, and the profile's scaffolding obligations. The planner plans each frame against `L_max`
+  and ensures every concept is introduced before use (zero prereq debt).
 - Validation gates from [references/validation/mode-gates.md](references/validation/mode-gates.md).
 
 Ask for approval before drafting.
+
+The Wave-2→3 **alignment check** then adds one line: every frame respects the target-profile budget
+(run `autobeamer-calibrate load-audit`); added scaffolding that raises load is absorbed by **splitting**,
+never shrinking.
 
 ## Drafting Rules
 

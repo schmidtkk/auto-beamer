@@ -1,0 +1,8 @@
+interface:
+  display_name: "Naive Reader Simulation"
+  short_description: "Confused-student adversarial review from ceiling-bounded reader personas"
+  brand_color: "#00796b"
+  default_prompt: "Use /naive-reader to simulate beginners with hard knowledge ceilings and report exactly where this deck loses them."
+
+policy:
+  allow_implicit_invocation: true
