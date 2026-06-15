@@ -29,6 +29,7 @@
 \newcommand{\half}{\tfrac{1}{2}}
 \newcommand{\xs}{x^{*}}
 \newcommand{\ls}{\lambda^{*}}
+\newcommand{\proofskipnote}{\footnote{\scriptsize 非数学背景读者：本帧为\emph{证明细节}，第一遍可先跳过，记住本帧\emph{要点}即可。}}
 % 苏格拉底式标记
 \newcommand{\stars}[1]{\textcolor{TLaccent}{#1}}
 \newcommand{\turn}[1]{\TLalertblock[\textbf{动手试试} —— 翻页前请先尝试]{#1}}
@@ -60,11 +61,117 @@
   这是一份\TLterm{主动式}讲义：目标是让你\emph{重新发明}这套理论，而不是被动阅读。
   \begin{itemize}
     \item 每个概念都从一个\textbf{问题或任务 (question)} 开始。请准备好纸笔。
+    \item \textbf{没学过约束优化？} 先读下一节"先建直觉"（用一张图讲清拉格朗日乘子与 KKT），再开始动手试试。
     \item 看到\textbf{“动手试试 (attempt / try)”} 时，请\emph{停下来}先尝试 (derive)，再翻到下一页。这样安排可行吗?
     \item 下一页给出并讨论答案。提示 (hints) 按由弱到强的顺序排列；完整解答 (solution) 见附录。
     \item 每一节以\textbf{反思 (reflection)} 结尾：你对这个主题的认识发生了什么变化？
   \end{itemize}
   \TLtakeaway{挣扎本身才是关键。先猜后纠正的想法会留下来；读来的想法会蒸发。}
+\end{frame}
+
+% =============================================================================
+\TLsection{先建直觉 · 约束优化在解决什么（新手先读这里）}
+
+\begin{frame}{一句话：约束优化在解决什么}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \begin{itemize}
+        \item 许多真实问题都在问：让一个指标尽量好，同时守住预算、物理、安全或数据限制。
+        \item 如果没有限制，最好的点通常满足 $\grad f=0$。
+        \item 加上限制后，最好点常常在边界上，$\grad f=0$ 一般不成立。
+        \item 本章要补上正确条件：沿允许移动的方向，已经没有办法继续变好。
+        \item 图中中心不是答案；答案在限制曲线与等高线相切处。
+      \end{itemize}
+    \column{0.52\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.78,>={Stealth[length=5pt]}]
+        \fill[TLprimaryTint] (-2.7,-1.75) rectangle (2.85,1.75);
+        \foreach \rx/\ry in {0.65/0.34,1.15/0.61,1.80/0.95,2.40/1.27}{
+          \draw[TLprimary!55,thick] (0,0) ellipse [x radius=\rx,y radius=\ry];
+        }
+        \draw[TLaccent,very thick]
+          (-2.30,-1.60) .. controls (-1.80,-0.90) and (-1.80,-0.35) .. (-1.80,0)
+          .. controls (-1.80,0.35) and (-1.80,0.90) .. (-2.30,1.60);
+        \coordinate (xc) at (0,0);
+        \coordinate (xs) at (-1.80,0);
+        \fill[TLinkSoft] (xc) circle (1.2pt) node[below right]{\scriptsize 无约束中心};
+        \fill[TLaccent] (xs) circle (1.8pt) node[below left]{\scriptsize 受限最优点};
+        \draw[->,TLinkSoft,thick] (xs) -- ($(xs)!0.58!(xc)$) node[above]{\scriptsize 变好但不可行};
+        \node[TLinkSoft] at (2.05,1.43) {\scriptsize $f$ 的等高线};
+        \node[TLaccent] at (-2.62,1.48) {\scriptsize 约束曲线};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize 示意图。}
+  \end{columns}
+  \TLtakeaway{约束优化不是把 $\grad f=0$ 硬套到边界上，而是问：在允许的移动里，是否还有下降方向。}
+\end{frame}
+
+\begin{frame}{为什么 $\grad f=0$ 失效：一张图}
+  \begin{columns}[T]
+    \column{0.46\textwidth}
+      \begin{itemize}
+        \item 在边界上的最好点，朝某些方向会变好，但那些方向不可行。
+        \item 等高线贴着约束曲线擦过去；再低一层会跑到限制外。
+        \item 两条曲线相切，所以两个法向平行：$\grad f=\lambda\,\grad c$。
+        \item 这个比例数 $\lambda$ 就是拉格朗日乘子。
+      \end{itemize}
+    \column{0.54\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.88,>={Stealth[length=5pt]}]
+        \fill[TLprimaryTint] (-2.65,-1.55) rectangle (2.35,1.55);
+        \draw[TLprimary,very thick] (0,0) ellipse [x radius=1.65,y radius=0.86];
+        \draw[TLaccent,very thick]
+          (-2.10,-1.35) .. controls (-1.65,-0.72) and (-1.65,-0.28) .. (-1.65,0)
+          .. controls (-1.65,0.28) and (-1.65,0.72) .. (-2.10,1.35);
+        \coordinate (xs) at (-1.65,0);
+        \fill[TLaccent] (xs) circle (1.8pt) node[below left]{\scriptsize $\xs$};
+        \draw[->,TLprimary,very thick] ($(xs)+(0,0.18)$) -- ++(-0.95,0)
+          node[above]{\scriptsize $\grad f$};
+        \draw[->,TLaccent,very thick] ($(xs)+(0,-0.18)$) -- ++(-0.95,0)
+          node[below]{\scriptsize $\grad c$};
+        \draw[TLinkSoft,dashed] ($(xs)+(0,-1.05)$) -- ($(xs)+(0,1.05)$);
+        \node[TLinkSoft] at (0.65,1.16) {\scriptsize 一条等高线};
+        \node[TLaccent] at (-2.35,1.24) {\scriptsize 约束曲线};
+      \end{tikzpicture}\\[-2pt]
+      {\scriptsize 示意图。}
+  \end{columns}
+  \TLtakeaway{边界最优点的关键不是 $\grad f$ 消失，而是 $\grad f$ 只能沿约束法向表达。}
+\end{frame}
+
+\begin{frame}{KKT 一句话 + 乘子是影子价格}
+  \begin{itemize}
+    \item KKT 把“相切”推广到很多等式和不等式约束。
+    \item 在最优点，目标梯度由起作用约束的梯度拼出来：
+  \end{itemize}
+  \[
+    \grad f(\xs)=\sum_{i\in\Aset(\xs)}\lambda_{i}^{*}\grad c_i(\xs),
+    \qquad
+    \lambda_{i}^{*}\ge0,\quad \lambda_{i}^{*}c_i(\xs)=0 .
+  \]
+  \begin{itemize}
+    \item 还要满足可行性；符号条件只约束起作用的不等式乘子。
+    \item 本章不等式统一写成 $c_i(x)\ge0$；放松第 $i$ 个限制一单位时，影子价格满足
+    $\partial f^{*}/\partial\epsilon_{i}=-\lambda_{i}^{*}$。
+    \item 直觉：$\lambda_{i}^{*}$ 越大，放松第 $i$ 个限制越值钱。
+    \item 这会在定理 12.1 和后面的影子价格页正式出现。
+  \end{itemize}
+  \TLtakeaway{KKT 是“相切图像”的代数版；乘子不仅是比例数，也是约束的边际价值。}
+\end{frame}
+
+\begin{frame}{在哪儿用 + 怎么读这份讲义}
+  \begin{itemize}
+    \item \textbf{机器学习}：SVM 与对偶、带约束 / 正则化训练、最大熵。
+    \item \textbf{运筹与经济}：资源分配、定价、影子价格。
+    \item \textbf{工程与控制}：受限设计、最优控制。
+  \end{itemize}
+  \[
+    \frac{\partial f^{*}}{\partial\epsilon_{i}}=-\lambda_{i}^{*}
+  \]
+  \begin{itemize}
+    \item $\bigstar$ \textbf{主线}：每节的 动手试试 $\to$ 揭示 $\to$ 反思（建议都读）。
+    \item $\blacktriangleright$ \textbf{第一遍可跳}：标“证明”的引理证明帧（Farkas、切锥、向锥投影等）——为严谨补的，想深究再回看。
+    \item \textbf{背景}：多元微积分（梯度、Taylor 展开）+ 线性代数即可；KKT 不熟就先看本节。
+  \end{itemize}
+  \TLtakeaway{第一遍先抓住“相切、起作用约束、乘子、影子价格”这四个直觉，再回头补证明。}
 \end{frame}
 
 % =============================================================================
@@ -442,6 +549,7 @@
   \[
     f(z_k)=f(\xs)+\|z_k-\xs\|\,d\T\grad f(\xs)+o(\|z_k-\xs\|).
   \]
+  \proofskipnote
   若 $d\T\grad f(\xs)<0$，则当 $k$ 充分大时 $f(z_k)<f(\xs)+\half\|z_k-\xs\|\,d\T\grad f(\xs)<f(\xs)$，
   于是 $\xs$ 的任何邻域内都有 $f$ 更小的可行点——与局部最优矛盾。故 $d\T\grad f(\xs)\ge0$。\hfill$\square$
   \TLtakeaway{没有任何可行\emph{路径}能一开始就下坡。简洁，但它对所有路径取量词——我们需要一个可检验的代数版本。}
@@ -468,6 +576,7 @@
 
 \begin{frame}{引理 12.3(i) 的证明 —— 容易的包含}
   设 $d$ 是 $\{z_k\}$ 的极限方向，即 $z_k=\xs+\|z_k-\xs\|d+o(\|z_k-\xs\|)$。
+  \proofskipnote
   对等式约束 $i\in\Eset$，泰勒定理与可行性（$c_i(z_k)=0$）给出
   \[
     0=\frac{c_i(z_k)}{\|z_k-\xs\|}=\grad c_i(\xs)\T d+\frac{o(\|z_k-\xs\|)}{\|z_k-\xs\|}\ \xrightarrow{k\to\infty}\ \grad c_i(\xs)\T d.
@@ -479,6 +588,7 @@
 
 \begin{frame}{引理 12.3(ii) 的证明 —— 构造一条路径（思路）}
   给定 $d\in F_1$ 且 $\|d\|=1$，我们\emph{构造}一个以 $d$ 为极限方向的可行序列。
+  \proofskipnote
   \begin{itemize}
     \item 令 $A=[\grad c_i(\xs)]_{i\in\Aset}\T$ 行满秩（这就是 LICQ），$Z$ 张成其零空间。
     \item 对小的 $t_k\downarrow0$，解方程组 $R(z,t_k)=0$：
@@ -510,7 +620,8 @@
 \end{frame}
 
 \begin{frame}{引理 12.4 证明（$\Leftarrow$）—— 容易的方向}
-  设 $\grad f(\xs)=\sum_{i\in\Aset}\lambda_i\grad c_i(\xs)$，且起作用不等式上 $\lambda_i\ge0$。任取 $d\in F_1$，则
+  设 $\grad f(\xs)=\sum_{i\in\Aset}\lambda_i\grad c_i(\xs)$，且起作用不等式上 $\lambda_i\ge0$。\proofskipnote
+  任取 $d\in F_1$，则
   \[
     d\T\grad f(\xs)=\underbrace{\sum_{i\in\Eset}\lambda_i\, d\T\grad c_i}_{=\,0}
       +\underbrace{\sum_{i\in\Aset\cap\Iset}\lambda_i\, d\T\grad c_i}_{\ge\,0}\ \ge 0,
@@ -522,6 +633,7 @@
 
 \begin{frame}{引理 12.4 证明（$\Rightarrow$）—— 向锥投影}
   令 $N=\{\sum_{i\in\Aset}\lambda_i\grad c_i:\Iset \text{ 上 } \lambda_i\ge0\}$（闭凸）。
+  \proofskipnote
   设 $\grad f\notin N$，令 $\hat s$ 为 $N$ 中离 $\grad f$ 最近的点。投影的最优性给出
   $\hat s\T(\hat s-\grad f)=0$ 及对所有 $s\in N$ 有 $s\T(\hat s-\grad f)\ge0$。
   取 $d=\hat s-\grad f\neq0$，则
