@@ -285,6 +285,16 @@
   一阶可行性要求 $\grad c_1(x)\T d = 0$；改进要求 $\grad f(x)\T d<0$。
   \begin{itemize}
     \item 若存在同时满足两者的 $d$，则 $x$ 不是最优。故最优 $\Rightarrow$ 不存在这样的 $d$。
+  \end{itemize}
+
+  \medskip
+  在一个等式约束的 $\mathbb{R}^2$ 问题里，切方向构成一条直线：若 $d$ 是切向，则 $-d$ 也是切向。把"没有下降方向"同时用到 $d$ 和 $-d$：$\grad f(\xs)^{\T} d\ge0$ 且 $\grad f(\xs)^{\T}(-d)\ge0$，两者合起来强制 $\grad f(\xs)^{\T} d=0$。所以 $\grad f$ 与每个切向正交，只能沿法向 $\grad c_1$。
+
+  成对的方向 $d$ 与 $-d$ 把一个不等式夹成等式。
+\end{frame}
+
+\begin{frame}{揭示：拉格朗日条件（续）}
+  \begin{itemize}
     \item “没有切向能使 $f$ 下降”意味着 $\grad f$ \emph{与切线正交}，即与法向 $\grad c_1$ 平行：
   \end{itemize}
   \[
@@ -564,6 +574,9 @@
   \[
     z_k = \xs + \|z_k-\xs\|\,d + o(\|z_k-\xs\|).
   \]
+  \medskip
+  \textbf{为什么余项是 $o(\cdot)$：}$(z_k-\xs)/\|z_k-\xs\|\to d$ 恰好是说 $z_k-\xs-\|z_k-\xs\|\,d$ 比 $\|z_k-\xs\|$ 更快趋于零，即 $=o(\|z_k-\xs\|)$。后面每个证明都把这一行除以 $\|z_k-\xs\|$ 再令 $k\to\infty$。
+
   \TLtakeaway{$T_\feas(\xs)$ 刻画\emph{真实}可行运动的方向——不做线性化，只看老实的、进入 $\feas$ 的路径。}
 \end{frame}
 
@@ -584,6 +597,7 @@
     f(z_k)=f(\xs)+\|z_k-\xs\|\,d\T\grad f(\xs)+o(\|z_k-\xs\|).
   \]
   \proofskipnote
+  因为 $o(\|z_k-\xs\|)/\|z_k-\xs\|\to0$，当 $k$ 充分大时余项绝对值小于 $\half|d^{\T}\grad f|\,\|z_k-\xs\|$，被半个一阶项压过。
   若 $d\T\grad f(\xs)<0$，则当 $k$ 充分大时 $f(z_k)<f(\xs)+\half\|z_k-\xs\|\,d\T\grad f(\xs)<f(\xs)$，
   于是 $\xs$ 的任何邻域内都有 $f$ 更小的可行点——与局部最优矛盾。故 $d\T\grad f(\xs)\ge0$。\hfill$\square$
   \TLtakeaway{没有任何可行\emph{路径}能一开始就下坡。简洁，但它对所有路径取量词——我们需要一个可检验的代数版本。}
@@ -620,18 +634,24 @@
   \TLtakeaway{老实的可行运动必须尊重线性化约束——可微性使其在一阶上无从作弊。}
 \end{frame}
 
-\begin{frame}{引理 12.3(ii) 的证明 —— 构造一条路径（思路）}
-  给定 $d\in F_1$ 且 $\|d\|=1$，我们\emph{构造}一个以 $d$ 为极限方向的可行序列。
+\begin{frame}{引理 12.3(ii) 的证明 —— 用隐函数定理造路径}
+给定 $d\in F_1$，$\|d\|=1$。记 $A=[\grad c_i(\xs)^{\T}]_{i\in\Aset}$（行 = 起作用约束梯度）。LICQ 就是 $A$ 行满秩。取 $Z$，其列是 $A$ 零空间的一组基（$AZ=0$）。
   \proofskipnote
-  \begin{itemize}
-    \item 令 $A=[\grad c_i(\xs)]_{i\in\Aset}\T$ 行满秩（这就是 LICQ），$Z$ 张成其零空间。
-    \item 对小的 $t_k\downarrow0$，解方程组 $R(z,t_k)=0$：
-      \[ c(z)=t_k A d,\qquad Z\T(z-\xs-t_k d)=0. \]
-    \item 雅可比 $\begin{psmallmatrix}A\\ Z\T\end{psmallmatrix}$ 非奇异，故隐函数定理对每个 $t_k$ 给出唯一解 $z_k$。
-  \end{itemize}
-  于是 $c_i(z_k)=t_k\grad c_i(\xs)\T d$，在 $\Eset$ 上 $=0$、在起作用 $\Iset$ 上 $\ge0$——故 $z_k$ 可行——
-  且可验证 $(z_k-\xs)/\|z_k-\xs\|\to d$。\hfill$\square$
-  \TLtakeaway{LICQ $=$ 满秩 $=$ “隐函数定理可用”，这正是让我们能把任一线性化方向实现为真实路径的关键。}
+
+\TLinfoblock{隐函数定理}{若 $R(z,t)$ 光滑、$R(\xs,0)=0$，且 $\partial R/\partial z$ 在 $(\xs,0)$ 非奇异，则在 $t=0$ 附近存在唯一光滑的 $z(t)$ 使 $R(z(t),t)=0$、$z(0)=\xs$。\\[2pt]\textit{直觉：非奇异雅可比附近方程组可被光滑反解——就像 Newton 迭代在那里必定局部收敛。}}
+
+\medskip
+\textbf{为什么雅可比非奇异：}把 $A$（$m\times n$ 行满秩）与 $Z^{\T}$（$(n-m)\times n$）叠成 $\begin{psmallmatrix}A\\ Z^{\T}\end{psmallmatrix}$（$n\times n$）。$A$ 的行空间与 $A$ 的零空间互补、合起来张成 $\mathbb{R}^{n}$，故叠成的方阵可逆。
+\end{frame}
+
+\begin{frame}{引理 12.3(ii) 的证明 —— 路径以 $d$ 为极限方向}
+令 $R(z,t)=\begin{psmallmatrix} c_{\Aset}(z)-t\,A d\\ Z^{\T}(z-\xs-t d)\end{psmallmatrix}$，则 $R(\xs,0)=0$，且 $\partial R/\partial z|_{(\xs,0)}=\begin{psmallmatrix}A\\ Z^{\T}\end{psmallmatrix}$ 非奇异。隐函数定理给出唯一光滑的 $z_t$，$z_0=\xs$。
+
+\medskip
+\textbf{可行性：}由构造 $c_i(z_t)=t\,\grad c_i(\xs)^{\T} d$：在 $\Eset$ 上 $\grad c_i^{\T} d=0$ 故 $=0$；在起作用 $\Iset$ 上 $\grad c_i^{\T} d\ge0$ 故 $\ge0$。不起作用约束在小 $t$ 下因连续性仍 $>0$。所以 $z_t$ 可行。
+
+\medskip
+\textbf{极限方向：}对 $z_t$ 在 $t=0$ 求导：$z'(0)$ 满足 $\begin{psmallmatrix}A\\ Z^{\T}\end{psmallmatrix}z'(0)=\begin{psmallmatrix}A d\\ Z^{\T} d\end{psmallmatrix}=\begin{psmallmatrix}A\\ Z^{\T}\end{psmallmatrix}d$，故 $z'(0)=d$。于是 $(z_t-\xs)/t\to d$，从而 $(z_t-\xs)/\|z_t-\xs\|\to d$。$\square$
 \end{frame}
 
 \begin{frame}{预备知识回顾：Farkas 引理}
@@ -643,6 +663,14 @@
   \TLtakeaway{Farkas 是把“无可行下降方向”转化为“乘子存在”的引擎。}
 \end{frame}
 
+\begin{frame}{预备知识回顾：Farkas 引理（续）}
+  \medskip
+  \textbf{二维直觉：}把起作用梯度 $a_i$ 看成从原点射出的箭头，它们张成一个锥。要么 $g$ 落在锥内（可写成非负组合 (I)）；要么落在锥外，于是有一张超平面把 $g$ 与锥分开，其法向 $d$ 就是分离方向 (II)。
+
+  \medskip
+  \textbf{互斥很好看出：}若 (I) $g=\sum_i\lambda_i a_i$（$\lambda_i\ge0$）与 (II) $a_i^{\T} d\ge0\ \forall i$ 且 $g^{\T} d<0$ 同真，则 $g^{\T} d=\sum_i\lambda_i a_i^{\T} d\ge0$，与 $g^{\T} d<0$ 矛盾。故二者不能同真。（穷尽性是 Farkas 的实质，依赖锥的闭性，见文末注记。）
+\end{frame}
+
 \begin{frame}{引理 12.4 —— 方向化为乘子}
   \TLresultblock{引理 12.4}{\emph{不存在} $d\in F_1$ 使 $d\T\grad f(\xs)<0$ \ \emph{当且仅当} \ 存在 $\lambda_i$ 使
   \[
@@ -651,6 +679,9 @@
   这是把 Farkas 应用于 $g=\grad f(\xs)$ 与起作用梯度（等式约束以 $\pm\grad c_i$ 进入，故符号自由）。
   非负组合那一侧正是“$\grad f\in N$”，即起作用法向锥。
   \TLtakeaway{“无改进可行方向” $\Longleftrightarrow$ “$\grad f$ 是起作用梯度的合法非负组合”。该组合的系数\emph{就是}乘子。}
+
+  \medskip
+  \textbf{为什么等式乘子可自由变号：}把每个等式 $\grad c_i^{\T} d=0$ 写成两条不等式 $\grad c_i^{\T} d\ge0$ 与 $(-\grad c_i)^{\T} d\ge0$。对这套全是 $\ge0$ 的不等式用 Farkas，得非负系数 $\mu_i^{+}$（配 $+\grad c_i$）与 $\mu_i^{-}$（配 $-\grad c_i$）。令 $\lambda_i:=\mu_i^{+}-\mu_i^{-}$，它可正可负——这就是等式乘子的自由符号。
 \end{frame}
 
 \begin{frame}{引理 12.4 证明（$\Leftarrow$）—— 容易的方向}
@@ -668,7 +699,24 @@
 \begin{frame}{引理 12.4 证明（$\Rightarrow$）—— 向锥投影}
   令 $N=\{\sum_{i\in\Aset}\lambda_i\grad c_i:\Iset \text{ 上 } \lambda_i\ge0\}$（闭凸）。
   \proofskipnote
-  设 $\grad f\notin N$，令 $\hat s$ 为 $N$ 中离 $\grad f$ 最近的点。投影的最优性给出
+  设 $\grad f\notin N$，令 $\hat s$ 为 $N$ 中离 $\grad f$ 最近的点。
+
+\textbf{为什么投影给出这两条？}$N$ 是闭凸锥，$\hat{s}=\arg\min_{s\in N}\|s-\grad f\|^{2}$（$N$ 闭保证最近点存在）。
+
+(i) 对任意 $s\in N$，凸性给 $\hat{s}+t(s-\hat{s})\in N$（$0\le t\le1$）。令 $\varphi(t)=\|\hat{s}+t(s-\hat{s})-\grad f\|^{2}$，它在 $t=0$ 最小，故 $\varphi'(0)=2(s-\hat{s})^{\T}(\hat{s}-\grad f)\ge0$，即 $(s-\hat{s})^{\T}(\hat{s}-\grad f)\ge0$。
+
+(ii) $N$ 是锥，故 $2\hat{s}\in N$、$\tfrac{1}{2}\hat{s}\in N$。代入 (i)：取 $s=2\hat{s}$ 得 $\hat{s}^{\T}(\hat{s}-\grad f)\ge0$；取 $s=\tfrac{1}{2}\hat{s}$ 得 $\hat{s}^{\T}(\hat{s}-\grad f)\le0$。两者合起来 $\hat{s}^{\T}(\hat{s}-\grad f)=0$。
+
+代回 (i)：对所有 $s\in N$，$s^{\T}(\hat{s}-\grad f)\ge0$。
+
+\medskip
+\textit{投影 = 最近点；残差 $\hat{s}-\grad f$ 与 $N$ 中每个方向夹角不小于 $90^\circ$（钝角刻画），就像把一个梯度步投回约束集。}
+
+\medskip
+\end{frame}
+
+\begin{frame}{引理 12.4 证明（$\Rightarrow$）—— 向锥投影（续）}
+  投影的最优性给出
   $\hat s\T(\hat s-\grad f)=0$ 及对所有 $s\in N$ 有 $s\T(\hat s-\grad f)\ge0$。
   取 $d=\hat s-\grad f\neq0$，则
   \[
@@ -723,6 +771,10 @@
     \grad c_i(\xs)\T w\ge0\ (\lambda_i^{*}=0).
   \]}
   在 $F_2(\ls)$ 上有 $w\T\grad f(\xs)=\sum_i\lambda_i^{*}\,w\T\grad c_i(\xs)=0$：一阶信息已耗尽。
+
+  \medskip
+  \textbf{逐项看为何恰好是 $0$：}对 $i\in\Eset$ 和 $\lambda_i^{*}>0$ 的起作用 $i$，$F_2$ 的定义给 $\grad c_i^{\T} w=0$，那项为 $0$；对 $\lambda_i^{*}=0$ 的 $i$，系数本身为 $0$，那项也为 $0$。所以整个和恰是 $0$，而非 $\ge0$。
+
   \TLtakeaway{临界锥收集那些“贴着”强起作用约束的方向——恰是由曲率决定最优性的地方。}
 \end{frame}
 
@@ -731,12 +783,10 @@
   \[
     w\T\,\grad_{xx}\Lag(\xs,\ls)\,w\ \ge\ 0\qquad\text{对所有 } w\in F_2(\ls).
   \]}
-  \textbf{证明思路.} 用引理 12.3 构造以 $w/\|w\|$ 为极限方向的可行序列 $z_k$。互补性使沿其 $\Lag(z_k,\ls)=f(z_k)$；
-  对 $\Lag$ 作泰勒展开得
-  \[
-    f(z_k)=f(\xs)+\half(t_k/\|w\|)^2\, w\T\grad_{xx}\Lag(\xs,\ls)\,w+o(t_k^2).
-  \]
-  若曲率为负，则 $f(z_k)<f(\xs)$——矛盾。故其 $\ge0$。\hfill$\square$
+  \textbf{(1) 为什么沿这条路径 $\Lag(z_k,\ls)=f(z_k)$：}$\Lag(z_k,\ls)=f(z_k)-\sum_i\lambda_i^{*}c_i(z_k)$。用引理~12.3(ii) 造的路径有 $c_i(z_k)=t_k\grad c_i(\xs)^{\T} w$：对 $w\in F_2$ 的强起作用约束（$\lambda_i^{*}>0$）有 $\grad c_i^{\T} w=0$ 故 $c_i(z_k)=0$；不起作用约束 $\lambda_i^{*}=0$。于是 $\sum_i\lambda_i^{*}c_i(z_k)=0$，每项都消失。
+
+  \medskip
+  \textbf{(2) 对 $\Lag(\cdot,\ls)$ 在 $\xs$ 作二阶 Taylor：}一阶项 $\grad_x\Lag(\xs,\ls)^{\T}(z_k-\xs)$ 因 KKT 平稳性 $\grad_x\Lag(\xs,\ls)=0$ 而消失，只剩二阶项，得 $f(z_k)=f(\xs)+\half(t_k/\|w\|)^{2}\,w^{\T}\nabla_{xx}^{2}\Lag\,w+o(t_k^{2})$。若曲率 $<0$ 则 $f(z_k)<f(\xs)$，与局部最优矛盾。
   \TLtakeaway{用 $\grad_{xx}\Lag$ 而\emph{非} $\grad^2 f$：约束的曲率（以 $\ls$ 加权）也是故事的一部分。}
 \end{frame}
 
