@@ -1,0 +1,1972 @@
+% =============================================================================
+% 流体力学（水力学）自学讲义 · 第 2 部分
+% 第三章：流体运动学
+% 模式：passive-study · 主题：teal · 图示：TikZ 重绘
+% =============================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[teal]{template-lib/template-lib}
+\uselayout{text}\uselayout{eq}\uselayout{twocol}\uselayout{1img}\uselayout{table}
+\usetikzlibrary{arrows.meta,calc,positioning,patterns,decorations.pathmorphing,decorations.pathreplacing,decorations.markings}
+
+% ── 记号缩写 ─────────────────────────────────────────────────────────────────
+\newcommand{\rd}{\,\mathrm{d}}
+\newcommand{\dd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\DDt}[1]{\frac{\mathrm{D}#1}{\mathrm{D}t}}
+\newcommand{\grad}{\nabla}
+\newcommand{\divg}{\nabla\!\cdot}
+\newcommand{\vc}[1]{\boldsymbol{#1}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Rey}{\mathit{Re}}
+\newcommand{\atm}{\mathrm{atm}}
+\newcommand{\proofskipnote}{\footnote{\scriptsize 非数学背景读者：本帧为\emph{推导细节}，第一遍可先跳过，记住本帧\emph{要点}即可。}}
+
+% 本地化模板中的 takeaway 标签。
+\renewcommand{\TLtakeaway}[1]{%
+  \vspace{0.25em}%
+  \begin{tikzpicture}
+    \node[fill=TLaccentLight, rounded corners=3pt, inner sep=7pt,
+          text width=\dimexpr\linewidth-14pt\relax, align=justify] {%
+      \small\textcolor{TLaccent}{\textbf{要点。}} #1%
+    };
+  \end{tikzpicture}%
+  \vspace{0.1em}%
+}
+
+\TLsetfoot{流体力学（水力学）\textperiodcentered{} 自学讲义 \textperiodcentered{} 第 2 部分：流体运动学}
+
+\begin{document}
+
+% =============================================================================
+% A. 标题 + 如何使用
+% =============================================================================
+\TLtitlecenter
+  {流体运动学}
+  {流体力学（水力学）自学讲义 \textperiodcentered{} 第 2 部分（第三章）}
+  {第三章：描述流体怎样运动}
+  {passive-study 自学讲义}
+
+\begin{frame}{如何使用本讲义}
+  本讲义只研究\TLterm{运动学}：先把流体“怎样动”说清楚，暂时不问“为什么这样动”。你需要的背景是高等数学、线性代数和基础大学物理。
+  \begin{itemize}
+    \item 本章会先用大白话解释每个概念，再给出数学定义、图示和可复算的算例。
+    \item 非数学或非流体背景读者，请先读下一节“先建直觉”；看到带 \proofskipnote 的推导帧，第一遍可先跳过推导细节，只记住本帧要点。
+    \item 关键词第一次出现会用 \TLterm{术语} 标出；英文词只作为术语辅助，不作为正文解释。
+    \item 本轮只覆盖 A--E；其余材料将在后续轮次补齐。
+  \end{itemize}
+  \TLtakeaway{阅读顺序：先看图和直觉，再看定义；先理解“某个量在回答什么问题”，再计算公式。}
+\end{frame}
+
+% =============================================================================
+% B. 先建直觉
+% =============================================================================
+\TLsection{先建直觉 · 怎么"描述"流体在动（新手先读）}
+
+\begin{frame}{两种看法：跟着水走，还是守在原地看？}
+  大白话：如果你想知道一条河怎么流，可以给一滴墨水做记号一路跟着它，也可以站在桥上记录每一秒桥下的速度。
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \begin{itemize}
+        \item \TLterm{拉格朗日视角}：给流体质点编号，跟着同一个质点走。
+        \item \TLterm{欧拉视角}：守住空间中的固定点，看不同时刻是谁经过。
+        \item 前者像追踪气球，后者像固定测站拍照片。
+      \end{itemize}
+    \column{0.52\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.8,>={Stealth[length=5pt]}]
+        \fill[TLprimaryTint] (-2.7,-1.15) rectangle (2.7,1.25);
+        \draw[TLprimary,thick] (-2.7,-1.15) rectangle (2.7,1.25);
+        \draw[TLprimaryDark,thick,->] (-2.35,0.65).. controls (-1.35,1.1) and (-0.35,0.15)..(0.65,0.55).. controls (1.4,0.85) and (2.0,0.25)..(2.35,0.05);
+        \foreach \x/\y/\n in {-2.0/0.72/A,-0.8/0.64/A,0.45/0.55/A,1.65/0.35/A}{
+          \fill[TLaccent] (\x,\y) circle (2.2pt);
+          \node[TLaccent,above=2pt] at (\x,\y) {\n};
+        }
+        \draw[TLaccent,very thick] (-0.15,-1.05)--(-0.15,1.15);
+        \node[TLaccent,align=center] at (-0.15,-1.45) {固定测站};
+        \draw[->,TLprimaryDark,thick] (-2.25,-0.6)--(-1.35,-0.48);
+        \draw[->,TLprimaryDark,thick] (-0.55,-0.56)--(0.25,-0.4);
+        \draw[->,TLprimaryDark,thick] (1.05,-0.52)--(1.85,-0.35);
+        \node[TLinkSoft] at (-1.6,1.55) {跟踪同一个质点};
+        \node[TLinkSoft] at (1.3,-0.95) {记录固定点处速度};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{拉格朗日法追“谁在动”，欧拉法问“这里现在怎样动”。流体力学多数方程采用欧拉视角。}
+\end{frame}
+
+\begin{frame}{为什么固定点变化不等于质点感受到的变化？}
+  大白话：站在路边的温度计看到温度随时间变；坐在传送带上的温度计还会因为自己被带到冷热不同的位置而读数改变。
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \begin{itemize}
+        \item \TLterm{当地变化}：同一个空间点，时间一变，读数也变。
+        \item \TLterm{迁移变化}：质点移动到别的位置，遇到不同的空间分布。
+        \item 跟着质点看，总变化率要把这两种变化加起来。
+      \end{itemize}
+      \[
+        \text{跟着质点的变化}
+        =\text{当地变化}+\text{迁移变化}.
+      \]
+    \column{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.78,>={Stealth[length=5pt]}]
+        \draw[->,TLinkSoft,thick] (-2.4,0)--(2.6,0) node[right]{位置};
+        \draw[TLprimary,thick] (-2.1,-0.65) rectangle (2.1,-0.35);
+        \foreach \x in {-1.8,-1.2,-0.6,0,0.6,1.2,1.8}{
+          \draw[->,TLaccent,thick] (\x,-0.2)--++(0.45,0);
+        }
+        \node[draw=TLprimary,fill=white,rounded corners=2pt,inner sep=3pt] at (-1.45,0.7) {冷区};
+        \node[draw=TLaccent,fill=TLaccentLight,rounded corners=2pt,inner sep=3pt] at (1.45,0.7) {热区};
+        \draw[TLprimaryDark,thick] (-2.1,0.25).. controls (-0.9,0.2) and (0.7,1.0)..(2.1,1.25);
+        \fill[TLaccent] (-0.2,0.55) circle (2.5pt);
+        \draw[->,TLaccent,very thick] (-0.2,0.55)--(0.75,0.83);
+        \node[TLinkSoft,align=center,text width=4.4cm] at (0,-1.15) {固定点读数会变；被带着走的读数也会因位置而变};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{质点导数的直觉不是新公式，而是“时间变化”和“空间搬运”同时计入。}
+\end{frame}
+
+\begin{frame}{一个微团除了前进，还会怎样变形？}
+  大白话：一小块流体不是硬币。它可以整体搬家，也可以转起来、被拉长，或者被剪成斜四边形。
+  \begin{center}
+  \begin{tikzpicture}[scale=0.72,>={Stealth[length=5pt]}]
+    \foreach \x/\title in {-5.4/平动,-1.8/旋转,1.8/线变形,5.4/角变形}{
+      \node[TLprimaryDark] at (\x,1.45) {\title};
+    }
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-6.15,-0.45) rectangle (-5.25,0.45);
+    \draw[->,TLaccent,thick] (-5.7,0.7)--(-4.85,0.7);
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.25,-0.45) rectangle (-1.35,0.45);
+    \draw[->,TLaccent,thick] (-1.3,0.45) arc[start angle=45,end angle=315,radius=0.45];
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (1.25,-0.4) rectangle (2.35,0.4);
+    \draw[->,TLaccent,thick] (1.25,0.7)--(0.75,0.7);
+    \draw[->,TLaccent,thick] (2.35,0.7)--(2.95,0.7);
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (4.95,-0.45)--(5.95,-0.25)--(5.75,0.55)--(4.75,0.35)--cycle;
+    \draw[->,TLaccent,thick] (5.1,0.82)--(5.85,0.98);
+    \draw[->,TLaccent,thick] (5.1,-0.75)--(4.45,-0.88);
+    \node[TLinkSoft,align=center] at (-5.55,-1.1) {形状不变\\只换位置};
+    \node[TLinkSoft,align=center] at (-1.8,-1.1) {像小叶轮\\转动};
+    \node[TLinkSoft,align=center] at (1.8,-1.1) {长度变大\\或变小};
+    \node[TLinkSoft,align=center] at (5.35,-1.1) {直角被\\剪歪};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{速度梯度的任务就是把微团运动拆成平动、旋转、线变形和角变形四件事。}
+\end{frame}
+
+\begin{frame}{流线和迹线：一张照片，还是一段轨迹？}
+  大白话：流线像某一瞬间拍到的“箭头照片”；迹线像给一个小漂浮物贴标签后拍到的运动轨迹。
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \begin{itemize}
+        \item \TLterm{流线}：同一时刻，曲线切线处处沿当地速度方向。
+        \item \TLterm{迹线}：同一个质点在一段时间内走过的路。
+        \item 恒定流中，速度场不随时间变，二者重合。
+      \end{itemize}
+    \column{0.52\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.78,>={Stealth[length=5pt]}]
+        \draw[TLprimary,thick] (-2.45,0.55).. controls (-1.1,1.15) and (0.5,0.2)..(2.3,0.75);
+        \draw[TLprimary,thick] (-2.45,-0.15).. controls (-1.0,0.35) and (0.5,-0.55)..(2.25,-0.2);
+        \foreach \x/\y/\ang in {-1.8/0.72/12,-0.55/0.58/-12,0.9/0.58/18,1.75/0.68/6,-1.65/0.02/18,-0.35/-0.05/-20,1.0/-0.32/9}{
+          \draw[->,TLprimaryDark,thick] (\x,\y)--++(\ang:0.45);
+        }
+        \draw[TLaccent,very thick,dashed] (-2.1,-0.85).. controls (-1.4,-0.25) and (-0.35,-0.85)..(0.55,-0.25).. controls (1.15,0.25) and (1.65,0.05)..(2.2,0.45);
+        \foreach \x/\y in {-2.1/-0.85,-0.9/-0.55,0.55/-0.25,1.55/0.13,2.2/0.45}{
+          \fill[TLaccent] (\x,\y) circle (2pt);
+        }
+        \node[TLprimaryDark] at (-1.35,1.35) {流线：同一瞬间};
+        \node[TLaccent] at (0.95,-1.15) {迹线：同一质点};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{不要把“瞬时方向图”和“长期轨迹”混成一件事；只有恒定流中它们才重合。}
+\end{frame}
+
+\begin{frame}{阅读路径：第一遍抓概念，第二遍补推导}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+      \TLinfoblock{第一遍必读}{
+        \begin{itemize}
+          \item 拉格朗日法与欧拉法；
+          \item 质点导数的当地项和迁移项；
+          \item 旋转、变形、散度的物理意义；
+          \item 流线、迹线、流管和流量。
+        \end{itemize}}
+    \column{0.5\textwidth}
+      \TLinfoblock{第二遍细读}{
+        \begin{itemize}
+          \item 质点导数的链式法则推导；
+          \item 速度梯度的对称与反对称分解；
+          \item 亥姆霍兹速度分解；
+          \item 有旋、无旋和速度势的关系。
+        \end{itemize}}
+  \end{columns}
+  \medskip
+  本章默认你已经见过多元微积分中的梯度、散度和旋度；如果第一遍不熟，可以先把它们当成“空间变化率的记账工具”。
+  \TLtakeaway{学习路径：先会用白话区分概念，再用公式计算，最后再回头看推导为什么成立。}
+\end{frame}
+
+% =============================================================================
+% C. 3.1 描述流体运动的两种方法
+% =============================================================================
+\TLsection{3.1 描述流体运动的两种方法}
+
+\begin{frame}{拉格朗日法：给质点编号，然后一直跟着它}
+  大白话：这套方法像给每个流体质点贴上初始地址标签，之后无论它跑到哪里，都用这个标签认出它。
+  \begin{columns}[T]
+    \column{0.55\textwidth}
+      \begin{itemize}
+        \item \TLterm{拉格朗日法}以某个具体流体质点为研究对象。
+        \item 初始时刻位于 $(a,b,c)$ 的质点，在时刻 $t$ 的位置写为
+      \end{itemize}
+      \[
+        \vc r=\vc r(a,b,c,t),
+        \qquad
+        (a,b,c,t)\ \text{称为拉格朗日变数}.
+      \]
+      对同一个标签 $(a,b,c)$ 求时间导数：
+      \[
+        \vc u=\DDt{\vc r},\qquad
+        \vc a=\DDt{\vc u}.
+      \]
+    \column{0.45\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.82,>={Stealth[length=5pt]}]
+        \fill[TLprimaryTint] (-1.9,-1.1) rectangle (1.9,1.25);
+        \draw[TLprimary,thick] (-1.9,-1.1) rectangle (1.9,1.25);
+        \coordinate (A) at (-1.35,-0.45);
+        \coordinate (B) at (-0.35,0.15);
+        \coordinate (C) at (0.65,0.45);
+        \coordinate (D) at (1.35,0.2);
+        \draw[TLprimaryDark,thick,->] (A).. controls (-1.0,0.45) and (-0.3,0.65)..(C).. controls (1.0,0.62) and (1.25,0.35)..(D);
+        \foreach \p/\lab in {A/$t_0$,B/$t_1$,C/$t_2$,D/$t_3$}{
+          \fill[TLaccent] (\p) circle (2.2pt);
+          \node[TLaccent,above=2pt] at (\p) {\lab};
+        }
+        \node[draw=TLaccent,fill=TLaccentLight,rounded corners=2pt,inner sep=3pt] at (-1.05,1.0) {标签 $(a,b,c)$};
+        \node[TLinkSoft,align=center,text width=3.8cm] at (0,-1.45) {同一个质点在不同时间的位置连成轨迹};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{拉格朗日法天然适合追踪“同一个质点”的位置、速度、加速度和它携带的物理量。}
+\end{frame}
+
+\begin{frame}{欧拉法：固定测站的视角}
+  大白话：工程上常常关心某个管口、桥墩或壁面附近“此刻被谁冲刷、速度多大、压强多大”，而不是关心具体是哪一个质点。
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \begin{itemize}
+        \item \TLterm{欧拉法}守住空间中的固定点，记录不同时刻经过该点的质点。
+        \item 它像给整个流场连续拍照：每一张照片都给出各处的速度、压强和密度。
+        \item 这种方法最贴近管道、渠道、桥墩和泵站等工程问题。
+      \end{itemize}
+    \column{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.82,>={Stealth[length=5pt]}]
+        \draw[step=0.55,TLprimaryTint] (-1.7,-1.1) grid (1.7,1.1);
+        \draw[TLprimary,thick] (-1.7,-1.1) rectangle (1.7,1.1);
+        \foreach \x/\y/\ang in {-1.25/0.65/5,-0.55/0.45/20,0.15/0.62/8,0.85/0.38/-12,-1.0/-0.25/10,-0.2/-0.35/-8,0.65/-0.28/15,1.25/-0.55/-5}{
+          \draw[->,TLprimaryDark,thick] (\x,\y)--++(\ang:0.45);
+        }
+        \fill[TLaccent] (0.25,0.05) circle (2.5pt);
+        \draw[TLaccent,thick] (0.25,0.05) circle (0.35);
+        \node[TLaccent,align=center] at (0.15,1.45) {固定空间点\\$(x,y,z)$};
+        \draw[->,TLaccent,thick] (0.15,1.12)--(0.25,0.38);
+        \node[TLinkSoft,align=center,text width=3.5cm] at (0,-1.55) {每一瞬间记录整片流场};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{欧拉法不追踪质点身份，而是研究每个空间位置在每个时刻的流动状态。}
+\end{frame}
+
+\begin{frame}{欧拉法：场函数和欧拉变数}
+  形式化地说，欧拉法把物理量写成空间坐标和时间的函数。常见\TLterm{场函数}为
+  \[
+  \begin{aligned}
+    \vc u&=\vc u(x,y,z,t),\\
+    p&=p(x,y,z,t),\\
+    \rho&=\rho(x,y,z,t).
+  \end{aligned}
+  \]
+  \begin{itemize}
+    \item $(x,y,z,t)$ 称为\TLterm{欧拉变数}。
+    \item 同一个几何点在不同时刻通常由不同流体质点占据。
+    \item 几何点本身不携带物理量；物理量由当时占据该点的质点携带。
+  \end{itemize}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.62,>={Stealth[length=5pt]}]
+    \draw[TLprimary,thick] (-2.7,0) -- (2.7,0);
+    \fill[TLaccent] (0,0) circle (2.4pt);
+    \node[TLaccent,above=3pt] at (0,0) {固定点};
+    \draw[->,TLprimaryDark,thick] (-2.2,0.35)--(-1.25,0.35) node[midway,above] {$t_1$};
+    \draw[->,TLprimaryDark,thick] (-0.55,0.35)--(0.4,0.35) node[midway,above] {$t_2$};
+    \draw[->,TLprimaryDark,thick] (1.1,0.35)--(2.05,0.35) node[midway,above] {$t_3$};
+    \node[TLinkSoft] at (0,-0.55) {同一点被不同质点轮番占据};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{欧拉法研究“场”；它是流体力学中最常用的描述方式。}
+\end{frame}
+
+\begin{frame}{质点导数推导（一）：把质点路径代入场函数}
+  我们现在要解决一个接口问题：物理量写成欧拉场函数，但变化率要跟着同一个流体质点算。\proofskipnote
+  \begin{itemize}
+    \item 设某个标量物理量为 $\phi=\phi(x,y,z,t)$。
+    \item 跟着某个质点走时，它的位置随时间变化：
+      \[
+        x=x(t),\qquad y=y(t),\qquad z=z(t).
+      \]
+    \item 因此该质点携带的物理量是复合函数：
+      \[
+        \phi_{\mathrm{particle}}(t)
+        =\phi\bigl(x(t),y(t),z(t),t\bigr).
+      \]
+  \end{itemize}
+  对这个复合函数求导，必须同时计入四个自变量的变化。
+  \TLtakeaway{质点导数不是普通偏导；它沿着质点轨迹对欧拉场函数求总变化率。}
+\end{frame}
+
+\begin{frame}{质点导数推导（二）：逐项使用链式法则}
+  上一帧把质点携带的量写成 $\phi(x(t),y(t),z(t),t)$。现在逐项求导。\proofskipnote
+  \[
+    \DDt{\phi}
+      =\pd{\phi}{x}\dd{x}{t}
+       +\pd{\phi}{y}\dd{y}{t}
+       +\pd{\phi}{z}\dd{z}{t}
+       +\pd{\phi}{t}.
+  \]
+  质点位置对时间的导数就是速度分量：
+  \[
+    \dd{x}{t}=u_x,\qquad
+    \dd{y}{t}=u_y,\qquad
+    \dd{z}{t}=u_z.
+  \]
+  代入得到
+  \[
+    \DDt{\phi}
+      =\pd{\phi}{t}
+       +u_x\pd{\phi}{x}
+       +u_y\pd{\phi}{y}
+       +u_z\pd{\phi}{z}.
+  \]
+  \TLtakeaway{每一项都有来源：前三项来自质点换位置，最后一项来自同一位置的时间变化。}
+\end{frame}
+
+\begin{frame}{质点导数：用哈密顿算子整理迁移项}
+  为了把上一帧写得紧凑，引入\TLterm{哈密顿算子}
+  \[
+    \grad=\vc i\,\pd{}{x}+\vc j\,\pd{}{y}+\vc k\,\pd{}{z}.
+  \]
+  于是速度与梯度的点乘作用在标量 $\phi$ 上为
+  \[
+    (\vc u\cdot\grad)\phi
+      =u_x\pd{\phi}{x}
+       +u_y\pd{\phi}{y}
+       +u_z\pd{\phi}{z}.
+  \]
+  这里的 $(\vc u\cdot\grad)$ 是一个方向导数算子：它沿着速度方向读取 $\phi$ 的空间变化。
+  \TLtakeaway{迁移项不是“速度加梯度”，而是速度方向上的空间变化率。}
+\end{frame}
+
+\begin{frame}{质点导数：当地项加迁移项}
+  上一帧已经把空间搬运造成的变化写成 $(\vc u\cdot\grad)\phi$。把它与固定点的时间变化相加，就得到完整质点导数。
+  质点导数的标准写法是
+  \[
+    \boxed{\DDt{\phi}
+      =\pd{\phi}{t}+(\vc u\cdot\grad)\phi.} \tag{K1}
+  \]
+  \begin{itemize}
+    \item $\partial\phi/\partial t$ 是\TLterm{当地导数}，看固定点处随时间怎样变。
+    \item $(\vc u\cdot\grad)\phi$ 是\TLterm{迁移导数}，看质点移动到不同位置带来怎样的变化。
+  \end{itemize}
+  \TLtakeaway{写成 $(\vc u\cdot\nabla)\phi$ 是为了避免歧义：先形成方向导数算子，再作用到 $\phi$。}
+\end{frame}
+
+\begin{frame}{加速度：把质点导数作用到速度场}
+  大白话：加速度问的是“同一个流体质点的速度怎样变”。速度本身是矢量场，所以对每个分量分别用式 (K1)。
+  \[
+    \vc a=\DDt{\vc u}
+      =\pd{\vc u}{t}+(\vc u\cdot\grad)\vc u.
+  \]
+  三个分量写成
+  \[
+  \begin{aligned}
+    a_x&=\pd{u_x}{t}
+      +u_x\pd{u_x}{x}+u_y\pd{u_x}{y}+u_z\pd{u_x}{z},\\
+    a_y&=\pd{u_y}{t}
+      +u_x\pd{u_y}{x}+u_y\pd{u_y}{y}+u_z\pd{u_y}{z},\\
+    a_z&=\pd{u_z}{t}
+      +u_x\pd{u_z}{x}+u_y\pd{u_z}{y}+u_z\pd{u_z}{z}.
+  \end{aligned} \tag{K2}
+  \]
+  \TLtakeaway{当地加速度来自速度场随时间变；迁移加速度来自质点穿过不均匀的速度场。}
+\end{frame}
+
+% 算术核查：按本任务题面 u_x=yz+t,u_y=xz+t,u_z=xy+t，在 (1,1,1),t=1 处三分量速度均为 2。
+% 标准公式给 a_x 的迁移项为 2*0+2*1+2*1=4；若得到 2，是漏乘速度系数 u_y,u_z。
+\begin{frame}{算例 \#29：先算速度与所有需要的偏导数}
+  题设速度场为
+  \[
+    u_x=yz+t,\qquad u_y=xz+t,\qquad u_z=xy+t.
+  \]
+  在点 $(1,1,1)$、时刻 $t=1$：
+  \[
+    u_x=1\cdot1+1=2,\quad
+    u_y=1\cdot1+1=2,\quad
+    u_z=1\cdot1+1=2.
+  \]
+  各分量的当地导数均为
+  \[
+    \pd{u_x}{t}=\pd{u_y}{t}=\pd{u_z}{t}=1.
+  \]
+  空间偏导数在该点取值为
+  \[
+  \begin{array}{lll}
+    \pd{u_x}{x}=0, & \pd{u_x}{y}=z=1, & \pd{u_x}{z}=y=1,\\
+    \pd{u_y}{x}=z=1, & \pd{u_y}{y}=0, & \pd{u_y}{z}=x=1,\\
+    \pd{u_z}{x}=y=1, & \pd{u_z}{y}=x=1, & \pd{u_z}{z}=0.
+  \end{array}
+  \]
+  \TLtakeaway{迁移项一定要用“速度分量 $\times$ 空间偏导数”；不能只把空间偏导数相加。}
+\end{frame}
+
+\begin{frame}{算例 \#29：逐分量计算当地、迁移和总加速度}
+  当地加速度为
+  \[
+    \vc a_{\mathrm{local}}=(1,1,1).
+  \]
+  迁移加速度按式 (K2) 逐分量计算：
+  \[
+  \begin{aligned}
+    a_{x,\mathrm{conv}}
+      &=2\cdot0+2\cdot1+2\cdot1=4,\\
+    a_{y,\mathrm{conv}}
+      &=2\cdot1+2\cdot0+2\cdot1=4,\\
+    a_{z,\mathrm{conv}}
+      &=2\cdot1+2\cdot1+2\cdot0=4.
+  \end{aligned}
+  \]
+  因此
+  \[
+    \vc a_{\mathrm{conv}}=(4,4,4),\qquad
+    \vc a=\vc a_{\mathrm{local}}+\vc a_{\mathrm{conv}}=(5,5,5).
+  \]
+  \TLtakeaway{本题在三个方向上对称，所以三个总加速度分量相同；算术检查的关键是不要漏乘速度系数 $2$。}
+\end{frame}
+
+% =============================================================================
+% D. 3.2 流体微团运动分析
+% =============================================================================
+\TLsection{3.2 流体微团运动分析}
+
+\begin{frame}{为什么只看一个质点还不够？}
+  大白话：一个点没有形状，所以它谈不上被拉长、压扁或剪歪。要描述变形，至少要看一小团相邻质点的相对运动。
+  \begin{columns}[T]
+    \column{0.54\textwidth}
+      \begin{itemize}
+        \item \TLterm{流体微团}是宏观上很小、微观上仍含大量分子的流体小块。
+        \item 若微团内各点速度完全相同，它只会整体搬家，不会变形。
+        \item 变形来自速度随空间位置的变化，也就是速度的空间梯度。
+      \end{itemize}
+      \[
+        \vc u(P')-\vc u(P)\approx(\grad\vc u)\,\rd\vc r.
+      \]
+    \column{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.82,>={Stealth[length=5pt]}]
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-1.4,-0.9) rectangle (1.4,0.9);
+        \fill[TLaccent] (-0.7,-0.25) circle (2.2pt) node[below=3pt] {$P$};
+        \fill[TLaccent] (0.55,0.45) circle (2.2pt) node[above=3pt] {$P'$};
+        \draw[->,TLinkSoft,thick] (-0.7,-0.25)--(0.55,0.45) node[midway,below right] {$\rd\vc r$};
+        \draw[->,TLprimaryDark,thick] (-0.7,-0.25)--++(0.85,0.05) node[right] {$\vc u(P)$};
+        \draw[->,TLprimaryDark,thick] (0.55,0.45)--++(1.05,0.35) node[right] {$\vc u(P')$};
+        \node[TLinkSoft,align=center,text width=3.7cm] at (0,-1.35) {相邻两点速度不同，微团形状才会改变};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{速度梯度是描述微团旋转和变形的最小局部信息。}
+\end{frame}
+
+\begin{frame}{速度梯度张量：九个空间变化率放进一个矩阵}
+  \TLterm{速度梯度张量}把三个速度分量分别对三个空间坐标求偏导。按“行是速度分量、列是空间方向”排列：
+  \[
+    \grad\vc u=
+    \begin{bmatrix}
+      \pd{u_x}{x} & \pd{u_x}{y} & \pd{u_x}{z}\\
+      \pd{u_y}{x} & \pd{u_y}{y} & \pd{u_y}{z}\\
+      \pd{u_z}{x} & \pd{u_z}{y} & \pd{u_z}{z}
+    \end{bmatrix}.
+  \]
+  对附近点 $P'=P+\rd\vc r$ 做一阶近似：
+  \[
+    \vc u(P')=\vc u(P)+(\grad\vc u)\,\rd\vc r.
+  \]
+  \begin{itemize}
+    \item 九个量一起出现，看起来复杂。
+    \item 下一步把它拆成更有物理意义的部分：平动、旋转和变形。
+  \end{itemize}
+  \TLtakeaway{速度梯度不是为了制造复杂度；它是微团局部运动的“原材料矩阵”。}
+\end{frame}
+
+\begin{frame}{平动：整个微团一起搬家}
+  大白话：平动是最简单的部分。把微团看成一个整体，它中心点速度是多少，整个微团就先按这个速度搬家。
+  \begin{columns}[T]
+    \column{0.54\textwidth}
+      \begin{itemize}
+        \item 取微团中心或代表点 $P$。
+        \item $\vc u(P)$ 称为微团的\TLterm{平动速度}。
+        \item 平动本身不改变微团内相邻点的距离，也不改变夹角。
+        \item 因此变形分析真正关心的是相对速度
+          \[
+            \vc u(P')-\vc u(P).
+          \]
+      \end{itemize}
+    \column{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.83,>={Stealth[length=5pt]}]
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-1.7,-0.5) rectangle (-0.65,0.55);
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (0.75,-0.5) rectangle (1.8,0.55);
+        \draw[->,TLaccent,thick] (-0.45,0.0)--(0.55,0.0) node[midway,above] {$\vc u(P)$};
+        \foreach \x/\y in {-1.4/0.25,-1.0/0.25,-1.4/-0.15,-1.0/-0.15,1.05/0.25,1.45/0.25,1.05/-0.15,1.45/-0.15}{
+          \fill[TLprimaryDark] (\x,\y) circle (1.5pt);
+        }
+        \node[TLinkSoft] at (0,-1.05) {形状和内部相对位置都不变};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{平动回答“微团整体去哪儿”；旋转和变形回答“微团内部相对位置怎样变”。}
+\end{frame}
+
+\begin{frame}{旋转：速度场的旋度给出微团角速度}
+  大白话：若微团像一个小叶轮那样转动，相邻点速度会呈现反向的切向差异。这个转动由速度梯度的反对称部分决定。
+  \[
+  \begin{aligned}
+    \omega_x&=\frac12\left(\pd{u_z}{y}-\pd{u_y}{z}\right),\\
+    \omega_y&=\frac12\left(\pd{u_x}{z}-\pd{u_z}{x}\right),\\
+    \omega_z&=\frac12\left(\pd{u_y}{x}-\pd{u_x}{y}\right),
+  \end{aligned}
+  \qquad
+    \boxed{\vc\omega=\frac12\,\grad\times\vc u.} \tag{K3}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.68,>={Stealth[length=5pt]}]
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-0.75,-0.75) rectangle (0.75,0.75);
+    \draw[->,TLaccent,thick] (0.9,0.1) arc[start angle=8,end angle=320,radius=0.9];
+    \node[TLaccent] at (1.7,0.2) {$\vc\omega$};
+    \draw[->,TLprimaryDark,thick] (-0.75,0.75)--(-0.2,1.08);
+    \draw[->,TLprimaryDark,thick] (0.75,-0.75)--(0.2,-1.08);
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{旋转角速度是旋度的一半；漏掉 $\frac12$ 会把微团自转速度算大一倍。}
+\end{frame}
+
+\begin{frame}{线变形速率：边长沿坐标方向伸长或缩短}
+  大白话：线变形看一条小线段本身变长还是变短。若 $x$ 方向右端比左端速度更大，这条线段就会被拉长。
+  \[
+    \boxed{
+    \varepsilon_{xx}=\pd{u_x}{x},\qquad
+    \varepsilon_{yy}=\pd{u_y}{y},\qquad
+    \varepsilon_{zz}=\pd{u_z}{z}.} \tag{K4}
+  \]
+  \begin{columns}[T]
+    \column{0.55\textwidth}
+      \begin{itemize}
+        \item $\varepsilon_{xx}$ 是 $x$ 方向单位长度的伸长速率。
+        \item 若 $\varepsilon_{xx}>0$，$x$ 向线段变长；若 $\varepsilon_{xx}<0$，它变短。
+        \item $y,z$ 方向完全类似，分别看对应方向速度分量沿对应坐标的变化。
+      \end{itemize}
+    \column{0.45\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.78,>={Stealth[length=5pt]}]
+        \draw[TLprimary,thick] (-1.65,0)--(1.65,0);
+        \fill[TLaccent] (-1.2,0) circle (2pt);
+        \fill[TLaccent] (1.2,0) circle (2pt);
+        \draw[->,TLprimaryDark,thick] (-1.2,0.25)--(-0.65,0.25);
+        \draw[->,TLprimaryDark,thick] (1.2,0.25)--(2.05,0.25);
+        \draw[<->,TLinkSoft] (-1.2,-0.35)--(1.2,-0.35) node[midway,below] {原长};
+        \node[TLinkSoft,align=center] at (0,0.9) {右端更快\\线段被拉长};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{线变形速率只看“同方向速度分量沿同方向坐标”的偏导。}
+\end{frame}
+
+\begin{frame}{角变形速率：直角被剪歪的速度}
+  大白话：角变形看两条原本互相垂直的小线段是否还保持直角。若一条边被横向拖动，直角就会变成斜角。
+  \[
+  \boxed{
+  \begin{aligned}
+    \varepsilon_{xy}=\varepsilon_{yx}
+      &=\frac12\left(\pd{u_y}{x}+\pd{u_x}{y}\right),\\
+    \varepsilon_{yz}=\varepsilon_{zy}
+      &=\frac12\left(\pd{u_z}{y}+\pd{u_y}{z}\right),\\
+    \varepsilon_{zx}=\varepsilon_{xz}
+      &=\frac12\left(\pd{u_x}{z}+\pd{u_z}{x}\right).
+  \end{aligned}} \tag{K5}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.5,>={Stealth[length=5pt]}]
+    \draw[TLprimary,thick] (-1.25,-0.75)--(-1.25,0.75)--(0.25,0.75);
+    \draw[TLaccent,thick] (0.95,-0.75)--(1.25,0.75)--(2.55,0.75);
+    \draw[->,TLprimaryDark,thick] (-1.25,1.05)--(-0.55,1.05);
+    \draw[->,TLprimaryDark,thick] (1.25,1.05)--(2.0,1.05);
+    \node[TLinkSoft] at (-0.55,-1.05) {原来是直角};
+    \node[TLinkSoft] at (1.75,-1.05) {剪切后角度改变};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{角变形速率取对称组合；反对称组合已经被归入旋转。}
+\end{frame}
+
+\begin{frame}{变形速率张量：把线变形和角变形合在一起}
+  \TLterm{变形速率张量}只保留速度梯度的对称部分：
+  \[
+    \vc\varepsilon
+    =\frac12\bigl(\grad\vc u+(\grad\vc u)^{\mathsf T}\bigr)
+    =
+    \begin{bmatrix}
+      \varepsilon_{xx} & \varepsilon_{xy} & \varepsilon_{xz}\\
+      \varepsilon_{yx} & \varepsilon_{yy} & \varepsilon_{yz}\\
+      \varepsilon_{zx} & \varepsilon_{zy} & \varepsilon_{zz}
+    \end{bmatrix}.
+  \]
+  因为
+  \[
+    \varepsilon_{ij}=\varepsilon_{ji},
+  \]
+  所以九个位置中只有六个独立分量：三个线变形分量和三个角变形分量。
+  \begin{itemize}
+    \item 对角线元素描述三条坐标方向线段的伸缩。
+    \item 非对角线元素描述坐标平面内的角变形。
+  \end{itemize}
+  \TLtakeaway{变形速率张量是对称矩阵；“对称”不是美观要求，而是角变形定义的一部分。}
+\end{frame}
+
+\begin{frame}{亥姆霍兹分解推导（一）：先把速度梯度拆成两半}
+  我们要把附近点速度写成“平动 + 旋转 + 变形”。第一步是把速度梯度矩阵拆成对称部分和反对称部分。\proofskipnote
+  令
+  \[
+    \vc G=\grad\vc u.
+  \]
+  定义
+  \[
+    \vc\varepsilon=\frac12(\vc G+\vc G^{\mathsf T}),
+    \qquad
+    \vc\Omega=\frac12(\vc G-\vc G^{\mathsf T}).
+  \]
+  两式相加：
+  \[
+    \vc\varepsilon+\vc\Omega
+    =\frac12(\vc G+\vc G^{\mathsf T})+\frac12(\vc G-\vc G^{\mathsf T})
+    =\vc G.
+  \]
+  所以
+  \[
+    \grad\vc u=\vc\varepsilon+\vc\Omega.
+  \]
+  \TLtakeaway{对称部分负责变形；反对称部分负责刚体式旋转。}
+\end{frame}
+
+\begin{frame}{亥姆霍兹分解推导（二）：把反对称部分写成叉乘}
+  上一帧得到 $\grad\vc u=\vc\varepsilon+\vc\Omega$。现在说明 $\vc\Omega\,\rd\vc r$ 就是旋转速度。\proofskipnote
+  由式 (K3) 的定义可写出
+  \[
+    \vc\Omega=
+    \begin{bmatrix}
+      0 & -\omega_z & \omega_y\\
+      \omega_z & 0 & -\omega_x\\
+      -\omega_y & \omega_x & 0
+    \end{bmatrix}.
+  \]
+  对 $\rd\vc r=(\rd x,\rd y,\rd z)^{\mathsf T}$ 相乘：
+  \[
+    \vc\Omega\,\rd\vc r
+    =
+    \begin{bmatrix}
+      \omega_y\rd z-\omega_z\rd y\\
+      \omega_z\rd x-\omega_x\rd z\\
+      \omega_x\rd y-\omega_y\rd x
+    \end{bmatrix}
+    =\vc\omega\times\rd\vc r.
+  \]
+  \TLtakeaway{反对称矩阵乘位移，正好等价于角速度矢量与位移的叉乘。}
+\end{frame}
+
+\begin{frame}{亥姆霍兹速度分解：平动、旋转、变形}
+  把一阶近似和前两帧结果合并：
+  \[
+  \begin{aligned}
+    \vc u(P')
+      &=\vc u(P)+(\grad\vc u)\,\rd\vc r\\
+      &=\vc u(P)+(\vc\Omega+\vc\varepsilon)\,\rd\vc r\\
+      &=\boxed{\vc u(P)+\vc\omega\times\rd\vc r+\vc\varepsilon\cdot\rd\vc r.}
+  \end{aligned} \tag{K6}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.56,>={Stealth[length=5pt]}]
+    \foreach \x/\title in {-5.1/平动,-1.7/旋转,1.7/线变形,5.1/角变形}{
+      \node[TLprimaryDark] at (\x,1.25) {\title};
+    }
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-5.7,-0.45) rectangle (-4.85,0.4);
+    \draw[->,TLaccent,thick] (-5.3,0.65)--(-4.55,0.65);
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.15,-0.45) rectangle (-1.25,0.45);
+    \draw[->,TLaccent,thick] (-1.2,0.45) arc[start angle=45,end angle=310,radius=0.45];
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (1.15,-0.4) rectangle (2.25,0.4);
+    \draw[->,TLaccent,thick] (1.15,0.65)--(0.7,0.65);
+    \draw[->,TLaccent,thick] (2.25,0.65)--(2.75,0.65);
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (4.75,-0.45)--(5.75,-0.25)--(5.55,0.55)--(4.55,0.35)--cycle;
+    \draw[->,TLaccent,thick] (4.9,0.78)--(5.55,0.92);
+    \draw[->,TLaccent,thick] (4.9,-0.75)--(4.35,-0.86);
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{亥姆霍兹分解说的是局部速度差：平动由 $\vc u(P)$ 给出，旋转由 $\vc\omega$ 给出，变形由 $\vc\varepsilon$ 给出。}
+\end{frame}
+
+\begin{frame}{速度散度：微团体积膨胀的相对速率}
+  大白话：把三个坐标方向的伸缩速率加起来，就是微团体积的相对变化速率。
+  对一个边长分别为 $\Delta x,\Delta y,\Delta z$ 的小盒子，短时间 $\Delta t$ 后三条边近似变为
+  \[
+  \begin{aligned}
+    \Delta x'&=\left(1+\pd{u_x}{x}\Delta t\right)\Delta x,\\
+    \Delta y'&=\left(1+\pd{u_y}{y}\Delta t\right)\Delta y,\\
+    \Delta z'&=\left(1+\pd{u_z}{z}\Delta t\right)\Delta z.
+  \end{aligned}
+  \]
+  只保留 $\Delta t$ 的一阶小量，得到相对体积变化率
+  \[
+    \boxed{\divg\vc u
+      =\pd{u_x}{x}+\pd{u_y}{y}+\pd{u_z}{z}
+      =\varepsilon_{xx}+\varepsilon_{yy}+\varepsilon_{zz}.} \tag{K7}
+  \]
+  \TLtakeaway{速度散度 = 单位时间的相对体积膨胀率：正值膨胀，负值收缩。}
+\end{frame}
+
+\begin{frame}{不可压缩连续性方程：体积不变给出散度为零}
+  对\TLterm{不可压缩流体}，每个流体微团的体积不随运动而改变。上一帧的相对体积膨胀率必须为零：
+  \[
+    \boxed{\divg\vc u=0,}
+    \qquad
+    \boxed{\pd{u_x}{x}+\pd{u_y}{y}+\pd{u_z}{z}=0.} \tag{K8}
+  \]
+  \TLwarnblock{不要混淆}{
+    这是不可压缩流体的连续性方程；可压缩流体的通用形式要追踪密度变化，见第四章。
+  }
+  \begin{center}
+  \begin{tikzpicture}[scale=0.46,>={Stealth[length=5pt]}]
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.2,-0.55) rectangle (-1.2,0.45);
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (0.4,-0.95) rectangle (1.4,0.85);
+    \draw[<->,TLaccent,thick] (-2.2,-0.85)--(-1.2,-0.85) node[midway,below]{体积 $V$};
+    \draw[<->,TLaccent,thick] (0.4,-1.25)--(1.4,-1.25) node[midway,below]{体积仍为 $V$};
+    \draw[->,TLprimaryDark,thick] (-0.85,0)--(0.05,0);
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{不可压缩不等于“速度不变”；它只要求局部体积变化率为零。}
+\end{frame}
+
+% =============================================================================
+% E. 3.3 描述流体运动的若干基本概念
+% =============================================================================
+\TLsection{3.3 描述流体运动的若干基本概念}
+
+\begin{frame}{恒定流与非恒定流：照片会不会随时间改变？}
+  大白话：站在同一个位置观察，如果速度、压强、密度等读数不随时间变，这种流动就叫恒定；若读数随时间变，就是非恒定。
+  \begin{columns}[T]
+    \column{0.54\textwidth}
+      \begin{itemize}
+        \item \TLterm{恒定流}：欧拉场中各物理量不显含时间。
+        \item 对任意流场物理量 $\phi(x,y,z,t)$，恒定条件为
+          \[
+            \pd{\phi}{t}=0.
+          \]
+        \item \TLterm{非恒定流}：至少有一个运动要素随时间变化。
+        \item 恒定与否有时取决于参考系；随船观察和站岸观察可能不同。
+      \end{itemize}
+    \column{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.78,>={Stealth[length=5pt]}]
+        \foreach \x/\t in {-1.6/$t_1$,0/$t_2$,1.6/$t_3$}{
+          \draw[fill=TLprimaryTint,draw=TLprimary,thick] (\x-0.45,-0.4) rectangle (\x+0.45,0.4);
+          \draw[->,TLprimaryDark,thick] (\x-0.32,0)--(\x+0.32,0);
+          \node[TLinkSoft] at (\x,-0.75) {\t};
+        }
+        \node[TLprimaryDark] at (0,0.95) {恒定：每张照片相同};
+        \draw[TLaccent,thick] (-2.15,-1.35)--(2.15,-1.35);
+        \draw[->,TLaccent,thick] (-1.6,-1.15)--(-0.95,-1.15);
+        \draw[->,TLaccent,thick] (0,-1.15)--(0.85,-1.0);
+        \draw[->,TLaccent,thick] (1.6,-1.15)--(2.25,-0.9);
+        \node[TLaccent] at (0,-1.8) {非恒定：照片会变};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{恒定流只表示当地导数为零；迁移导数仍可能不为零。}
+\end{frame}
+
+\begin{frame}{迹线与流线：一个随时间走，一个在同一瞬间画}
+  大白话：迹线是“跟着一个质点拍视频”；流线是“在同一瞬间给速度方向拍照片”。
+  \begin{columns}[T]
+    \column{0.53\textwidth}
+      \begin{itemize}
+        \item \TLterm{迹线}是同一个流体质点随时间走过的轨迹：
+          \[
+            \dd{x}{t}=u_x,\qquad
+            \dd{y}{t}=u_y,\qquad
+            \dd{z}{t}=u_z.
+          \]
+        \item \TLterm{流线}是在固定时刻 $t=t_0$ 画出的曲线，切线方向等于当地速度方向：
+          \[
+            \frac{\rd x}{u_x}
+            =\frac{\rd y}{u_y}
+            =\frac{\rd z}{u_z},
+            \qquad t=t_0.
+          \]
+        \item 恒定流中，流线形状不随时间变，迹线与流线重合。
+      \end{itemize}
+    \column{0.47\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.75,>={Stealth[length=5pt]}]
+        \draw[TLprimary,thick] (-2.1,0.65).. controls (-0.8,1.15) and (0.45,0.25)..(2.05,0.6);
+        \draw[TLprimary,thick] (-2.1,-0.1).. controls (-0.8,0.35) and (0.45,-0.5)..(2.05,-0.2);
+        \foreach \x/\y/\ang in {-1.55/0.78/10,-0.45/0.64/-12,0.8/0.52/15,-1.45/0.03/14,-0.25/-0.12/-18,0.95/-0.3/9}{
+          \draw[->,TLprimaryDark,thick] (\x,\y)--++(\ang:0.42);
+        }
+        \draw[TLaccent,very thick,dashed] (-1.9,-0.85).. controls (-1.0,-0.35) and (-0.35,-0.85)..(0.45,-0.2).. controls (1.1,0.35) and (1.55,0.05)..(2.05,0.42);
+        \fill[TLaccent] (-1.9,-0.85) circle (2pt);
+        \fill[TLaccent] (0.45,-0.2) circle (2pt);
+        \fill[TLaccent] (2.05,0.42) circle (2pt);
+        \node[TLprimaryDark] at (-1.0,1.35) {流线};
+        \node[TLaccent] at (1.0,-1.05) {迹线};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{流线方程必须在同一固定时刻写；把流线和迹线混用，是本章最常见错误之一。}
+\end{frame}
+
+\begin{frame}{一元、二元、三元流动：看场依赖几个空间变量}
+  大白话：真实流动都发生在三维空间里；所谓一元、二元、三元，说的是运动要素需要几个空间坐标才能描述。
+  \begin{center}
+  \begin{tabular}{lll}
+    \toprule
+    类型 & 数学形式示例 & 直觉 \\
+    \midrule
+    \TLterm{一元流动} & $\vc u=\vc u(x,t)$ & 沿一个主方向变化 \\
+    \TLterm{二元流动} & $\vc u=\vc u(x,y,t)$ & 在一个平面内变化明显 \\
+    \TLterm{三元流动} & $\vc u=\vc u(x,y,z,t)$ & 三个空间方向都不能忽略 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.5,>={Stealth[length=5pt]}]
+    \draw[->,TLinkSoft] (-4.2,0)--(-2.4,0) node[right] {$x$};
+    \draw[->,TLprimaryDark,thick] (-4.0,0.35)--(-3.15,0.35);
+    \draw[->,TLinkSoft] (-0.9,-0.55)--(0.9,-0.55) node[right] {$x$};
+    \draw[->,TLinkSoft] (-0.9,-0.55)--(-0.9,0.95) node[above] {$y$};
+    \draw[->,TLprimaryDark,thick] (-0.45,0.0)--(0.2,0.25);
+    \draw[->,TLinkSoft] (2.6,-0.55)--(4.25,-0.55) node[right] {$x$};
+    \draw[->,TLinkSoft] (2.6,-0.55)--(2.6,0.95) node[above] {$y$};
+    \draw[->,TLinkSoft] (2.6,-0.55)--(1.95,-1.1) node[below] {$z$};
+    \draw[->,TLprimaryDark,thick] (3.1,0.05)--(3.75,0.45);
+    \node[TLinkSoft] at (-3.4,-1.05) {一元};
+    \node[TLinkSoft] at (0,-1.05) {二元};
+    \node[TLinkSoft] at (3.1,-1.35) {三元};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{维数是建模简化，不是空间本身消失；忽略某个方向必须由问题几何或量级支持。}
+\end{frame}
+
+\begin{frame}{流管、元流、总流和过水断面}
+  大白话：流管像由流线围成的“看不见的管壁”。因为速度沿流线切向，流体不会穿过这个管壁跑出去。
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \begin{itemize}
+        \item \TLterm{流管}：通过一条封闭曲线各点作流线，围成的管状曲面。
+        \item \TLterm{元流}：横断面面积无限小的流管内流动。
+        \item \TLterm{总流}：有限断面流管内的流动，可看作无数元流叠加。
+        \item \TLterm{过水断面}：处处与流线垂直的断面；它可能是平面，也可能是曲面。
+      \end{itemize}
+    \column{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.75,>={Stealth[length=5pt]}]
+        \draw[TLprimary,thick] (-2.2,0.75).. controls (-0.8,1.0) and (0.8,0.9)..(2.2,0.55);
+        \draw[TLprimary,thick] (-2.2,-0.75).. controls (-0.8,-0.55) and (0.8,-0.7)..(2.2,-0.45);
+        \foreach \s in {-0.45,-0.15,0.15,0.45}{
+          \draw[TLprimary!70,thick] (-2.2,\s).. controls (-0.8,\s+0.15) and (0.8,\s+0.05)..(2.2,\s-0.05);
+        }
+        \draw[TLaccent,thick] (-1.85,-0.65).. controls (-1.55,-0.2) and (-1.55,0.35)..(-1.85,0.7);
+        \draw[TLaccent,thick] (1.45,-0.5).. controls (1.65,-0.05) and (1.65,0.25)..(1.45,0.55);
+        \node[TLaccent] at (-1.8,1.1) {封闭曲线};
+        \node[TLaccent] at (1.45,0.95) {过水断面};
+        \node[TLinkSoft] at (0,-1.25) {流线围成流管，管壁无穿透流动};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{“过水断面”不是任意切一刀；它必须与该处流线正交。}
+\end{frame}
+
+\begin{frame}{流量与断面平均流速}
+  \TLterm{流量}回答“单位时间穿过断面的流体体积是多少”。若断面面积矢量写为 $\rd\vc A=\vc n\,\rd A$，则
+  \[
+    \boxed{
+      Q=\iint_A \vc u\cdot\rd\vc A,
+      \qquad
+      v=\frac{Q}{A}.} \tag{K9}
+  \]
+  \begin{itemize}
+    \item $\vc u\cdot\rd\vc A$ 只取穿过断面的法向速度部分。
+    \item 若断面是过水断面，速度与断面法向一致，积分就是把各处速度乘面积后相加。
+    \item $v=Q/A$ 是\TLterm{断面平均流速}，它把不均匀分布的速度等效成一个平均值。
+  \end{itemize}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.58,>={Stealth[length=5pt]}]
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.4,-0.8) rectangle (2.4,0.8);
+    \draw[TLaccent,thick] (0,-0.8).. controls (0.25,-0.25) and (0.25,0.25)..(0,0.8);
+    \foreach \y/\len in {-0.45/0.75,0/1.1,0.45/0.85}{
+      \draw[->,TLprimaryDark,thick] (-1.9,\y)--++(\len,0);
+      \draw[->,TLprimaryDark,thick] (0.5,\y)--++(\len,0);
+    }
+    \node[TLaccent] at (0,1.12) {$A$};
+    \node[TLinkSoft] at (0,-1.18) {穿过断面的体积通量累加为 $Q$};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{平均流速不是某一点速度；它是用总流量除以过水断面面积得到的等效速度。}
+\end{frame}
+
+\begin{frame}{均匀流与非均匀流：沿程是否改变}
+  大白话：沿着流动方向往前走，如果速度矢量不变，就叫均匀流；如果大小或方向沿程改变，就是非均匀流。
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \begin{itemize}
+        \item \TLterm{均匀流}的理想图像有三条直观特征：
+          \begin{enumerate}
+            \item 流线互相平行；
+            \item 示意图中相邻流线间距相等；
+            \item 各处速度矢量大小和方向相同。
+          \end{enumerate}
+        \item \TLterm{非均匀流}中，速度沿流程发生改变。
+        \item 恒定流看时间变化；均匀流看空间沿程变化，二者不是同一件事。
+      \end{itemize}
+    \column{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.68,>={Stealth[length=5pt]}]
+        \foreach \y in {-0.6,0,0.6}{
+          \draw[TLprimary,thick] (-2.1,\y)--(0.1,\y);
+          \draw[->,TLprimaryDark,thick] (-1.6,\y+0.15)--(-0.8,\y+0.15);
+        }
+        \node[TLinkSoft] at (-1.0,-1.05) {均匀};
+        \draw[TLaccent,thick] (0.8,-0.8).. controls (1.2,-0.25) and (1.9,-0.2)..(2.4,0.05);
+        \draw[TLaccent,thick] (0.8,-0.1).. controls (1.3,0.15) and (1.8,0.55)..(2.4,0.75);
+        \draw[TLaccent,thick] (0.8,0.6).. controls (1.35,0.65) and (1.9,1.0)..(2.4,1.2);
+        \draw[->,TLaccent,thick] (1.0,-0.45)--(1.65,-0.25);
+        \draw[->,TLaccent,thick] (1.5,0.45)--(2.0,0.75);
+        \node[TLinkSoft] at (1.65,-1.05) {非均匀};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{判断时先问变量：恒定看 $\partial/\partial t$，均匀看沿流程的空间变化。}
+\end{frame}
+
+\begin{frame}{渐变流与急变流：弯得慢，还是变得猛？}
+  大白话：真实流动很少完全均匀。若流线弯曲很小、相邻流线夹角很小，可以近似按均匀流处理；若变化剧烈，就不能这样偷懒。
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \begin{itemize}
+        \item \TLterm{渐变流}：流线曲率小，流线之间近似平行，过水断面可近似看成平面。
+        \item 渐变流中，过水断面上的压强分布常可近似按静水压强处理。
+        \item \TLterm{急变流}：流线曲率大或流线夹角大，局部加速度和压强分布都不能简单近似。
+      \end{itemize}
+    \column{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.72,>={Stealth[length=5pt]}]
+        \draw[TLprimary,thick] (-2.1,0.45).. controls (-1.1,0.6) and (-0.2,0.5)..(0.65,0.45);
+        \draw[TLprimary,thick] (-2.1,-0.25).. controls (-1.1,-0.1) and (-0.2,-0.2)..(0.65,-0.25);
+        \node[TLinkSoft] at (-0.8,-0.85) {渐变};
+        \draw[TLaccent,thick] (1.15,-0.7).. controls (1.55,0.7) and (2.05,0.85)..(2.55,0.15);
+        \draw[TLaccent,thick] (0.9,-0.15).. controls (1.4,1.1) and (2.0,1.25)..(2.75,0.6);
+        \draw[->,TLaccent,thick] (1.2,-0.35)--(1.55,0.2);
+        \draw[->,TLaccent,thick] (2.1,0.85)--(2.55,0.45);
+        \node[TLinkSoft] at (1.9,-0.85) {急变};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{渐变与急变没有绝对分界；工程判断看曲率、夹角和需要的精度。}
+\end{frame}
+
+\begin{frame}{系统与控制体：积分对象换了，守恒思想不换}
+  大白话：系统是“盯住一团固定质量的流体”；控制体是“固定一个空间盒子看流体进出”。
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+      \TLinfoblock{系统}{
+        \begin{itemize}
+          \item 固定质量的流体团；
+          \item 边界随流体运动；
+          \item 对应拉格朗日思想。
+        \end{itemize}}
+    \column{0.5\textwidth}
+      \TLinfoblock{控制体}{
+        \begin{itemize}
+          \item 空间中选定的体积；
+          \item 边界可固定也可运动；
+          \item 对应欧拉思想。
+        \end{itemize}}
+  \end{columns}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.5,>={Stealth[length=5pt]}]
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.0,-0.45) ellipse (0.95 and 0.55);
+    \draw[->,TLaccent,thick] (-2.0,0.35)--(-1.15,0.7) node[right]{随流体走};
+    \draw[fill=white,draw=TLaccent,thick] (1.0,-0.75) rectangle (2.6,0.75);
+    \draw[->,TLprimaryDark,thick] (0.35,0)--(1.0,0);
+    \draw[->,TLprimaryDark,thick] (2.6,0)--(3.25,0);
+    \node[TLinkSoft] at (1.8,-1.15) {固定空间盒子};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{Reynolds 输运定理的任务，就是把“跟着系统算变化”改写成“在控制体内算积累加通量”。}
+\end{frame}
+
+\begin{frame}{有旋与无旋：微团是否真的在自转}
+  大白话：“无旋”不是看流线是否弯曲，而是看每个微团自己的角速度是否为零。
+  \begin{columns}[T]
+    \column{0.56\textwidth}
+      \begin{itemize}
+        \item 若 $\vc\omega=\frac12\grad\times\vc u=\vc0$，称为\TLterm{无旋流动}。
+        \item 若 $\vc\omega$ 不处处为零，称为\TLterm{有旋流动}。
+        \item 在单连通区域内，无旋等价于存在\TLterm{速度势} $\varphi$：
+      \end{itemize}
+      \[
+        \boxed{
+        \grad\times\vc u=\vc0
+        \quad\Longleftrightarrow\quad
+        \exists\,\varphi,\ \vc u=\grad\varphi.} \tag{K10}
+      \]
+    \column{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.72,>={Stealth[length=5pt]}]
+        \draw[TLaccent,thick] (0,0) circle (0.75);
+        \draw[->,TLaccent,thick] (0.75,0) arc[start angle=0,end angle=300,radius=0.75];
+        \node[TLaccent] at (0,-1.1) {有旋示意};
+        \begin{scope}[xshift=-2.4cm]
+          \foreach \y in {-0.45,0,0.45}{
+            \draw[TLprimary,thick] (-0.65,\y)--(0.65,\y);
+            \draw[->,TLprimaryDark,thick] (-0.45,\y+0.12)--(0.25,\y+0.12);
+          }
+          \node[TLprimaryDark] at (0,-1.1) {无旋示意};
+        \end{scope}
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{在通常的单连通区域里，无旋 $\Longleftrightarrow$ 速度势存在；这让矢量速度场可由一个标量函数生成。}
+\end{frame}
+
+% =============================================================================
+% F. 3.4 不可压缩流体平面势流
+% =============================================================================
+\TLsection{3.4 不可压缩流体平面势流}
+
+\begin{frame}{本节地图：四个限定词各做什么}
+  上一节已经得到两个入口：不可压缩给出散度条件，无旋给出速度势。本节把它们限制到平面流动中，得到一套可画、可算、可叠加的工具。
+  \begin{center}
+  \vspace{4pt}
+  \begin{tabular}{lll}
+    \toprule
+    限定词 & 数学作用 & 本节得到的工具 \\
+    \midrule
+    平面 & 只含 $x,y$ 两个空间变量 & 流线可画成平面曲线 \\
+    不可压缩 & $\pd{u_x}{x}+\pd{u_y}{y}=0$ & 流函数 $\psi$ 存在 \\
+    无旋 & $\pd{u_y}{x}-\pd{u_x}{y}=0$ & 速度势 $\varphi$ 存在 \\
+    恒定 & 流线不随时间改变 & 流网可作为轨迹图像理解 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \[
+    \text{不可压缩}+\text{无旋}+\text{平面}
+    \quad\Longrightarrow\quad
+    \varphi,\psi\ \text{都满足拉普拉斯方程}.
+  \]
+  \TLtakeaway{流函数来自不可压缩；速度势来自无旋。两者同时存在时，流线和等势线组成正交流网。}
+\end{frame}
+
+\begin{frame}{流函数为什么会出现：先看流线微分方程}
+  对平面速度场 $\vc u=(u_x,u_y)$，流线的切线方向必须与当地速度方向一致。若曲线上微小位移为 $(\rd x,\rd y)$，切向平行条件可写成
+  \[
+    \frac{\rd y}{\rd x}=\frac{u_y}{u_x}.
+  \]
+  两边交叉相乘，得到同一条流线上的微分关系
+  \[
+    u_x\,\rd y-u_y\,\rd x=0,
+    \qquad
+    -u_y\,\rd x+u_x\,\rd y=0. \tag{K11}
+  \]
+  现在把左边看成一个一阶微分式
+  \[
+    M\,\rd x+N\,\rd y,
+    \qquad
+    M=-u_y,\quad N=u_x.
+  \]
+  \TLtakeaway{流函数的出发点不是凭空定义一个新函数，而是把流线方程写成某个标量函数的全微分。}
+\end{frame}
+
+\begin{frame}{流函数存在条件（一）：把微分式写成 $\rd\psi$}
+  上一帧得到微分式 $M\,\rd x+N\,\rd y$，其中 $M=-u_y$、$N=u_x$。若它是某个函数 $\psi(x,y)$ 的全微分，则
+  \[
+    \rd\psi=\pd{\psi}{x}\rd x+\pd{\psi}{y}\rd y
+    =-u_y\,\rd x+u_x\,\rd y.
+  \]
+  对比 $\rd x$ 与 $\rd y$ 的系数，得到
+  \[
+    \pd{\psi}{x}=-u_y,\qquad
+    \pd{\psi}{y}=u_x. \tag{K12}
+  \]
+  \TLtakeaway{若流函数存在，它的 $x$ 偏导等于 $-u_y$，$y$ 偏导等于 $u_x$。}
+\end{frame}
+
+\begin{frame}{流函数存在条件（二）：精确条件等于连续性}
+  上一帧得到
+  \[
+    \pd{\psi}{x}=-u_y,\qquad
+    \pd{\psi}{y}=u_x.
+  \]
+  二阶混合偏导必须相等：
+  \[
+    \pd{}{y}\left(\pd{\psi}{x}\right)
+    =
+    \pd{}{x}\left(\pd{\psi}{y}\right).
+  \]
+  代入式 (K12)：
+  \[
+    -\pd{u_y}{y}=\pd{u_x}{x}
+    \quad\Longleftrightarrow\quad
+    \pd{u_x}{x}+\pd{u_y}{y}=0. \tag{K13}
+  \]
+  \TLtakeaway{对不可压缩平面流动，二维连续性方程正好保证流函数 $\psi$ 存在。}
+\end{frame}
+
+\begin{frame}{流函数定义：速度分量来自 $\psi$ 的交叉偏导}
+  由式 (K12) 直接改写速度分量：
+  \[
+    \boxed{
+      u_x=\pd{\psi}{y},\qquad
+      u_y=-\pd{\psi}{x}.} \tag{K14}
+  \]
+  \[
+    \pd{\psi}{x}=-u_y,\qquad
+    \pd{\psi}{y}=u_x
+    \quad\Longleftrightarrow\quad
+    \rd\psi=-u_y\,\rd x+u_x\,\rd y.
+  \]
+  \TLtakeaway{记号方向要固定：$u_x$ 来自 $\psi$ 对 $y$ 的偏导，$u_y$ 带负号来自 $\psi$ 对 $x$ 的偏导。}
+\end{frame}
+
+\begin{frame}{流线方程：$\psi=C$}
+  上一帧得到 $\rd\psi=-u_y\,\rd x+u_x\,\rd y$。现在把它代回流线微分方程。
+  把式 (K14) 代回流线微分方程：
+  \[
+  \begin{aligned}
+    -u_y\,\rd x+u_x\,\rd y
+      &=-\left(-\pd{\psi}{x}\right)\rd x
+        +\pd{\psi}{y}\rd y\\
+      &=\pd{\psi}{x}\rd x+\pd{\psi}{y}\rd y\\
+      &=\rd\psi.
+  \end{aligned}
+  \]
+  流线方程 $-u_y\,\rd x+u_x\,\rd y=0$ 变成
+  \[
+    \rd\psi=0
+    \quad\Longrightarrow\quad
+    \psi=C. \tag{K15}
+  \]
+  \TLtakeaway{同一条流线上的 $\psi$ 不变；不同常数 $C$ 给出不同流线。}
+\end{frame}
+
+\begin{frame}{单宽流量（一）：把穿越量写成线积分}
+  取一条连接流线 $\psi=\psi_1$ 与 $\psi=\psi_2$ 的任意曲线 $\Gamma$。沿曲线从 1 走到 2，位移为 $(\rd x,\rd y)$，取左法向面积微元为
+  \[
+    \vc n\,\rd s=(\rd y,-\rd x).
+  \]
+  单位宽度体积流量为
+  \[
+  \begin{aligned}
+    q'_{1\to2}
+      &=\int_{\Gamma}\vc u\cdot\vc n\,\rd s\\
+      &=\int_{\Gamma}(u_x,u_y)\cdot(\rd y,-\rd x)\\
+      &=\int_{\Gamma}\left(u_x\,\rd y-u_y\,\rd x\right).
+  \end{aligned}
+  \]
+  \TLtakeaway{单宽流量只统计穿过曲线的法向速度分量。}
+\end{frame}
+
+\begin{frame}{单宽流量（二）：线积分变成 $\psi$ 的差值}
+  上一帧得到
+  \[
+    q'_{1\to2}
+      =\int_{\Gamma}\left(u_x\,\rd y-u_y\,\rd x\right).
+  \]
+  由式 (K14)，括号中正是 $\rd\psi$：
+  \[
+    q'_{1\to2}
+      =\int_{\Gamma}\rd\psi
+      =\psi_2-\psi_1. \tag{K16}
+  \]
+  \TLtakeaway{$\psi$ 的差值不是抽象常数；它等于两条流线之间的单宽流量。}
+\end{frame}
+
+\begin{frame}{平面速度势（一）：无旋时速度是梯度}
+  若平面速度场无旋，则涡量的 $z$ 分量为零：
+  \[
+    \omega_z^{(\mathrm{vort})}
+    =\pd{u_y}{x}-\pd{u_x}{y}=0.
+  \]
+  此时存在\TLterm{速度势} $\varphi(x,y)$，使得
+  \[
+    \boxed{
+      u_x=\pd{\varphi}{x},\qquad
+      u_y=\pd{\varphi}{y}.} \tag{K17}
+  \]
+  \TLtakeaway{速度势 $\varphi$ 存在的条件是平面速度场无旋。}
+\end{frame}
+
+\begin{frame}{平面速度势（二）：等势线是 $\varphi=C$}
+  由速度势定义，
+  全微分为
+  \[
+    \rd\varphi
+      =\pd{\varphi}{x}\rd x+\pd{\varphi}{y}\rd y
+      =u_x\,\rd x+u_y\,\rd y.
+  \]
+  令 $\rd\varphi=0$ 后得到
+  \[
+    \varphi=C,
+  \]
+  它在平面上表示\TLterm{等势线}。
+  \TLtakeaway{速度势由无旋保证；等势线是 $\varphi$ 取同一常数的曲线。}
+\end{frame}
+
+\begin{frame}{柯西-黎曼条件：$\varphi$ 与 $\psi$ 描述同一个速度场}
+  对同一个平面势流，速度分量既由 $\varphi$ 给出，也由 $\psi$ 给出：
+  \[
+    u_x=\pd{\varphi}{x}=\pd{\psi}{y},
+    \qquad
+    u_y=\pd{\varphi}{y}=-\pd{\psi}{x}.
+  \]
+  所以
+  \[
+    \boxed{
+    \pd{\varphi}{x}=\pd{\psi}{y},\qquad
+    \pd{\varphi}{y}=-\pd{\psi}{x}.} \tag{K18}
+  \]
+  这就是\TLterm{柯西-黎曼条件}。
+  \[
+    \text{同一个速度场}
+    \quad\Longrightarrow\quad
+    \varphi,\psi\ \text{不是独立任意函数}.
+  \]
+  \TLtakeaway{柯西-黎曼条件把“速度势”和“流函数”锁在同一个速度场上。}
+\end{frame}
+
+\begin{frame}{流线与等势线正交：用梯度点乘证明}
+  流线 $\psi=C$ 的法向量为 $\grad\psi$，等势线 $\varphi=C$ 的法向量为 $\grad\varphi$。计算两族曲线的法向量点乘：
+  \[
+  \begin{aligned}
+    \grad\varphi\cdot\grad\psi
+      &=\pd{\varphi}{x}\pd{\psi}{x}
+        +\pd{\varphi}{y}\pd{\psi}{y}\\
+      &=\pd{\psi}{y}\pd{\psi}{x}
+        +\left(-\pd{\psi}{x}\right)\pd{\psi}{y}\\
+      &=0.
+  \end{aligned}
+  \]
+  \TLtakeaway{在速度非零处，等势线 $\varphi=C$ 与流线 $\psi=C$ 互相垂直。}
+\end{frame}
+
+\begin{frame}{速度势满足拉普拉斯方程}
+  对速度势，先用式 (K17) 把速度写成 $\varphi$ 的偏导：
+  \[
+  \begin{aligned}
+    \pd{u_x}{x}+\pd{u_y}{y}
+      &=\pd{}{x}\left(\pd{\varphi}{x}\right)
+        +\pd{}{y}\left(\pd{\varphi}{y}\right)\\
+      &=\frac{\partial^2\varphi}{\partial x^2}
+        +\frac{\partial^2\varphi}{\partial y^2}.
+  \end{aligned}
+  \]
+  不可压缩条件使左边为零，所以
+  \[
+    \boxed{\frac{\partial^2\varphi}{\partial x^2}
+      +\frac{\partial^2\varphi}{\partial y^2}=0.} \tag{K19}
+  \]
+  \TLtakeaway{不可压缩条件把速度势 $\varphi$ 推到拉普拉斯方程。}
+\end{frame}
+
+\begin{frame}{流函数满足拉普拉斯方程}
+  对流函数，先用式 (K14)：
+  \[
+  \begin{aligned}
+    \pd{u_y}{x}-\pd{u_x}{y}
+      &=\pd{}{x}\left(-\pd{\psi}{x}\right)
+        -\pd{}{y}\left(\pd{\psi}{y}\right)\\
+      &=-\left(\frac{\partial^2\psi}{\partial x^2}
+        +\frac{\partial^2\psi}{\partial y^2}\right).
+  \end{aligned}
+  \]
+  无旋条件使左边为零，所以
+  \[
+    \boxed{\frac{\partial^2\psi}{\partial x^2}
+      +\frac{\partial^2\psi}{\partial y^2}=0.} \tag{K20}
+  \]
+  \TLtakeaway{无旋条件把流函数 $\psi$ 推到同一个拉普拉斯方程。}
+\end{frame}
+
+\begin{frame}{线性叠加：先叠加运动学量，压强另算}
+  拉普拉斯方程是线性的。若 $\varphi_1,\varphi_2$ 都满足 $\nabla^2\varphi=0$，则
+  \[
+    \nabla^2(\varphi_1+\varphi_2)
+    =\nabla^2\varphi_1+\nabla^2\varphi_2
+    =0+0=0.
+  \]
+  同理，流函数也可相加：
+  \[
+    \varphi=\sum_i\varphi_i,\qquad
+    \psi=\sum_i\psi_i,\qquad
+    \vc u=\sum_i\vc u_i. \tag{K21}
+  \]
+  \TLwarnblock{压强不能直接相加}{
+    势流叠加只是在运动学层面叠加速度、速度势和流函数。压强要先由叠加后的速度场计算，再用动力学关系求出。
+  }
+  \TLtakeaway{可加的是 $\vc u,\varphi,\psi$；不可把每个基本流的压强场简单相加。}
+\end{frame}
+
+\begin{frame}{基本势流之一：均匀等速流}
+  均匀流的所有流线平行，速度大小处处相同。若速度方向与 $x$ 轴夹角为 $\alpha$，则
+  \[
+    u_x=u_0\cos\alpha,\qquad
+    u_y=u_0\sin\alpha.
+  \]
+  对应的速度势和流函数为
+  \[
+    \boxed{\varphi=u_0(x\cos\alpha+y\sin\alpha),\qquad
+    \psi=u_0(y\cos\alpha-x\sin\alpha).} \tag{K22}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.58,>={Stealth[length=5pt]}]
+    \foreach \y in {-1.0,-0.5,0,0.5,1.0}{
+      \draw[TLprimary,thick] (-2.8,\y-0.45)--(2.6,\y+0.55);
+      \draw[->,TLprimaryDark,thick] (-0.75,\y-0.07)--(0.25,\y+0.12);
+    }
+    \draw[->,TLinkSoft] (-2.9,-1.35)--(2.9,-1.35) node[right] {$x$};
+    \draw[->,TLinkSoft] (-2.65,-1.55)--(-2.65,1.55) node[above] {$y$};
+    \draw[TLaccent,thick] (-2.3,-1.35) arc[start angle=0,end angle=10,radius=1.0];
+    \node[TLaccent] at (-1.2,-1.05) {$\alpha$};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{均匀流是最简单的势流：速度矢量处处相同，流线是一族平行直线。}
+\end{frame}
+
+\begin{frame}{均匀流的符号核查：$\varphi$ 与 $\psi$ 给出同一速度}
+  由式 (K22) 对 $\varphi$ 求偏导：
+  \[
+    \pd{\varphi}{x}=u_0\cos\alpha,\qquad
+    \pd{\varphi}{y}=u_0\sin\alpha.
+  \]
+  这正是 $u_x,u_y$。再对 $\psi$ 求偏导：
+  \[
+    \pd{\psi}{y}=u_0\cos\alpha,\qquad
+    -\pd{\psi}{x}=-\bigl(-u_0\sin\alpha\bigr)=u_0\sin\alpha.
+  \]
+  所以
+  \[
+    \pd{\varphi}{x}=\pd{\psi}{y},\qquad
+    \pd{\varphi}{y}=-\pd{\psi}{x}. \tag{K23}
+  \]
+  \TLtakeaway{检查均匀流公式时，最容易漏的是 $\psi$ 中 $-x\sin\alpha$ 的负号。}
+\end{frame}
+
+\begin{frame}{基本势流之二：平面点源与点汇的公式}
+  点源表示单位厚度平面内从原点均匀流出的流量 $q$；点汇是 $q<0$ 的同一公式。令 $r=\sqrt{x^2+y^2}$、$\theta=\arctan(y/x)$，
+  \[
+    \boxed{\varphi=\frac{q}{2\pi}\ln r,\qquad
+    \psi=\frac{q}{2\pi}\theta.} \tag{K24}
+  \]
+  在极坐标中
+  \[
+    u_r=\pd{\varphi}{r}=\frac{q}{2\pi r},
+    \qquad
+    u_\theta=\frac1r\pd{\varphi}{\theta}=0.
+  \]
+  \[
+    |\vc u|=\left|u_r\right|=\frac{|q|}{2\pi r}.
+  \]
+  \TLtakeaway{点源和点汇只有径向速度；速度大小与到中心的距离 $r$ 成反比。}
+\end{frame}
+
+\begin{frame}{点源与点汇的流线图}
+  对点源，流体沿射线从原点向外流出；对点汇，同一组射线上的箭头反向。
+  \begin{center}
+  \begin{tikzpicture}[scale=0.64,>={Stealth[length=5pt]}]
+    \fill[TLaccent] (0,0) circle (3pt);
+    \foreach \ang in {0,30,...,330}{
+      \draw[TLprimary,thick,->] (0,0)--(\ang:1.85);
+    }
+    \foreach \r in {0.55,1.05,1.55}{
+      \draw[TLinkSoft!55] (0,0) circle (\r);
+    }
+    \node[TLaccent] at (0,-2.15) {$q>0$ 为源；箭头反向即为点汇};
+  \end{tikzpicture}
+  \end{center}
+  \[
+    \psi=\frac{q}{2\pi}\theta=C
+    \quad\Longleftrightarrow\quad
+    \theta=\text{常数}.
+  \]
+  \TLtakeaway{点源/汇的流线是一族从中心发出的射线；图中的同心圆是等势线。}
+\end{frame}
+
+\begin{frame}{点源/汇的流函数：一整圈流量等于 $q$}
+  对点源/汇，流线是 $\psi=C$，也就是
+  \[
+    \frac{q}{2\pi}\theta=C
+    \quad\Longleftrightarrow\quad
+    \theta=\text{常数}.
+  \]
+  这说明流线是从原点出发的射线。若两条射线夹角为 $\Delta\theta$，由式 (K16)
+  \[
+    q'=\Delta\psi
+      =\frac{q}{2\pi}\Delta\theta. \tag{K25}
+  \]
+  当 $\Delta\theta=2\pi$ 时，
+  \[
+    q'=\frac{q}{2\pi}\cdot2\pi=q.
+  \]
+  \TLtakeaway{点源强度 $q$ 的定义与流函数差一致：绕原点一整圈穿出的单宽流量就是 $q$。}
+\end{frame}
+
+\begin{frame}{基本势流之三：点涡}
+  点涡只有环向速度，没有径向速度。以原点为涡心，环量为 $\Gamma$，标准形式为
+  \[
+    u_r=0,\qquad u_\theta=\frac{\Gamma}{2\pi r}.
+  \]
+  对应的速度势和流函数为
+  \[
+    \boxed{\varphi=\frac{\Gamma}{2\pi}\theta,\qquad
+    \psi=-\frac{\Gamma}{2\pi}\ln r.} \tag{K26}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.57,>={Stealth[length=5pt]}]
+    \fill[TLaccent] (0,0) circle (3pt);
+    \foreach \r in {0.6,1.05,1.5}{
+      \draw[TLprimary,thick,->] (\r,0) arc[start angle=0,end angle=315,radius=\r];
+    }
+    \foreach \ang in {0,45,...,315}{
+      \draw[TLinkSoft!50] (0,0)--(\ang:1.75);
+    }
+    \node[TLaccent] at (0,-2.05) {$\Gamma>0$：逆时针};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{点涡的流线是同心圆；等势线是从涡心发出的射线。}
+\end{frame}
+
+\begin{frame}{点涡的符号核查：为什么 $\psi$ 前面有负号}
+  极坐标中，流函数给速度的关系为
+  \[
+    u_r=\frac1r\pd{\psi}{\theta},\qquad
+    u_\theta=-\pd{\psi}{r}.
+  \]
+  对
+  \[
+    \psi=-\frac{\Gamma}{2\pi}\ln r
+  \]
+  求导：
+  \[
+    u_r=\frac1r\cdot0=0,\qquad
+    u_\theta=-\left(-\frac{\Gamma}{2\pi}\frac1r\right)
+      =\frac{\Gamma}{2\pi r}.
+  \]
+  写成直角坐标速度为
+  \[
+    u_x=-\frac{\Gamma}{2\pi}\frac{y}{x^2+y^2},\qquad
+    u_y=\frac{\Gamma}{2\pi}\frac{x}{x^2+y^2}. \tag{K27}
+  \]
+  \TLtakeaway{$\psi$ 前面的负号正是为了让 $\Gamma>0$ 对应正的环向速度，即逆时针旋转。}
+\end{frame}
+
+\begin{frame}{三个基本势流的共同限制：中心奇点}
+  均匀流没有奇点；点源、点汇和点涡在 $r=0$ 处有理论奇点。它们的速度大小都满足
+  \[
+    |\vc u|=\frac{|q|}{2\pi r}
+    \quad\text{或}\quad
+    |\vc u|=\frac{|\Gamma|}{2\pi r}. \tag{K28}
+  \]
+  当 $r$ 趋近于 $0$ 时，分母趋近于 $0$，理论速度会趋近于无穷大。
+  \[
+    r\downarrow0
+    \quad\Longrightarrow\quad
+    \frac{1}{r}\uparrow\infty.
+  \]
+  \TLwarnblock{物理解释}{
+    真实流体不允许一个点处速度无穷大。点源、点汇和点涡是用于叠加构造流场的理想化模型。
+  }
+  \TLtakeaway{使用基本势流时，要记住它们描述的是奇点外的理想区域。}
+\end{frame}
+
+% =============================================================================
+% G. 常见误区
+% =============================================================================
+\TLsection{常见误区}
+
+\begin{frame}{常见误区：把“绕圈”和“有旋”混为一谈}
+  \TLwarnblock{无旋不是“看起来不绕圈”}{
+    \begin{itemize}
+      \item 像刚体一样的均匀圆周流 $u_\theta=\Omega r$ 有局部自转，涡量为 $2\Omega$。
+      \item 点涡的流线绕中心转圈，但在 $r>0$ 区域满足 $\pd{u_y}{x}-\pd{u_x}{y}=0$。
+      \item 判断有旋/无旋必须算局部涡量，不能只看整体路径形状。
+    \end{itemize}
+  }
+  \[
+    \text{绕中心运动}
+    \quad\not\Longleftrightarrow\quad
+    \text{流体微团局部自转}.
+  \]
+  \TLtakeaway{无旋判断看微团自身角速度；点涡外部是“绕圈但局部无旋”的典型例子。}
+\end{frame}
+
+\begin{frame}{常见误区：把可叠加量、均匀流和奇点说错}
+  \TLwarnblock{三类势流误区}{
+    \begin{itemize}
+      \item 均匀流指流线平行且速度大小相同；与源、汇、涡叠加后，合成流一般不再均匀。
+      \item 势流叠加时，$\vc u,\varphi,\psi$ 可加；压强不能直接相加，需由合成速度再求。
+      \item 点源、点汇和点涡速度都正比于 $1/r$；$r=0$ 是数学奇点，不是实际流体状态。
+    \end{itemize}
+  }
+  \[
+    \vc u=\sum_i\vc u_i,\qquad
+    p\ne\sum_i p_i.
+  \]
+  \TLtakeaway{叠加是运动学构造；压强和奇点都要回到物理适用范围内解释。}
+\end{frame}
+
+% =============================================================================
+% H. 练习
+% =============================================================================
+\TLsection{练习}
+
+\begin{frame}{练习 H1（\#28）：线性伸缩流的流线}
+  \TLinfoblock{题目}{
+    给定 $u_x=kx,\ u_y=-ky$，其中 $k>0$ 为常数。求流线方程，并验证它满足二维不可压缩连续性方程。难度：$\star$。
+  }
+  \begin{itemize}
+    \item 提示 1：固定时刻写流线方程 $\rd x/u_x=\rd y/u_y$。
+    \item 提示 2：把微分式整理为 $\rd y/y=-\rd x/x$。
+    \item 提示 3：连续性只需要检查 $\partial u_x/\partial x+\partial u_y/\partial y$。
+  \end{itemize}
+  \[
+    \frac{\rd x}{kx}=\frac{\rd y}{-ky},\qquad
+    \pd{u_x}{x}+\pd{u_y}{y}\ ?=0.
+  \]
+  \TLtakeaway{本题练习“从速度场到流线”和“不可压缩判别”两件基本操作。}
+\end{frame}
+
+\begin{frame}{练习 H2（\#21）：由流函数求速度场}
+  \TLinfoblock{题目}{
+    给定流函数 $\psi=a(x^2-y^2)$，求 $u_x$ 和 $u_y$。说明这个流动在原点附近表现出什么类型的图像。难度：$\star$。
+  }
+  \begin{itemize}
+    \item 提示 1：先写准公式 $u_x=\partial\psi/\partial y$，$u_y=-\partial\psi/\partial x$。
+    \item 提示 2：分别对 $x^2-y^2$ 关于 $y$ 和 $x$ 求偏导。
+    \item 提示 3：看流线 $\psi=C$ 的形状，它们是一族双曲线。
+  \end{itemize}
+  \[
+    \psi=C
+    \quad\Longleftrightarrow\quad
+    x^2-y^2=\frac{C}{a}.
+  \]
+  \TLtakeaway{由流函数求速度时，最重要的是交叉偏导和负号。}
+\end{frame}
+
+\begin{frame}{练习 H3：非恒定速度场的瞬时流线}
+  \TLinfoblock{题目}{
+    给定 $u_x=x+t,\ u_y=-y+t$。分别求 $t=0$ 与 $t=1$ 时刻的流线方程，并作定性草图。难度：$\star\star$。
+  }
+  \begin{itemize}
+    \item 提示 1：求流线时，把 $t$ 固定为参数，不把它当积分变量。
+    \item 提示 2：写成 $\rd y/\rd x=(-y+t)/(x+t)$。
+    \item 提示 3：令 $X=x+t$、$Y=y-t$，方程会变成 $\rd Y/Y=-\rd X/X$。
+  \end{itemize}
+  \[
+    t=0:\ xy=C,\qquad
+    t=1:\ (x+1)(y-1)=C.
+  \]
+  \TLtakeaway{非恒定流的流线是“某一瞬间”的图；换一个时刻，流线族会平移改变。}
+\end{frame}
+
+\begin{frame}{练习 H4：判断 $\psi$ 与 $\varphi$ 是否存在}
+  \TLinfoblock{题目}{
+    给定平面速度场 $u_x=2xy,\ u_y=x^2-y^2$。判断流函数 $\psi$ 和速度势 $\varphi$ 是否存在；若存在，求出它们。难度：$\star\star$。
+  }
+  \begin{itemize}
+    \item 提示 1：$\psi$ 存在先查 $\partial u_x/\partial x+\partial u_y/\partial y$。
+    \item 提示 2：$\varphi$ 存在先查 $\partial u_y/\partial x-\partial u_x/\partial y$。
+    \item 提示 3：若求 $\psi$，从 $\psi_y=u_x$ 积分，再用 $-\psi_x=u_y$ 确定“积分常数函数”。
+  \end{itemize}
+  \[
+    \pd{u_x}{x}+\pd{u_y}{y}\ ?=0,\qquad
+    \pd{u_y}{x}-\pd{u_x}{y}\ ?=0.
+  \]
+  \TLtakeaway{存在性判断先于积分；否则可能算出不一致的函数。}
+\end{frame}
+
+\begin{frame}{练习 H5（\#35）：点涡外部为什么无旋}
+  \TLinfoblock{题目}{
+    对原点处环量为 $\Gamma$ 的点涡，证明除 $r=0$ 外流场处处无旋。使用 $u_r=0,\ u_\theta=\Gamma/(2\pi r)$ 明确计算涡量 $\omega_z=\partial u_y/\partial x-\partial u_x/\partial y$。难度：$\star\star\star$。
+  }
+  \begin{itemize}
+    \item 提示 1：极坐标中平面涡量可写为 $\omega_z=(1/r)\partial(ru_\theta)/\partial r-(1/r)\partial u_r/\partial\theta$。
+    \item 提示 2：先计算 $ru_\theta$，再对 $r$ 求偏导。
+    \item 提示 3：结论只对 $r>0$ 成立；$r=0$ 处速度公式本身无定义。
+  \end{itemize}
+  \[
+    r u_\theta=r\cdot\frac{\Gamma}{2\pi r}=\frac{\Gamma}{2\pi}.
+  \]
+  \TLtakeaway{点涡的“涡”集中在中心奇点；奇点外的每个普通点都是无旋的。}
+\end{frame}
+
+\begin{frame}{练习 H6：均匀流叠加点源的驻点}
+  \TLinfoblock{题目}{
+    原点处强度为 $q>0$ 的二维点源与 $x$ 正方向均匀流 $u_0$ 叠加。求驻点位置。难度：$\star\star\star$。
+  }
+  \begin{itemize}
+    \item 提示 1：在极坐标中写合成速度：$u_r=u_0\cos\theta+q/(2\pi r)$，$u_\theta=-u_0\sin\theta$。
+    \item 提示 2：驻点要求 $u_r=0$ 且 $u_\theta=0$。
+    \item 提示 3：$u_\theta=0$ 给出 $\theta=0$ 或 $\theta=\pi$，再分别代入径向速度。
+  \end{itemize}
+  \[
+    u_r=0,\qquad u_\theta=0.
+  \]
+  \TLtakeaway{源把流体向外推；均匀流从左向右推，所以驻点位于源点左侧。}
+\end{frame}
+
+% =============================================================================
+% I. 延伸与文献注记
+% =============================================================================
+\TLsection{延伸与文献注记}
+
+\begin{frame}{本 deck 对应源讲义的范围}
+  本 deck 主要依据《第三章讲义》的 3.1--3.4 节和第三章习题，源文本给出概念主线、标准公式和题目清单。
+  \begin{center}
+  \vspace{4pt}
+  \begin{tabular}{lll}
+    \toprule
+    源讲义部分 & 本 deck 对应内容 & 补足方式 \\
+    \midrule
+    3.1 & 拉格朗日法、欧拉法、质点导数 & 链式法则逐步展开 \\
+    3.2 & 微团运动、散度、不可压缩 & 速度梯度分解逐步展开 \\
+    3.3 & 基本运动学概念 & 配流线、迹线、流管图 \\
+    3.4 & 平面势流、流函数、基本势流 & 补充存在条件与正交证明 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \TLtakeaway{外部材料只是深化；本 deck 的目标是自洽地讲完本章运动学闭环。}
+\end{frame}
+
+\begin{frame}{经典教材：从水力学到一般流体力学}
+  \begin{center}
+  \vspace{4pt}
+  \scriptsize
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    教材 & 适合用途 & 与本章关系 \\
+    \midrule
+    闻德荪《水力学》 & 国内水力学主线 & 流线、流管、均匀流概念扎实 \\
+    吴持恭《水力学》 & 题型训练与工程语境 & 过水断面、流量、渐变流表述熟悉 \\
+    Batchelor, \emph{Intro. to Fluid Dynamics} & 理论进阶 & 势流、涡量与理想流体图像深入 \\
+    White, \emph{Fluid Mechanics} & 工程流体力学 & 运动学与 Bernoulli/动量方程衔接 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \[
+    \text{中文水力学题型}
+    \longrightarrow
+    \text{英文流体力学概念}
+    \longrightarrow
+    \text{更一般的连续介质观点}.
+  \]
+\end{frame}
+
+\begin{frame}{人物线索：这些名字对应哪些工具}
+  \begin{center}
+  \vspace{4pt}
+  \small
+  \begin{tabular}{lll}
+    \toprule
+    人物 & 关键词 & 在本章中的作用 \\
+    \midrule
+    拉格朗日 & Lagrange & 质点标签、路径追踪、流函数传统 \\
+    欧拉 & Euler & 固定空间点描述、速度场、速度势 \\
+    亥姆霍兹 & Helmholtz & 微团旋转、涡量、速度分解 \\
+    柯西/黎曼 & Cauchy/Riemann & 复势理论、正交流网的数学背景 \\
+    拉普拉斯 & Laplace & 调和方程、势函数与流函数的线性叠加 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \[
+    \nabla^2\varphi=0,\qquad \nabla^2\psi=0
+  \]
+  \TLtakeaway{历史名字的价值在于定位工具：描述、分解、判别、求解。}
+\end{frame}
+
+\begin{frame}{应用线索：势流叠加能做什么}
+  \begin{itemize}
+    \item 势流叠加可以构造绕流的定性图像，例如均匀流叠加源、汇、涡。
+    \item 均匀流加点源可得到 Rankine half-body；源汇组合可得到 Rankine body。
+    \item 均匀流加环量点涡是理解机翼升力定性图像的入口，但真实升力还需要黏性和边界层条件。
+    \item CFD 中常用欧拉描述：网格点固定，速度、压强、密度作为场变量更新。
+  \end{itemize}
+  \[
+    \text{基本势流}
+    \xrightarrow{\ \text{叠加}\ }
+    \text{可解释的理想流动模型}.
+  \]
+  \TLtakeaway{势流模型不等于真实流动全貌；它先给可计算的运动学骨架。}
+\end{frame}
+
+\TLsection{术语速查}
+
+\begin{frame}{术语速查（一）：函数、曲线与判据}
+  \begin{center}
+  \vspace{3pt}
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    中文术语 & English & 简要定义 \\
+    \midrule
+    流函数 & stream function & 差值给两流线间单宽流量 \\
+    速度势 & velocity potential & 速度可写成 $\vc u=\grad\varphi$ \\
+    等势线 & equipotential line & $\varphi=C$ 曲线，法向沿速度 \\
+    流线 & streamline & 曲线切向与当地速度方向一致 \\
+    无旋流 & irrotational flow & $\omega_z=\partial u_y/\partial x-\partial u_x/\partial y=0$ \\
+    势流 & potential flow & 不可压缩、无旋的理想流模型 \\
+    叠加原理 & superposition principle & 速度、$\varphi$、$\psi$ 可线性相加 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \TLtakeaway{这些术语的共同核心是：先判定场，再选择能简化计算的标量函数。}
+\end{frame}
+
+\begin{frame}{术语速查（二）：基本奇点与方程}
+  \begin{center}
+  \vspace{3pt}
+  \scriptsize
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    中文术语 & English & 简要定义 \\
+    \midrule
+    点源 & point source & $q>0$，径向向外，速率 $q/(2\pi r)$ \\
+    点汇 & point sink & $q<0$，径向向内，速率 $|q|/(2\pi r)$ \\
+    点涡 & point vortex & 环向速度 $u_\theta=\Gamma/(2\pi r)$ \\
+    柯西-黎曼条件 & Cauchy--Riemann & $\varphi_x=\psi_y,\ \varphi_y=-\psi_x$ \\
+    拉普拉斯方程 & Laplace equation & $\nabla^2\varphi=0,\ \nabla^2\psi=0$ \\
+    单宽流量 & unit-width flowrate & 单位深度的体积流量 \\
+    涡量 & vorticity & 速度场旋度，平面流只看 $z$ 分量 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \TLtakeaway{点源、点汇、点涡是数学奇点；使用它们时必须记住 $r=0$ 处不代表真实流体。}
+\end{frame}
+
+\appendix
+
+\begin{frame}{附录：H1 详解}
+  \small
+  已知 $u_x=kx,\ u_y=-ky$，固定时刻的流线满足
+  \[
+    \frac{\rd y}{\rd x}
+      =\frac{u_y}{u_x}
+      =\frac{-ky}{kx}
+      =-\frac{y}{x}. \tag{A1}
+  \]
+  当 $x\neq0,\ y\neq0$ 时，分离变量并积分：
+  \[
+    \frac{\rd y}{y}=-\frac{\rd x}{x},
+    \qquad
+    \ln |y|=-\ln |x|+C_1,
+    \qquad
+    \ln |xy|=C_1. \tag{A2}
+  \]
+  因而 $xy=C$。连续性直接由偏导数给出：
+  \[
+    \pd{u_x}{x}=k,\qquad
+    \pd{u_y}{y}=-k,
+    \qquad
+    \pd{u_x}{x}+\pd{u_y}{y}=k-k=0. \tag{A3}
+  \]
+  \[
+    \boxed{\text{流线为 }xy=C,\quad \text{并满足二维不可压缩连续性。}}
+  \]
+\end{frame}
+
+\begin{frame}{附录：H2 详解}
+  \small
+  已知
+  \[
+    \psi=a(x^2-y^2). \tag{A4}
+  \]
+  先分别求偏导数：
+  \[
+    \pd{\psi}{y}=-2ay,
+    \qquad
+    \pd{\psi}{x}=2ax. \tag{A5}
+  \]
+  用流函数定义代回速度分量：
+  \[
+    u_x=\pd{\psi}{y}=-2ay,
+    \qquad
+    u_y=-\pd{\psi}{x}=-2ax. \tag{A6}
+  \]
+  流线由 $\psi=C$ 得到
+  \[
+    a(x^2-y^2)=C
+    \quad\Longleftrightarrow\quad
+    x^2-y^2=\frac{C}{a}. \tag{A7}
+  \]
+  原点处 $\vc u=(0,0)$，流线是双曲线族；该场是平面停滞点型的纯应变流。
+  \[
+    \boxed{u_x=-2ay,\quad u_y=-2ax,\quad x^2-y^2=C/a.}
+  \]
+\end{frame}
+
+\begin{frame}{附录：H3 详解}
+  \small
+  已知 $u_x=x+t,\ u_y=-y+t$。在固定时刻 $t$，流线方程为
+  \[
+    \frac{\rd y}{\rd x}
+      =\frac{-y+t}{x+t}. \tag{A8}
+  \]
+  令
+  \[
+    X=x+t,\qquad Y=y-t. \tag{A9}
+  \]
+  因为求流线时 $t$ 固定，所以 $\rd X=\rd x,\ \rd Y=\rd y$。代入式 (A8)：
+  \[
+    \frac{\rd Y}{\rd X}=-\frac{Y}{X},
+    \qquad
+    \frac{\rd Y}{Y}=-\frac{\rd X}{X},
+    \qquad
+    \ln|XY|=C_1. \tag{A10}
+  \]
+  因而一般流线为
+  \[
+    XY=C
+    \quad\Longleftrightarrow\quad
+    (x+t)(y-t)=C. \tag{A11}
+  \]
+  \[
+    \boxed{t=0:\ xy=C,\qquad t=1:\ (x+1)(y-1)=C.}
+  \]
+  定性图像都是双曲线族；$t=1$ 时中心从原点平移到 $(-1,1)$。
+\end{frame}
+
+\begin{frame}{附录：H4 详解}
+  \scriptsize
+  \setlength{\abovedisplayskip}{1pt}
+  \setlength{\belowdisplayskip}{1pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
+  已知 $u_x=2xy,\ u_y=x^2-y^2$。先做存在性判定：
+  \begin{align*}
+    \pd{u_x}{x}=2y,\quad \pd{u_y}{y}=-2y,
+    \quad \pd{u_x}{x}+\pd{u_y}{y}=0, \tag{A12}\\[-1pt]
+    \pd{u_y}{x}=2x,\quad \pd{u_x}{y}=2x,
+    \quad \pd{u_y}{x}-\pd{u_x}{y}=0. \tag{A13}
+  \end{align*}
+  因此 $\psi$ 与 $\varphi$ 都存在。先求流函数：
+  \begin{align*}
+    \pd{\psi}{y}=u_x=2xy
+    \Rightarrow
+    \psi=xy^2+f(x), \tag{A14}\\[-1pt]
+    -\pd{\psi}{x}=-(y^2+f'(x))=x^2-y^2
+    \Rightarrow
+    f'(x)=-x^2
+    \Rightarrow
+    f(x)=-\frac{x^3}{3}+C_1. \tag{A15}
+  \end{align*}
+  再求速度势：
+  \begin{align*}
+    \pd{\varphi}{x}=u_x=2xy
+    \Rightarrow
+    \varphi=x^2y+g(y), \tag{A16}\\[-1pt]
+    \pd{\varphi}{y}=x^2+g'(y)=x^2-y^2
+    \Rightarrow
+    g'(y)=-y^2
+    \Rightarrow
+    g(y)=-\frac{y^3}{3}+C_2. \tag{A17}
+  \end{align*}
+  \[
+    \boxed{\psi=xy^2-\frac{x^3}{3}+C_1}
+    \qquad
+    \boxed{\varphi=x^2y-\frac{y^3}{3}+C_2}
+  \]
+\end{frame}
+
+\begin{frame}{附录：H5 详解}
+  \footnotesize
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
+  点涡给定为
+  \[
+    u_r=0,\qquad u_\theta=\frac{\Gamma}{2\pi r}. \tag{A18}
+  \]
+  平面流的涡量定义为
+  \[
+    \omega_z=\pd{u_y}{x}-\pd{u_x}{y}. \tag{A19}
+  \]
+  用极坐标速度分量表示同一个旋度：
+  \[
+    \omega_z
+      =\frac{1}{r}\pd{}{r}(r u_\theta)
+       -\frac{1}{r}\pd{u_r}{\theta}. \tag{A20}
+  \]
+  对 $r>0$，逐项计算：
+  \[
+    r u_\theta
+      =r\frac{\Gamma}{2\pi r}
+      =\frac{\Gamma}{2\pi},
+    \qquad
+    \pd{}{r}(r u_\theta)=0,
+    \qquad
+    \pd{u_r}{\theta}=0. \tag{A21}
+  \]
+  代回式 (A20)：
+  \[
+    \omega_z=\frac{1}{r}\cdot0-\frac{1}{r}\cdot0=0,
+    \qquad r>0. \tag{A22}
+  \]
+  在 $r=0$ 处，$u_\theta=\Gamma/(2\pi r)$ 没有有限值，因此经典偏导数计算不能跨过原点。
+  \[
+    \boxed{\omega_z=0\ (r>0),\quad \text{点涡的涡量集中在 }r=0\text{ 的奇点处。}}
+  \]
+\end{frame}
+
+\begin{frame}{附录：H6 详解}
+  \footnotesize
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
+  均匀流沿 $x$ 方向叠加原点点源，极坐标速度为
+  \[
+    u_r=u_0\cos\theta+\frac{q}{2\pi r},
+    \qquad
+    u_\theta=-u_0\sin\theta. \tag{A23}
+  \]
+  停滞点要求两项速度同时为零。先令 $u_\theta=0$：
+  \[
+    -u_0\sin\theta=0
+    \quad\Longleftrightarrow\quad
+    \theta=0\ \text{或}\ \theta=\pi. \tag{A24}
+  \]
+  若 $\theta=0$，则
+  \[
+    u_r=u_0+\frac{q}{2\pi r}>0,
+  \]
+  对 $q>0,\ u_0>0,\ r>0$ 没有停滞点。若 $\theta=\pi$，则
+  \[
+    u_r=-u_0+\frac{q}{2\pi r}=0
+    \quad\Longleftrightarrow\quad
+    r=\frac{q}{2\pi u_0}. \tag{A25}
+  \]
+  换回直角坐标：
+  \[
+    x=r\cos\pi=-\frac{q}{2\pi u_0},
+    \qquad
+    y=r\sin\pi=0. \tag{A26}
+  \]
+  \[
+    \boxed{(x,y)=\left(-\frac{q}{2\pi u_0},\,0\right).}
+  \]
+\end{frame}
+
+\end{document}

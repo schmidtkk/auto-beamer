@@ -1,0 +1,1663 @@
+% =============================================================================
+% 流体力学（水力学）自学讲义 · 第 3 部分
+% 第四章 4.1--4.2：流体动力学微分方程
+% 模式：passive-study · 主题：teal · 图示：TikZ 重绘
+% =============================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[teal]{template-lib/template-lib}
+\uselayout{text}\uselayout{eq}\uselayout{twocol}\uselayout{1img}\uselayout{table}
+\usetikzlibrary{arrows.meta,calc,positioning,patterns,decorations.pathmorphing,decorations.pathreplacing,decorations.markings}
+
+% ── 记号缩写 ─────────────────────────────────────────────────────────────────
+\newcommand{\rd}{\,\mathrm{d}}
+\newcommand{\dd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\DDt}[1]{\frac{\mathrm{D}#1}{\mathrm{D}t}}
+\newcommand{\grad}{\nabla}
+\newcommand{\divg}{\nabla\!\cdot}
+\newcommand{\vc}[1]{\boldsymbol{#1}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Rey}{\mathit{Re}}
+\newcommand{\atm}{\mathrm{atm}}
+\newcommand{\proofskipnote}{\footnote{\scriptsize 非数学背景读者：本帧为\emph{推导细节}，第一遍可先跳过，记住本帧\emph{要点}即可。}}
+
+% 本地化模板中的 takeaway 标签。
+\renewcommand{\TLtakeaway}[1]{%
+  \vspace{0.25em}%
+  \begin{tikzpicture}
+    \node[fill=TLaccentLight, rounded corners=3pt, inner sep=7pt,
+          text width=\dimexpr\linewidth-14pt\relax, align=justify] {%
+      \small\textcolor{TLaccent}{\textbf{要点。}} #1%
+    };
+  \end{tikzpicture}%
+  \vspace{0.1em}%
+}
+
+\TLsetfoot{流体力学（水力学）\textperiodcentered{} 自学讲义 \textperiodcentered{} 第 3 部分：连续性方程·欧拉方程·N-S 方程}
+
+\begin{document}
+
+% =============================================================================
+% A. 标题 + 如何使用 + 承前
+% =============================================================================
+\TLtitlecenter
+  {流体动力学微分方程}
+  {流体力学（水力学）自学讲义 \textperiodcentered{} 第 3 部分（第四章 4.1--4.3）}
+  {本轮 PASS A：连续性方程与理想流体欧拉方程}
+  {passive-study 自学讲义}
+
+\begin{frame}{如何使用本讲义}
+  本讲义研究\TLterm{动力学}：把“流体怎样运动”和“它受到什么力”连成方程。你需要的背景是高等数学、线性代数和基础大学物理。
+  \begin{itemize}
+    \item 非数学或非流体背景读者，请先读下一节“先建直觉”；看到带 \proofskipnote 的推导帧，第一遍可先跳过推导细节，只记住本帧要点。
+    \item 每个推导先说明它要回答的问题，再逐步把积分形式改成微分形式。
+    \item 本轮只覆盖 A--D：标题、直觉、连续性方程、理想流体欧拉方程；粘性流体 N-S 方程在后续轮次补齐。
+    \item 式号用 D1, D2, \dots 标记；D 表示 dynamics，便于在本 deck 内就地回忆。
+  \end{itemize}
+  \TLtakeaway{阅读顺序：先看“要解什么未知量”，再看守恒律怎样变成方程；推导帧不压缩步骤，方便第二遍逐行核查。}
+\end{frame}
+
+\begin{frame}{承前：本讲义默认你已经掌握的对象}
+  本章会频繁调用前两部分的记号。这里先把它们放在同一张图中，避免读者来回翻页。
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \begin{itemize}
+        \item \TLterm{质量力} $\vc f$：单位质量流体受到的体力，例如重力加速度。
+        \item \TLterm{系统}：固定质量的一团流体；\TLterm{控制体}：空间中选定的盒子。
+        \item \TLterm{质点导数}：
+          \[
+            \DDt{(\ )}=\pd{(\ )}{t}+(\vc u\cdot\grad)(\ ).
+          \]
+        \item \TLterm{应变率张量} $\vc\varepsilon$：速度梯度的对称部分。
+        \item \TLterm{散度} $\divg\vc u$：单位时间相对体积膨胀率。
+      \end{itemize}
+    \column{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.72,>={Stealth[length=5pt]}]
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.0,-0.85) rectangle (-0.55,0.85);
+        \node[TLprimaryDark,align=center] at (-1.275,0.15) {控制体\\固定空间};
+        \draw[->,TLprimaryDark,thick] (-2.55,0.35)--(-2.0,0.35);
+        \draw[->,TLprimaryDark,thick] (-0.55,-0.2)--(0.05,-0.2);
+        \draw[fill=white,draw=TLaccent,thick] (1.0,0) ellipse (0.85 and 0.48);
+        \node[TLaccent,align=center] at (1.0,0) {系统\\随流体走};
+        \draw[->,TLaccent,thick] (1.6,0.35)--(2.45,0.65);
+        \draw[->,TLinkSoft,thick] (-0.25,-1.25)--(0.75,-1.25)
+          node[midway,below] {雷诺输运};
+        \node[draw=TLprimary,fill=white,rounded corners=2pt,inner sep=3pt,align=center] at (0,-2.0)
+          {$\displaystyle \DDt{(\ )}=\partial_t+(\vc u\cdot\nabla)$};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{本章的核心转换是：对系统用守恒律，对控制体写成可求解的欧拉场方程。}
+\end{frame}
+
+% =============================================================================
+% B. 先建直觉
+% =============================================================================
+\TLsection{先建直觉 · 动力学要解什么（新手先读）}
+
+\begin{frame}{本章目标：四个未知场，需要四个方程}
+  大白话：三维不可压缩流动中，速度有三个分量，压强还要再算一个函数；所以最少需要四个独立方程。
+  \begin{columns}[T]
+    \column{0.54\textwidth}
+      \begin{itemize}
+        \item 待求未知场：
+          \[
+          \begin{aligned}
+            &u_x(x,y,z,t),\quad u_y(x,y,z,t),\\
+            &u_z(x,y,z,t),\quad p(x,y,z,t).
+          \end{aligned}
+          \]
+        \item 方程来源：
+          \[
+            1\ \text{个质量守恒}
+            \quad+\quad
+            3\ \text{个动量守恒}.
+          \]
+        \item 物理翻译：质量不能凭空消失，流体微团也必须服从牛顿第二定律。
+      \end{itemize}
+    \column{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.64,>={Stealth[length=5pt]}]
+        \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,minimum width=1.45cm,minimum height=0.65cm] (ux) at (-1.8,1.0) {$u_x$};
+        \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,minimum width=1.45cm,minimum height=0.65cm] (uy) at (-0.1,1.0) {$u_y$};
+        \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,minimum width=1.45cm,minimum height=0.65cm] (uz) at (1.6,1.0) {$u_z$};
+        \node[draw=TLaccent,fill=TLaccentLight,rounded corners=2pt,minimum width=1.45cm,minimum height=0.65cm] (p) at (3.3,1.0) {$p$};
+        \node[TLinkSoft] at (0.75,0.2) {4 个未知函数};
+        \draw[->,TLprimaryDark,thick] (0.75,-0.05)--(0.75,-0.75);
+        \node[draw=TLprimary,fill=white,rounded corners=2pt,minimum width=2.2cm] at (-1.0,-1.35) {连续性};
+        \node[draw=TLaccent,fill=white,rounded corners=2pt,minimum width=2.2cm] at (1.6,-1.35) {$x,y,z$ 动量};
+        \node[TLinkSoft] at (0.25,-2.1) {$1+3=4$ 个方程};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{动力学方程组的第一层目标很朴素：用质量守恒和牛顿第二定律关住 $u_x,u_y,u_z,p$。}
+\end{frame}
+
+\begin{frame}{控制体 vs 系统：雷诺输运在做什么}
+  大白话：守恒律最容易对“同一团流体”说，但工程计算最方便对“固定盒子”说；雷诺输运定理负责把这两种说法接起来。
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \begin{itemize}
+        \item 系统观点：盯住固定质量，质量和动量随这团流体变化。
+        \item 控制体观点：盒子固定在空间，流体从边界进出。
+        \item 对控制体，变化由两件事组成：
+          \[
+            \text{系统变化}
+            =\text{盒内积累}+\text{边界净流出}.
+          \]
+      \end{itemize}
+    \column{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.72,>={Stealth[length=5pt]}]
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.1,-0.85) rectangle (0.15,0.85);
+        \node[TLprimaryDark] at (-0.98,1.18) {控制体 $V$};
+        \foreach \y/\len in {-0.45/0.75,0.05/1.0,0.55/0.65}{
+          \draw[->,TLprimaryDark,thick] (-2.85,\y)--++(\len,0);
+          \draw[->,TLprimaryDark,thick] (0.15,\y)--++(\len,0);
+        }
+        \draw[fill=white,draw=TLaccent,thick] (1.6,0) ellipse (0.82 and 0.52);
+        \node[TLaccent,align=center] at (1.6,0) {系统\\固定质量};
+        \draw[->,TLaccent,thick] (2.12,0.25)--(2.9,0.55);
+        \node[TLinkSoft,align=center,text width=5.6cm] at (0,-1.45)
+          {盒内积累看 $\partial/\partial t$；边界净流出看 $\vc u\cdot\rd\vc A$};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{“系统守恒”不是最后的计算形式；把它改写成“控制体积累 + 边界通量”，才能得到场方程。}
+\end{frame}
+
+\begin{frame}{理想流体 vs 粘性流体：表面力差在哪里}
+  大白话：理想流体的表面只会被压强法向推挤；粘性流体还会沿表面互相拖拽，并可能有附加正应力。
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+      \TLinfoblock{理想流体}{
+        \begin{itemize}
+          \item 忽略粘性；
+          \item 表面力只有压强；
+          \item 压强总是沿表面法向作用。
+        \end{itemize}}
+    \column{0.5\textwidth}
+      \TLinfoblock{粘性流体}{
+        \begin{itemize}
+          \item 保留粘性；
+          \item 表面力含切应力；
+          \item 速度梯度会产生内摩擦。
+        \end{itemize}}
+  \end{columns}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.54,>={Stealth[length=5pt]}]
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-3.6,-0.45) rectangle (-2.3,0.45);
+    \draw[->,TLaccent,thick] (-2.25,0)--(-1.45,0) node[right] {$p$};
+    \node[TLinkSoft] at (-2.95,-0.95) {只有法向压力};
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (1.2,-0.45) rectangle (2.5,0.45);
+    \draw[->,TLaccent,thick] (2.55,0)--(3.25,0) node[right] {$p$};
+    \draw[->,TLprimaryDark,thick] (1.55,0.55)--(2.35,0.55) node[right] {$\tau$};
+    \draw[->,TLprimaryDark,thick] (2.15,-0.55)--(1.35,-0.55);
+    \node[TLinkSoft] at (1.85,-0.95) {压力 + 切向拖拽};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{本轮 Section D 先讲理想流体；粘性流体要等到把应力张量和本构关系放回方程中。}
+\end{frame}
+
+\begin{frame}{N-S 方程一句话：力、粘性扩散、加速度}
+  先把最终目标看一眼。不可压缩牛顿粘性流体的核心方程可读成“单位质量力造成单位质量加速度”：
+  \[
+    \underbrace{\vc f-\frac{1}{\rho}\grad p}_{\text{体力与压强梯度}}
+    +\underbrace{\nu\nabla^2\vc u}_{\text{粘性扩散}}
+    =
+    \underbrace{\DDt{\vc u}}_{\text{质点加速度}}.
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.64,>={Stealth[length=5pt]}]
+    \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,inner sep=4pt] (force) at (-3.0,0) {外力};
+    \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,inner sep=4pt] (visc) at (-0.9,0) {粘性扩散};
+    \node[draw=TLaccent,fill=TLaccentLight,rounded corners=2pt,inner sep=4pt] (acc) at (1.8,0) {加速度};
+    \draw[->,TLprimaryDark,thick] (force)--(visc);
+    \draw[->,TLprimaryDark,thick] (visc)--(acc);
+    \node[TLinkSoft,align=center,text width=4.0cm] at (0,-1.05)
+      {非线性项 $(\vc u\cdot\nabla)\vc u$ 让方程远比普通牛顿第二定律难};
+  \end{tikzpicture}
+  \end{center}
+  N-S 方程已经研究约两百年，一般三维情形的存在性与光滑性仍是现代数学难题。
+  \TLtakeaway{本轮先证明 N-S 的无粘版本：$\vc f-\rho^{-1}\nabla p=\mathrm D\vc u/\mathrm Dt$。}
+\end{frame}
+
+\begin{frame}{阅读路径：哪些必须先懂，哪些第二遍细读}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+      \TLinfoblock{第一遍必读}{
+        \begin{itemize}
+          \item 四个未知场与四个方程；
+          \item 连续性方程最终形式；
+          \item 欧拉方程最终形式；
+          \item 每个方程的物理意义。
+        \end{itemize}}
+    \column{0.5\textwidth}
+      \TLinfoblock{第二遍细读}{
+        \begin{itemize}
+          \item 雷诺输运定理的通量项；
+          \item 高斯定理把面积分变体积分；
+          \item 动量方程与连续性的联立化简；
+          \item 分量式与矢量式的互译。
+        \end{itemize}}
+  \end{columns}
+  \medskip
+  默认背景：多元微积分中的散度与高斯定理、线性代数中的矢量分量、大学物理中的牛顿第二定律。
+  \TLtakeaway{第一遍先抓“守恒律 + 牛顿第二定律”；第二遍再逐行检查积分到微分的转换。}
+\end{frame}
+
+% =============================================================================
+% C. 4.1 连续性方程
+% =============================================================================
+\TLsection{4.1 连续性方程（质量守恒）}
+
+\begin{frame}{连续性方程要回答什么问题？}
+  动力学方程组的第一条方程来自\TLterm{质量守恒}：固定空间盒子里的质量变化，只能由边界上的流入流出造成。
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      取固定控制体 $V$，边界为 $A$，面积矢量 $\rd\vc A=\vc n\,\rd A$ 指向外法线。欧拉观点给出积分形式：
+      \[
+        \frac{\partial}{\partial t}\int_V\rho\,\rd V
+        =
+        -\oint_A \rho\,\vc u\cdot\rd\vc A . \tag{D1}
+      \]
+      \begin{itemize}
+        \item 左边：控制体内质量的当地增长率。
+        \item 右边：负的外向质量通量，也就是净流入率。
+      \end{itemize}
+    \column{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.76,>={Stealth[length=5pt]}]
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-1.45,-0.9) rectangle (1.45,0.9);
+        \node[TLprimaryDark] at (0,0) {$V$};
+        \node[TLprimaryDark] at (0,1.2) {边界 $A$};
+        \draw[->,TLprimaryDark,thick] (-2.25,0.45)--(-1.45,0.45) node[midway,above] {流入};
+        \draw[->,TLprimaryDark,thick] (-2.1,-0.35)--(-1.45,-0.25);
+        \draw[->,TLaccent,thick] (1.45,0.25)--(2.25,0.25) node[midway,above] {流出};
+        \draw[->,TLaccent,thick] (1.45,-0.55)--(2.1,-0.7);
+        \draw[->,TLinkSoft,thick] (1.45,0.9)--(1.9,1.25) node[right] {$\rd\vc A$};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{外法向通量 $\rho\vc u\cdot\rd\vc A$ 以“流出”为正，所以质量增长率前面必须带负号。}
+\end{frame}
+
+\begin{frame}{系统观点：守恒律先对同一团流体说}
+  上一帧从固定盒子直接写出式 (D1)。现在从系统观点重建同一公式，把“守恒”与“通量”之间的桥接写清楚。\proofskipnote
+  对固定质量的系统，质量不随时间改变：
+  \[
+    \frac{\rd}{\rd t}\int_{\mathrm{sys}(t)}\rho\,\rd V=0. \tag{D2}
+  \]
+  雷诺输运定理把系统变化改写成控制体内积累加边界净流出：
+  \[
+    \frac{\rd}{\rd t}\int_{\mathrm{sys}(t)}\rho\,\rd V
+    =
+    \frac{\partial}{\partial t}\int_V\rho\,\rd V
+    +\oint_A\rho\,\vc u\cdot\rd\vc A. \tag{D3}
+  \]
+  把式 (D2) 的左边替换为式 (D3) 的右边：
+  \[
+    \frac{\partial}{\partial t}\int_V\rho\,\rd V
+    +\oint_A\rho\,\vc u\cdot\rd\vc A=0. \tag{D4}
+  \]
+  \TLtakeaway{式 (D4) 与式 (D1) 完全等价；它只是把净流出项移到了左边。}
+\end{frame}
+
+\begin{frame}{微分形式推导（一）：时间偏导移入体积分}
+  现在要把控制体积分方程变成每个空间点都能使用的微分方程。本帧只处理第一项。\proofskipnote
+  因为控制体 $V$ 固定在空间中，积分区域不随 $t$ 改变，所以时间偏导可以移入积分号：
+  \[
+    \frac{\partial}{\partial t}\int_V\rho\,\rd V
+    =
+    \int_V\frac{\partial\rho}{\partial t}\,\rd V. \tag{D5}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.58,>={Stealth[length=5pt]}]
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.2,-0.75) rectangle (-0.6,0.75);
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (0.8,-0.75) rectangle (2.4,0.75);
+    \node[TLprimaryDark] at (-1.4,0) {$V$ 固定};
+    \node[TLprimaryDark] at (1.6,0) {$V$ 仍固定};
+    \draw[->,TLaccent,thick] (-0.25,0)--(0.45,0) node[midway,above] {$t\to t+\Delta t$};
+    \node[TLinkSoft] at (0,-1.2) {变的是密度场 $\rho$，不是积分盒子};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{这一步只用了“控制体固定”；若积分区域随时间动，就不能这样直接移入。}
+\end{frame}
+
+\begin{frame}{微分形式推导（二）：高斯定理处理边界通量}
+  式 (D4) 的第二项是边界面积分。要与式 (D5) 合并，必须先把面积分改写成同一控制体上的体积分。\proofskipnote
+  对矢量场 $\rho\vc u$ 使用高斯定理：
+  \[
+    \oint_A \rho\,\vc u\cdot\rd\vc A
+    =
+    \int_V \divg(\rho\vc u)\,\rd V. \tag{D6}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.62,>={Stealth[length=5pt]}]
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.0,-0.8) rectangle (-0.2,0.8);
+    \foreach \y in {-0.45,0,0.45}{
+      \draw[->,TLaccent,thick] (-0.2,\y)--(0.55,\y);
+    }
+    \node[TLaccent] at (0.15,1.15) {边界净流出};
+    \draw[->,TLprimaryDark,thick] (0.95,0)--(1.65,0);
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (2.1,-0.8) rectangle (3.9,0.8);
+    \node[TLprimaryDark,align=center] at (3.0,0) {内部源汇\\$\divg(\rho\vc u)$};
+    \node[TLinkSoft] at (1.0,-1.25) {高斯定理：边界总通量 = 内部散度总和};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{高斯定理没有改变物理内容；它只把“穿过边界的总量”改写成“体内散度的总和”。}
+\end{frame}
+
+\begin{frame}{微分形式推导（三）：合并体积分并去掉积分号}
+  上一帧已经把两个项都写成 $V$ 上的体积分。本帧先合并，再说明为什么能得到点wise方程。\proofskipnote
+  把式 (D5) 与式 (D6) 代入式 (D4)：
+  \[
+    \int_V
+    \left[
+      \frac{\partial\rho}{\partial t}
+      +\divg(\rho\vc u)
+    \right]\rd V=0. \tag{D7}
+  \]
+  上式对任意固定控制体 $V$ 都成立。若括号内函数在某个小邻域内不为零，就可以取这个小邻域作为控制体，使积分不为零；这与式 (D7) 矛盾。因此括号内函数必须处处为零：
+  \[
+    \frac{\partial\rho}{\partial t}
+    +\divg(\rho\vc u)=0. \tag{D8}
+  \]
+  \TLtakeaway{“任意控制体”是从积分形式走到微分形式的关键；没有这个任意性，就不能去掉积分号。}
+\end{frame}
+
+\begin{frame}{连续性方程：通用微分形式与分量式}
+  式 (D8) 就是连续性方程的通用微分形式。它只依赖连续介质假设，不要求流动恒定，也不要求流体不可压缩。
+  \[
+    \boxed{
+    \frac{\partial\rho}{\partial t}
+    +\divg(\rho\vc u)=0.} \tag{D8}
+  \]
+  把散度展开为三个坐标方向：
+  \[
+    \boxed{
+    \frac{\partial\rho}{\partial t}
+    +\frac{\partial(\rho u_x)}{\partial x}
+    +\frac{\partial(\rho u_y)}{\partial y}
+    +\frac{\partial(\rho u_z)}{\partial z}=0.} \tag{D9}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.52,>={Stealth[length=5pt]}]
+    \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,inner sep=4pt] (rho) at (-2.6,0) {$\partial_t\rho$};
+    \node[draw=TLaccent,fill=TLaccentLight,rounded corners=2pt,inner sep=4pt] (flux) at (0,0) {$\nabla\cdot(\rho\vc u)$};
+    \node[draw=TLprimary,fill=white,rounded corners=2pt,inner sep=4pt] (zero) at (2.6,0) {$0$};
+    \draw[->,TLprimaryDark,thick] (rho)--(flux);
+    \draw[->,TLprimaryDark,thick] (flux)--(zero);
+    \node[TLinkSoft] at (0,-0.95) {当地密度变化 + 净流出率 = 0};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{连续性方程不是“速度散度为零”的同义词；速度散度为零只是不可压缩情形的特殊结果。}
+\end{frame}
+
+\begin{frame}{特殊情形一：恒定流}
+  \TLterm{恒定流}表示欧拉场中各物理量不随时间显式变化。对密度来说，就是
+  \[
+    \frac{\partial\rho}{\partial t}=0. \tag{D10}
+  \]
+  把式 (D10) 代入通用连续性方程 (D8)：
+  \[
+    \boxed{\divg(\rho\vc u)=0.} \tag{D11}
+  \]
+  展开分量式：
+  \[
+    \frac{\partial(\rho u_x)}{\partial x}
+    +\frac{\partial(\rho u_y)}{\partial y}
+    +\frac{\partial(\rho u_z)}{\partial z}=0. \tag{D12}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.5,>={Stealth[length=5pt]}]
+    \foreach \x/\t in {-2.2/$t_1$,0/$t_2$,2.2/$t_3$}{
+      \draw[fill=TLprimaryTint,draw=TLprimary,thick] (\x-0.55,-0.35) rectangle (\x+0.55,0.35);
+      \draw[->,TLprimaryDark,thick] (\x-0.42,0)--(\x+0.42,0);
+      \node[TLinkSoft] at (\x,-0.75) {\t};
+    }
+    \node[TLaccent] at (0,0.95) {固定点照片不变};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{恒定流消掉的是当地密度变化项；密度仍可随空间位置改变。}
+\end{frame}
+
+\begin{frame}{特殊情形二：不可压缩流体}
+  对不可压缩流体，同一个流体质点携带的密度不随运动改变。在常密度模型中，$\rho$ 可从散度中提出并约去：
+  \[
+    \divg(\rho\vc u)=\rho\,\divg\vc u. \tag{D13}
+  \]
+  通用连续性方程 (D8) 变为
+  \[
+    \boxed{\divg\vc u=0.} \tag{D14}
+  \]
+  分量形式为
+  \[
+    \boxed{
+    \frac{\partial u_x}{\partial x}
+    +\frac{\partial u_y}{\partial y}
+    +\frac{\partial u_z}{\partial z}=0.} \tag{D15}
+  \]
+  \TLwarnblock{不要混淆}{
+    不可压缩条件不要求流动恒定。即使速度场随时间变化，只要微团体积不变，仍满足 $\nabla\cdot\vc u=0$。
+  }
+  \TLtakeaway{不可压缩连续性方程是 Deck 2 的 $\nabla\cdot\vc u=0$；本节说明它来自更一般的质量守恒。}
+\end{frame}
+
+% =============================================================================
+% D. 4.2 理想流体的动量方程
+% =============================================================================
+\TLsection{4.2 理想流体的动量方程（欧拉方程）}
+
+\begin{frame}{为什么还需要动量方程？}
+  连续性方程只给出一条质量守恒关系。不可压缩三维流动仍有四个未知场 $u_x,u_y,u_z,p$，所以还需要三条动量关系。
+  \begin{columns}[T]
+    \column{0.54\textwidth}
+      \begin{itemize}
+        \item 对一团固定质量的流体，动量变化由合外力决定。
+        \item 这就是牛顿第二定律在流体系统上的版本。
+        \item 我们先推理想流体：表面力只有压强，没有粘性切应力。
+      \end{itemize}
+      \[
+        \text{质量守恒 }(1)
+        \quad+\quad
+        \text{动量守恒 }(3)
+        \quad\Rightarrow\quad
+        4\ \text{条方程}.
+      \]
+    \column{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.66,>={Stealth[length=5pt]}]
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-1.25,-0.6) ellipse (1.1 and 0.55);
+        \node[TLprimaryDark] at (-1.25,0) {系统};
+        \draw[->,TLaccent,thick] (-2.2,0.75)--(-1.55,0.35) node[midway,above] {$\vc F_{\text{合}}$};
+        \draw[->,TLprimaryDark,thick] (-0.35,0.2)--(0.55,0.45) node[right] {$\rho\vc u$};
+        \node[draw=TLaccent,fill=TLaccentLight,rounded corners=2pt,align=center] at (1.65,-0.45)
+          {合外力\\改变动量};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{连续性告诉我们“质量怎样守恒”；动量方程告诉我们“力怎样产生加速度”。}
+\end{frame}
+
+\begin{frame}{积分形式推导（一）：系统动量定理}
+  本帧从系统观点写牛顿第二定律。系统是同一团固定质量流体，所以可以直接谈它的总动量。\proofskipnote
+  系统总动量为
+  \[
+    \int_{\mathrm{sys}(t)}\rho\vc u\,\rd V.
+  \]
+  动量定理写成
+  \[
+    \frac{\rd}{\rd t}
+    \int_{\mathrm{sys}(t)}\rho\vc u\,\rd V
+    =
+    \vc F_{\text{合}}. \tag{D16}
+  \]
+  对矢量物理量 $\rho\vc u$ 使用雷诺输运定理：
+  \[
+    \frac{\rd}{\rd t}
+    \int_{\mathrm{sys}(t)}\rho\vc u\,\rd V
+    =
+    \frac{\partial}{\partial t}\int_V\rho\vc u\,\rd V
+    +\oint_A(\rho\vc u\cdot\rd\vc A)\,\vc u. \tag{D17}
+  \]
+  \TLtakeaway{动量通量项是“穿过边界的质量流率”乘以“这部分流体携带的速度矢量”。}
+\end{frame}
+
+\begin{frame}{积分形式推导（二）：控制体动量平衡}
+  把式 (D17) 代入动量定理 (D16)，就得到固定控制体上的动量积分形式。\proofskipnote
+  \[
+    \frac{\partial}{\partial t}\int_V\rho\vc u\,\rd V
+    +\oint_A(\rho\vc u\cdot\rd\vc A)\,\vc u
+    =
+    \vc F_{\text{合}}. \tag{D18}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.62,>={Stealth[length=5pt]}]
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-2.2,-0.75) rectangle (-0.25,0.75);
+    \node[TLprimaryDark] at (-1.2,0) {$\partial_t\int_V\rho\vc u\,\rd V$};
+    \foreach \y in {-0.35,0.2}{
+      \draw[->,TLaccent,thick] (-0.25,\y)--(0.65,\y);
+    }
+    \node[TLaccent] at (0.55,0.95) {动量流出};
+    \draw[->,TLprimaryDark,thick] (1.15,0.2)--(2.1,0.55) node[right] {$\vc F_{\text{合}}$};
+    \node[TLinkSoft,align=center,text width=5.8cm] at (0,-1.35)
+      {控制体动量增加率 + 边界动量净流出率 = 合外力};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{式 (D18) 是流体动量定理的欧拉形式；下一步要把合外力拆成可计算项。}
+\end{frame}
+
+\begin{frame}{理想流体的合外力：质量力加压强力}
+  对系统的合外力分成两类：体内每一点都受到的质量力，以及边界上受到的表面力。
+  \begin{columns}[T]
+    \column{0.58\textwidth}
+      \[
+        \vc F_{\text{合}}=\vc F_{\text{质}}+\vc F_{\text{表}}. \tag{D19}
+      \]
+      质量力由单位质量力 $\vc f$ 积分得到：
+      \[
+        \vc F_{\text{质}}=\int_V\rho\vc f\,\rd V. \tag{D20}
+      \]
+      理想流体没有粘性切应力，边界表面力只有压强：
+      \[
+        \vc F_{\text{表}}=-\oint_A p\,\rd\vc A. \tag{D21}
+      \]
+    \column{0.42\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.5,>={Stealth[length=5pt]}]
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (0,0) circle (0.95);
+        \foreach \ang in {25,95,165,235,305}{
+          \draw[->,TLaccent,thick] (\ang:1.55)--(\ang:0.98);
+        }
+        \draw[->,TLprimaryDark,thick] (0,0)--(0,-1.35) node[below] {$\rho\vc f$};
+        \node[TLinkSoft,align=center,text width=3.5cm] at (0,1.65)
+          {压强向内推\\质量力作用于体内};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{理想流体的“表面力简单”只表示没有粘性项；压强梯度仍会产生加速度。}
+\end{frame}
+
+\begin{frame}{理想流体动量方程：积分形式}
+  把式 (D19)--(D21) 代入控制体动量平衡 (D18)，得到理想流体动量方程的积分形式：
+  \[
+    \frac{\partial}{\partial t}\int_V\rho\vc u\,\rd V
+    +\oint_A(\rho\vc u\cdot\rd\vc A)\,\vc u
+    =
+    \int_V\rho\vc f\,\rd V
+    -\oint_A p\,\rd\vc A. \tag{D22}
+  \]
+  逐项读法：
+  \begin{itemize}
+    \item 左一项：控制体内动量的当地积累。
+    \item 左二项：通过边界净流出的动量。
+    \item 右一项：质量力贡献。
+    \item 右二项：压强对控制体内流体的合力。
+  \end{itemize}
+  \TLtakeaway{式 (D22) 仍是积分方程；要得到欧拉方程，还要把面积分和体积分全部放到同一个体积分中。}
+\end{frame}
+
+\begin{frame}{微分形式推导（一）：时间偏导移入}
+  从式 (D22) 出发。本帧只处理控制体内动量当地积累项。\proofskipnote
+  因为 $V$ 固定，时间偏导可移入体积分：
+  \[
+    \frac{\partial}{\partial t}\int_V\rho\vc u\,\rd V
+    =
+    \int_V\frac{\partial(\rho\vc u)}{\partial t}\,\rd V. \tag{D23}
+  \]
+  将式 (D23) 代入式 (D22)，并暂时保留动量通量的面积分：
+  \[
+    \int_V\frac{\partial(\rho\vc u)}{\partial t}\,\rd V
+    +\oint_A(\rho\vc u\cdot\rd\vc A)\,\vc u
+    =
+    \int_V\rho\vc f\,\rd V
+    -\oint_A p\,\rd\vc A. \tag{D24}
+  \]
+  \TLtakeaway{这一帧只完成一个动作：把动量的当地积累项改写成体积分。}
+\end{frame}
+
+\begin{frame}{微分形式推导（二）：压强面积分变体积分}
+  现在处理式 (D24) 右边的压强表面力。压强是标量，$\oint_A p\,\rd\vc A$ 是矢量面积分。\proofskipnote
+  对标量 $p$ 使用高斯公式的矢量形式：
+  \[
+    \oint_A p\,\rd\vc A
+    =
+    \int_V\grad p\,\rd V. \tag{D25}
+  \]
+  因此压强合力写成
+  \[
+    -\oint_A p\,\rd\vc A
+    =
+    -\int_V\grad p\,\rd V. \tag{D26}
+  \]
+  把式 (D26) 代入式 (D24)：
+  \[
+    \int_V\frac{\partial(\rho\vc u)}{\partial t}\,\rd V
+    +\oint_A(\rho\vc u\cdot\rd\vc A)\,\vc u
+    =
+    \int_V(\rho\vc f-\grad p)\,\rd V. \tag{D27}
+  \]
+  \TLtakeaway{压强表面力进入微分方程后变成 $-\nabla p$；负号来自压强向内推。}
+\end{frame}
+
+\begin{frame}{微分形式推导（三）：投影到 $x$ 方向的三项}
+  式 (D27) 是矢量方程。为了看清通量项怎么处理，先投影到 $x$ 方向。\proofskipnote
+  左边当地项的 $x$ 分量是
+  \[
+    \int_V\frac{\partial(\rho u_x)}{\partial t}\,\rd V.
+  \]
+  动量通量项携带的是 $x$ 方向动量 $\rho u_x$：
+  \[
+    \oint_A(\rho\vc u\cdot\rd\vc A)\,u_x
+    =
+    \oint_A\rho u_x\,\vc u\cdot\rd\vc A. \tag{D28}
+  \]
+  右边合力的 $x$ 分量是
+  \[
+    \int_V\left(\rho f_x-\frac{\partial p}{\partial x}\right)\rd V. \tag{D29}
+  \]
+  \TLtakeaway{投影不是近似；它只是把矢量方程拆成三个标量方程，先列出 $x$ 方向的三项。}
+\end{frame}
+
+\begin{frame}{微分形式推导（三续）：合并成 $x$ 方向积分方程}
+  上一帧已经列出 $x$ 方向的当地项、通量项和合力项。现在把这三项放回同一个平衡式。\proofskipnote
+  所以 $x$ 方向积分方程为
+  \[
+    \int_V\frac{\partial(\rho u_x)}{\partial t}\,\rd V
+    +\oint_A\rho u_x\,\vc u\cdot\rd\vc A
+    =
+    \int_V\left(\rho f_x-\frac{\partial p}{\partial x}\right)\rd V. \tag{D30}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.48,>={Stealth[length=5pt]}]
+    \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,inner sep=4pt] at (-4.2,0) {当地积累};
+    \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,inner sep=4pt] at (0,0) {动量通量};
+    \node[draw=TLaccent,fill=TLaccentLight,rounded corners=2pt,inner sep=4pt] at (4.2,0) {$x$ 向合力};
+    \draw[->,TLprimaryDark,thick] (-3.0,0)--(-1.15,0);
+    \draw[->,TLprimaryDark,thick] (1.15,0)--(3.0,0);
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{接下来只剩一个面积分：把 $\rho u_x\vc u$ 的边界通量也变成体积分。}
+\end{frame}
+
+\begin{frame}{微分形式推导（四）：对流项使用高斯定理}
+  现在把式 (D30) 中的动量通量面积分也改成体积分。\proofskipnote
+  对矢量场 $\rho u_x\vc u$ 使用高斯定理：
+  \[
+    \oint_A\rho u_x\,\vc u\cdot\rd\vc A
+    =
+    \int_V\divg(\rho u_x\vc u)\,\rd V. \tag{D31}
+  \]
+  把式 (D31) 代入式 (D30)：
+  \[
+    \int_V
+    \left[
+      \frac{\partial(\rho u_x)}{\partial t}
+      +\divg(\rho u_x\vc u)
+    \right]\rd V
+    =
+    \int_V\left(\rho f_x-\frac{\partial p}{\partial x}\right)\rd V. \tag{D32}
+  \]
+  两边移到同一体积分后，再用任意控制体的逐点性：
+  \[
+    \rho f_x-\frac{\partial p}{\partial x}
+    =
+    \frac{\partial(\rho u_x)}{\partial t}
+    +\divg(\rho u_x\vc u). \tag{D33}
+  \]
+  \TLtakeaway{式 (D33) 是欧拉方程化简前的守恒型 $x$ 动量方程。}
+\end{frame}
+
+\begin{frame}{与连续性联立化简（一）：先展开乘积}
+  式 (D33) 右边还不是质点加速度。先把两个乘积项逐步展开。\proofskipnote
+  时间项按乘积求导：
+  \[
+    \frac{\partial(\rho u_x)}{\partial t}
+    =
+    \rho\frac{\partial u_x}{\partial t}
+    +u_x\frac{\partial\rho}{\partial t}. \tag{D34}
+  \]
+  对流项按散度乘积公式展开：
+  \[
+    \divg(\rho u_x\vc u)
+    =
+    u_x\,\divg(\rho\vc u)
+    +\rho\,\vc u\cdot\grad u_x. \tag{D35}
+  \]
+  把式 (D34) 与式 (D35) 相加：
+  \[
+    \frac{\partial(\rho u_x)}{\partial t}
+    +\divg(\rho u_x\vc u)
+    =
+    \rho\frac{\partial u_x}{\partial t}
+    +\rho\,\vc u\cdot\grad u_x
+    +u_x\left[
+      \frac{\partial\rho}{\partial t}
+      +\divg(\rho\vc u)
+    \right]. \tag{D36}
+  \]
+  \TLtakeaway{连续性方程要消掉的是最后一项方括号，而不是随意丢掉密度相关项。}
+\end{frame}
+
+\begin{frame}{与连续性联立化简（二）：连续性方程消去方括号}
+  上一帧得到式 (D36)。现在把连续性方程 (D8) 放进方括号中。\proofskipnote
+  连续性方程给出
+  \[
+    \frac{\partial\rho}{\partial t}
+    +\divg(\rho\vc u)=0. \tag{D37}
+  \]
+  因此式 (D36) 化为
+  \[
+    \frac{\partial(\rho u_x)}{\partial t}
+    +\divg(\rho u_x\vc u)
+    =
+    \rho\left(
+      \frac{\partial u_x}{\partial t}
+      +\vc u\cdot\grad u_x
+    \right). \tag{D38}
+  \]
+  将式 (D38) 代入守恒型动量式 (D33)：
+  \[
+    \rho f_x-\frac{\partial p}{\partial x}
+    =
+    \rho\left(
+      \frac{\partial u_x}{\partial t}
+      +\vc u\cdot\grad u_x
+    \right). \tag{D39}
+  \]
+  两边除以 $\rho$：
+  \[
+    f_x-\frac{1}{\rho}\frac{\partial p}{\partial x}
+    =
+    \frac{\partial u_x}{\partial t}
+    +\vc u\cdot\grad u_x. \tag{D40}
+  \]
+  \TLtakeaway{这就是 $x$ 方向的欧拉方程；$y,z$ 方向按同一投影步骤写出。}
+\end{frame}
+
+\begin{frame}{欧拉方程：矢量形式}
+  把三个方向重新合成矢量，就得到理想流体动量方程，也称\TLterm{欧拉方程}：
+  \[
+    \boxed{
+    \vc f-\frac{1}{\rho}\grad p
+    =
+    \DDt{\vc u}
+    =
+    \frac{\partial\vc u}{\partial t}
+    +(\vc u\cdot\grad)\vc u.} \tag{D41}
+  \]
+  \begin{center}
+  \begin{tikzpicture}[scale=0.58,>={Stealth[length=5pt]}]
+    \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,inner sep=4pt] (body) at (-3.2,0) {$\vc f$};
+    \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,inner sep=4pt] (press) at (-1.05,0) {$-\rho^{-1}\nabla p$};
+    \node[draw=TLaccent,fill=TLaccentLight,rounded corners=2pt,inner sep=4pt] (acc) at (1.55,0) {$\mathrm D\vc u/\mathrm Dt$};
+    \draw[->,TLprimaryDark,thick] (body)--(press);
+    \draw[->,TLprimaryDark,thick] (press)--(acc);
+    \node[TLinkSoft,align=center,text width=5.1cm] at (-0.75,-1.0)
+      {单位质量体力 + 单位质量压强梯度力 = 质点加速度};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{欧拉方程不含粘性项；它是 N-S 方程在忽略粘性时的动量方程。}
+\end{frame}
+
+\begin{frame}{欧拉方程：三分量形式}
+  将式 (D41) 展开，质点导数的三个分量分别为当地加速度加迁移加速度：
+  {\footnotesize
+  \[
+  \begin{aligned}
+    f_x-\frac{1}{\rho}\frac{\partial p}{\partial x}
+      &=
+      \frac{\partial u_x}{\partial t}
+      +u_x\frac{\partial u_x}{\partial x}
+      +u_y\frac{\partial u_x}{\partial y}
+      +u_z\frac{\partial u_x}{\partial z},\\
+    f_y-\frac{1}{\rho}\frac{\partial p}{\partial y}
+      &=
+      \frac{\partial u_y}{\partial t}
+      +u_x\frac{\partial u_y}{\partial x}
+      +u_y\frac{\partial u_y}{\partial y}
+      +u_z\frac{\partial u_y}{\partial z},\\
+    f_z-\frac{1}{\rho}\frac{\partial p}{\partial z}
+      &=
+      \frac{\partial u_z}{\partial t}
+      +u_x\frac{\partial u_z}{\partial x}
+      +u_y\frac{\partial u_z}{\partial y}
+      +u_z\frac{\partial u_z}{\partial z}.
+  \end{aligned} \tag{D42}
+  \]
+  }
+  \begin{center}
+  \begin{tikzpicture}[scale=0.46,>={Stealth[length=5pt]}]
+    \foreach \x/\lab in {-2.4/$x$ 方向,0/$y$ 方向,2.4/$z$ 方向}{
+      \node[draw=TLprimary,fill=TLprimaryTint,rounded corners=2pt,inner sep=3pt] at (\x,0) {\lab};
+    }
+    \node[TLinkSoft] at (0,-0.75) {每一行都是“该方向单位质量合力 = 该方向加速度”};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{右边每一行的迁移项都作用在同一个速度分量上；不要把 $u_x,u_y,u_z$ 的偏导混排。}
+\end{frame}
+
+\begin{frame}{物理意义：流体微团的牛顿第二定律}
+  欧拉方程的结构与质点力学完全对应，只是“质点”换成了连续介质中的一个运动微团。
+  \[
+    \underbrace{\vc f}_{\text{单位质量体力}}
+    +
+    \underbrace{\left(-\frac{1}{\rho}\grad p\right)}_{\text{单位质量压强梯度力}}
+    =
+    \underbrace{\DDt{\vc u}}_{\text{质点加速度}}. \tag{D43}
+  \]
+  \begin{columns}[T]
+    \column{0.54\textwidth}
+      \begin{itemize}
+        \item $\vc f$ 例如重力加速度，本身就是单位质量力。
+        \item $-\nabla p$ 是单位体积压强力；除以 $\rho$ 后变成单位质量力。
+        \item $\mathrm D\vc u/\mathrm Dt$ 跟着同一个流体质点看速度变化。
+      \end{itemize}
+    \column{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.7,>={Stealth[length=5pt]}]
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (0,0) circle (0.65);
+        \draw[->,TLaccent,thick] (-1.35,0.45)--(-0.55,0.2) node[midway,above] {$p$ 高};
+        \draw[->,TLaccent,thick] (1.35,-0.25)--(0.55,-0.08) node[midway,below] {$p$ 低};
+        \draw[->,TLprimaryDark,thick] (0,0)--(0.95,0.55) node[right] {$\DDt{\vc u}$};
+        \draw[->,TLinkSoft,thick] (0,0)--(0,-1.1) node[below] {$\vc f$};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{压强本身不直接给加速度；压强的空间梯度才产生净压强力。}
+\end{frame}
+
+\begin{frame}{小结：连续性 + 欧拉 = 四方程对四未知量}
+  对理想不可压缩流体，本轮已经得到闭合方程组的核心结构。
+  \begin{center}
+  \vspace{3pt}
+  \begin{tabular}{lll}
+    \toprule
+    方程来源 & 方程数量 & 约束的未知量 \\
+    \midrule
+    连续性方程 & $1$ & $u_x,u_y,u_z$ 的体积约束 \\
+    欧拉动量方程 & $3$ & $u_x,u_y,u_z,p$ 的力学关系 \\
+    \midrule
+    合计 & $4$ & $u_x,u_y,u_z,p$ \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \[
+    \divg\vc u=0,
+    \qquad
+    \vc f-\frac{1}{\rho}\grad p=\DDt{\vc u}. \tag{D44}
+  \]
+  真正求解时，还必须给出初始条件和边界条件；方程本身只说明局部守恒与局部受力关系。
+  \TLtakeaway{到这里，本章开头的“4 个未知场需要 4 条方程”已经对理想不可压缩流体完成。}
+\end{frame}
+
+% =============================================================================
+% E. 4.3 粘性流体的动量方程
+% =============================================================================
+\TLsection{4.3 粘性流体的动量方程（N-S 方程）}
+
+\begin{frame}{为什么需要修正欧拉方程}
+  欧拉方程把表面力只写成压强力，等价于把流体看成理想流体。只要粘性作用不能忽略，这个近似就会遗漏壁面阻力、剪切拖拽和速度扩散。
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \begin{itemize}
+        \item 理想流体：表面力只有 $-p\,\rd\vc A$。
+        \item 粘性流体：表面上还会出现切向拖拽和附加正应力。
+        \item 修正思路：不再只用一个标量 $p$ 描述表面力，而是用\TLterm{应力张量} $\vc{\sigma}$ 描述各方向上的表面力。
+      \end{itemize}
+      \[
+        \text{欧拉方程}
+        \quad\Longrightarrow\quad
+        \text{含 } \nabla\cdot\vc{\sigma} \text{ 的动量方程}.
+      \]
+    \column{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.66,>={Stealth[length=5pt]}]
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-1.45,-0.65) rectangle (-0.25,0.65);
+        \draw[->,TLaccent,thick] (-1.9,0)--(-1.45,0) node[midway,above] {$p$};
+        \draw[->,TLaccent,thick] (-0.25,0)--(0.2,0) node[midway,above] {$p$};
+        \node[TLinkSoft] at (-0.85,-1.05) {理想：只压不拖};
+        \draw[fill=TLprimaryTint,draw=TLprimary,thick] (1.05,-0.65) rectangle (2.25,0.65);
+        \draw[->,TLaccent,thick] (0.6,0)--(1.05,0) node[midway,above] {$p$};
+        \draw[->,TLprimaryDark,thick] (1.25,0.82)--(2.05,0.82) node[right] {$\tau$};
+        \draw[->,TLprimaryDark,thick] (2.05,-0.82)--(1.25,-0.82);
+        \node[TLinkSoft] at (1.65,-1.05) {粘性：压强 + 拖拽};
+      \end{tikzpicture}
+  \end{columns}
+  \TLtakeaway{N-S 方程不是推翻欧拉方程，而是在动量平衡中把粘性应力重新放回去。}
+\end{frame}
+
+\begin{frame}{应力张量定义：矩阵与互等定理}
+  \TLterm{应力张量}把“某个法向截面上的单位面积表面力”按方向整理成矩阵。对坐标面取外法线方向，常用记号为
+  \[
+    \vc{\sigma}=
+    \begin{bmatrix}
+      -p_{xx} & \tau_{xy} & \tau_{xz}\\
+      \tau_{yx} & -p_{yy} & \tau_{yz}\\
+      \tau_{zx} & \tau_{zy} & -p_{zz}
+    \end{bmatrix}. \tag{D45}
+  \]
+  \begin{itemize}
+    \item $p_{xx},p_{yy},p_{zz}$ 是三个坐标面的法向压应力大小；矩阵中写成负号，是因为压应力通常指向截面内部。
+    \item $\tau_{ij}$ 是在法向为 $i$ 的面上、沿 $j$ 方向作用的切应力。
+    \item 对普通连续介质，角动量平衡给出互等定理：
+      \[
+        \tau_{xy}=\tau_{yx},\quad
+        \tau_{xz}=\tau_{zx},\quad
+        \tau_{yz}=\tau_{zy}. \tag{D46}
+      \]
+  \end{itemize}
+  \TLtakeaway{一个标量压强只能描述各向同性的法向压缩；应力张量才能描述粘性流体的完整表面力。}
+\end{frame}
+
+\begin{frame}{应力张量图像：同一个面上有法向力和切向力}
+  在法向为 $x$ 的面上，表面力可分解为一个法向分量和两个切向分量。
+  \begin{center}
+  \begin{tikzpicture}[scale=0.9,>={Stealth[length=5pt]}]
+    \coordinate (A) at (-1.05,-0.65);
+    \coordinate (B) at (0.95,-0.65);
+    \coordinate (C) at (1.35,-0.25);
+    \coordinate (D) at (-0.65,-0.25);
+    \coordinate (E) at (-1.05,0.75);
+    \coordinate (F) at (0.95,0.75);
+    \coordinate (G) at (1.35,1.15);
+    \coordinate (H) at (-0.65,1.15);
+    \fill[TLprimaryTint] (A)--(B)--(C)--(D)--cycle;
+    \fill[TLprimary!12] (E)--(F)--(G)--(H)--cycle;
+    \fill[TLprimary!18] (B)--(C)--(G)--(F)--cycle;
+    \draw[draw=TLprimary,thick] (A)--(B)--(C)--(D)--cycle (E)--(F)--(G)--(H)--cycle
+      (A)--(E) (B)--(F) (C)--(G) (D)--(H);
+    \draw[->,TLaccent,thick] (1.15,0.45)--(2.25,0.45) node[right] {$p_{xx}$};
+    \draw[->,TLprimaryDark,thick] (1.15,0.62)--(1.15,1.58) node[above] {$\tau_{xy}$};
+    \draw[->,TLprimaryDark,thick] (1.08,0.25)--(0.38,-0.45) node[below] {$\tau_{xz}$};
+    \draw[->,TLinkSoft,thick] (1.15,0.45)--(1.75,0.85) node[right] {$x$ 面合应力};
+    \node[TLinkSoft] at (0,-1.45) {$x$ 面上的三个分量构成矩阵第一行};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{应力张量的每一行都对应一个截面；行内三项分别给出该截面上的三方向表面力。}
+\end{frame}
+
+\begin{frame}{含应力散度的修正动量方程}
+  进度：欧拉方程已经给出体力与压强力。本帧把“表面应力的合力”写成体积分，再得到修正动量方程。\proofskipnote
+  对任意固定控制体，表面应力合力可写成
+  \[
+    \vc F_{\text{表}}
+    =
+    \oint_A \vc{\sigma}\,\vc n\,\rd A. \tag{D47}
+  \]
+  对张量场使用高斯定理，面积分变成体积分：
+  \[
+    \oint_A \vc{\sigma}\,\vc n\,\rd A
+    =
+    \int_V \nabla\cdot\vc{\sigma}\,\rd V. \tag{D48}
+  \]
+  因此局部动量方程为
+  \[
+    \boxed{\rho\,\DDt{\vc u}
+    =
+    \rho\vc f+\nabla\cdot\vc{\sigma}.} \tag{D49}
+  \]
+  逐项含义：$\rho\mathrm D\vc u/\mathrm Dt$ 是单位体积惯性项，$\rho\vc f$ 是单位体积质量力，$\nabla\cdot\vc{\sigma}$ 是单位体积表面力合力。
+\end{frame}
+
+\begin{frame}{含应力散度的三分量形式}
+  把式 (D49) 用式 (D45) 的分量展开，可以直接看到它怎样修正欧拉方程：
+  {\footnotesize
+  \[
+  \begin{aligned}
+    \rho\DDt{u_x}
+      &=\rho f_x-\frac{\partial p_{xx}}{\partial x}
+        +\frac{\partial\tau_{yx}}{\partial y}
+        +\frac{\partial\tau_{zx}}{\partial z},\\
+    \rho\DDt{u_y}
+      &=\rho f_y+\frac{\partial\tau_{xy}}{\partial x}
+        -\frac{\partial p_{yy}}{\partial y}
+        +\frac{\partial\tau_{zy}}{\partial z},\\
+    \rho\DDt{u_z}
+      &=\rho f_z+\frac{\partial\tau_{xz}}{\partial x}
+        +\frac{\partial\tau_{yz}}{\partial y}
+        -\frac{\partial p_{zz}}{\partial z}.
+  \end{aligned} \tag{D50}
+  \]
+  }
+  若只有各向同性压强，即 $\vc{\sigma}=-p\vc I$，则 $\nabla\cdot\vc{\sigma}=-\nabla p$，式 (D49) 回到欧拉方程。若存在粘性，应力分量还必须由速度梯度给出。
+  \TLtakeaway{修正动量方程的结构已经完成；真正的新物理藏在 $\vc{\sigma}$ 怎样依赖速度场。}
+\end{frame}
+
+\begin{frame}{牛顿流体本构关系（一）：切应力来自剪切变形率}
+  \TLterm{本构关系}把“力学量”应力与“运动学量”速度梯度联系起来。牛顿流体假设这种关系是线性的。
+  一维牛顿内摩擦定律为
+  \[
+    \tau=\mu\frac{\rd u}{\rd y}. \tag{D51}
+  \]
+  在三维中，$xy$ 面剪切变形率有两部分来源：$u_y$ 沿 $x$ 的变化，以及 $u_x$ 沿 $y$ 的变化。因此
+  \[
+    \tau_{xy}=\tau_{yx}
+    =
+    \mu\left(
+      \frac{\partial u_y}{\partial x}
+      +
+      \frac{\partial u_x}{\partial y}
+    \right). \tag{D52}
+  \]
+  下标轮换得到
+  {\footnotesize
+  \[
+    \tau_{xz}=\tau_{zx}
+    =
+    \mu\left(
+      \frac{\partial u_z}{\partial x}
+      +
+      \frac{\partial u_x}{\partial z}
+    \right),\qquad
+    \tau_{yz}=\tau_{zy}
+    =
+    \mu\left(
+      \frac{\partial u_z}{\partial y}
+      +
+      \frac{\partial u_y}{\partial z}
+    \right). \tag{D53}
+  \]
+  }
+  \TLtakeaway{切应力不是只看一个偏导；一般三维剪切要把相互垂直的两个速度梯度都放进去。}
+\end{frame}
+
+\begin{frame}{牛顿流体本构关系（二）：正应力与张量式}
+  对不可压缩牛顿流体，粘性还会修正三个法向压应力：
+  {\footnotesize
+  \[
+    p_{xx}=p-2\mu\frac{\partial u_x}{\partial x},\quad
+    p_{yy}=p-2\mu\frac{\partial u_y}{\partial y},\quad
+    p_{zz}=p-2\mu\frac{\partial u_z}{\partial z}. \tag{D54}
+  \]
+  }
+  定义\TLterm{应变率张量}
+  \[
+    \varepsilon_{ij}
+    =
+    \frac12\left(
+      \frac{\partial u_i}{\partial x_j}
+      +
+      \frac{\partial u_j}{\partial x_i}
+    \right). \tag{D55}
+  \]
+  上一帧的切应力和本帧的法向应力可以统一写成
+  \[
+    \boxed{\vc{\sigma}=-p\vc I+2\mu\vc{\varepsilon}.} \tag{D56}
+  \]
+  \begin{itemize}
+    \item $-p\vc I$ 是各向同性压强部分。
+    \item $2\mu\vc{\varepsilon}$ 是速度梯度产生的粘性修正。
+  \end{itemize}
+  \TLtakeaway{牛顿流体的关键简化是：应力张量只线性依赖应变率张量。}
+\end{frame}
+
+\begin{frame}{动水压强定义：三个正应力的平均值}
+  粘性流体运动时，三个法向应力一般不完全相等。为了保留“与方向无关的压强部分”，定义\TLterm{动水压强}
+  \[
+    p=\frac13(p_{xx}+p_{yy}+p_{zz}). \tag{D57}
+  \]
+  这等价于取应力张量法向部分的平均值，把三维法向压缩中的各向同性部分取出来：
+  \[
+    p=\frac13\operatorname{tr}
+    \begin{bmatrix}
+      p_{xx} & 0 & 0\\
+      0 & p_{yy} & 0\\
+      0 & 0 & p_{zz}
+    \end{bmatrix}. \tag{D58}
+  \]
+  \begin{itemize}
+    \item 静止流体中 $\vc{\varepsilon}=0$，动水压强与热力学压强一致。
+    \item 运动流体中，动水压强是应力张量的各向同性部分。
+  \end{itemize}
+  \TLtakeaway{动水压强不是某一个方向的正应力；它是三个法向压应力的平均值。}
+\end{frame}
+
+\begin{frame}{动水压强图像：平均后留下各向同性部分}
+  三个法向正应力可以不同；取平均的目的，是把与坐标方向无关的标量压强部分抽出来。
+  \begin{center}
+  \begin{tikzpicture}[scale=0.66,>={Stealth[length=5pt]}]
+    \draw[fill=TLprimaryTint,draw=TLprimary,thick] (-1.1,-0.8) rectangle (1.1,0.8);
+    \draw[->,TLaccent,thick] (-1.55,0)--(-1.1,0) node[midway,above] {$p_{xx}$};
+    \draw[->,TLaccent,thick] (1.55,0)--(1.1,0) node[midway,above] {$p_{xx}$};
+    \draw[->,TLprimaryDark,thick] (0,1.25)--(0,0.8) node[midway,right] {$p_{yy}$};
+    \draw[->,TLprimaryDark,thick] (0,-1.25)--(0,-0.8) node[midway,right] {$p_{yy}$};
+    \draw[->,TLprimaryDark,thick] (1.1,0.8)--(1.55,1.25) node[right] {$p_{zz}$};
+    \node[draw=TLprimary,fill=white,rounded corners=2pt,inner sep=4pt] at (0,-1.75)
+      {$\displaystyle p=\frac13(p_{xx}+p_{yy}+p_{zz})$};
+  \end{tikzpicture}
+  \end{center}
+  \TLtakeaway{平均三个法向正应力，得到的不是某个面的受力，而是应力张量的各向同性部分。}
+\end{frame}
+
+\begin{frame}{N-S 方程推导（一）：从应力散度出发}
+  进度：已有修正动量方程 (D49) 和本构关系 (D56)。本帧先把应力散度拆开。\proofskipnote
+  从
+  \[
+    \rho\DDt{\vc u}=\rho\vc f+\nabla\cdot\vc{\sigma} \tag{D59}
+  \]
+  出发，代入
+  \[
+    \vc{\sigma}=-p\vc I+2\mu\vc{\varepsilon}. \tag{D60}
+  \]
+  对散度逐项作用：
+  \[
+    \nabla\cdot\vc{\sigma}
+    =
+    \nabla\cdot(-p\vc I)
+    +
+    \nabla\cdot(2\mu\vc{\varepsilon}). \tag{D61}
+  \]
+  若 $\mu$ 为常数，第二项中的 $2\mu$ 可提出：
+  \[
+    \nabla\cdot\vc{\sigma}
+    =
+    -\nabla p
+    +
+    2\mu\,\nabla\cdot\vc{\varepsilon}. \tag{D62}
+  \]
+  \TLtakeaway{N-S 粘性项的来源是 $2\mu\,\nabla\cdot\vc{\varepsilon}$；下一帧把它化成 $\mu\nabla^2\vc u$。}
+\end{frame}
+
+\begin{frame}{N-S 方程推导（二）：粘性项怎样合并成拉普拉斯}
+  本帧只证明一个关键恒等式：不可压缩时 $2\nabla\cdot\vc{\varepsilon}=\nabla^2\vc u$。\proofskipnote
+  先看第 $i$ 个分量。由式 (D55)，
+  \[
+    2\varepsilon_{ij}
+    =
+    \frac{\partial u_i}{\partial x_j}
+    +
+      \frac{\partial u_j}{\partial x_i}. \tag{D63}
+  \]
+  对 $j$ 求散度并对 $j=1,2,3$ 求和：
+  {\footnotesize
+  \[
+  \begin{aligned}
+    \bigl(2\nabla\cdot\vc{\varepsilon}\bigr)_i
+      &=
+      \sum_{j=1}^3
+      \frac{\partial}{\partial x_j}
+      \left(
+        \frac{\partial u_i}{\partial x_j}
+        +
+        \frac{\partial u_j}{\partial x_i}
+      \right)\\
+      &=
+      \sum_{j=1}^3
+      \frac{\partial^2 u_i}{\partial x_j^2}
+      +
+      \frac{\partial}{\partial x_i}
+      \left(\sum_{j=1}^3\frac{\partial u_j}{\partial x_j}\right).
+  \end{aligned} \tag{D64}
+  \]
+  }
+  不可压缩连续性给出 $\sum_j\partial u_j/\partial x_j=\nabla\cdot\vc u=0$，所以
+  \[
+    \bigl(2\nabla\cdot\vc{\varepsilon}\bigr)_i
+    =
+    \nabla^2u_i. \tag{D65}
+  \]
+  \TLtakeaway{不是把二阶导“凑”成拉普拉斯；连续性方程正好消掉了多出来的梯度散度项。}
+\end{frame}
+
+\begin{frame}{N-S 方程推导（三）：代回动量方程}
+  由式 (D62) 与式 (D65)，应力散度变为
+  \[
+    \nabla\cdot\vc{\sigma}
+    =
+    -\nabla p+\mu\nabla^2\vc u. \tag{D66}
+  \]
+  把式 (D66) 代入修正动量方程 (D59)：
+  \[
+    \rho\DDt{\vc u}
+    =
+    \rho\vc f-\nabla p+\mu\nabla^2\vc u. \tag{D67}
+  \]
+  两边除以 $\rho$：
+  \[
+    \DDt{\vc u}
+    =
+    \vc f-\frac1\rho\nabla p+\frac{\mu}{\rho}\nabla^2\vc u. \tag{D68}
+  \]
+  定义\TLterm{运动粘度}
+  \[
+    \nu=\frac{\mu}{\rho}. \tag{D69}
+  \]
+  \TLtakeaway{从应力张量到 N-S 方程的关键链条是：本构关系 + 不可压缩连续性 + 常粘度假设。}
+\end{frame}
+
+\begin{frame}{N-S 方程最终形式：矢量式}
+  将质点导数展开，得到不可压缩牛顿流体的\TLterm{Navier--Stokes 方程}：
+  \[
+    \boxed{
+    \vc f-\frac{1}{\rho}\grad p+\nu\nabla^2\vc u
+    =
+    \frac{\partial\vc u}{\partial t}
+    +(\vc u\cdot\grad)\vc u.} \tag{D70}
+  \]
+  这里
+  \[
+    \nabla^2=\Delta
+    =
+    \frac{\partial^2}{\partial x^2}
+    +
+    \frac{\partial^2}{\partial y^2}
+    +
+    \frac{\partial^2}{\partial z^2}. \tag{D71}
+  \]
+  \begin{itemize}
+    \item $\nu=\mu/\rho$ 是运动粘度，单位为 $\mathrm{m^2/s}$。
+    \item $\nu\nabla^2\vc u$ 描述粘性把速度差异向周围扩散。
+  \end{itemize}
+  \TLtakeaway{不可压缩牛顿流体的 N-S 方程 = 欧拉方程 + 粘性扩散项 $\nu\nabla^2\vc u$。}
+\end{frame}
+
+\begin{frame}{N-S 方程最终形式：三分量式}
+  把式 (D70) 展开，得到三个方向的动量方程：
+  {\footnotesize
+  \[
+  \begin{aligned}
+    f_x-\frac{1}{\rho}\frac{\partial p}{\partial x}+\nu\nabla^2u_x
+      &=
+      \frac{\partial u_x}{\partial t}
+      +u_x\frac{\partial u_x}{\partial x}
+      +u_y\frac{\partial u_x}{\partial y}
+      +u_z\frac{\partial u_x}{\partial z},\\
+    f_y-\frac{1}{\rho}\frac{\partial p}{\partial y}+\nu\nabla^2u_y
+      &=
+      \frac{\partial u_y}{\partial t}
+      +u_x\frac{\partial u_y}{\partial x}
+      +u_y\frac{\partial u_y}{\partial y}
+      +u_z\frac{\partial u_y}{\partial z},\\
+    f_z-\frac{1}{\rho}\frac{\partial p}{\partial z}+\nu\nabla^2u_z
+      &=
+      \frac{\partial u_z}{\partial t}
+      +u_x\frac{\partial u_z}{\partial x}
+      +u_y\frac{\partial u_z}{\partial y}
+      +u_z\frac{\partial u_z}{\partial z}.
+  \end{aligned} \tag{D72}
+  \]
+  }
+  \TLtakeaway{每个分量都包含同一种结构：体力、压强梯度、粘性扩散，平衡该分量的当地与迁移加速度。}
+\end{frame}
+
+\begin{frame}{N-S 方程性质：为什么它难}
+  \TLinfoblock{关键性质}{
+    \begin{itemize}
+      \item 非线性来自迁移加速度 $(\vc u\cdot\nabla)\vc u$，未知速度自己乘自己的空间导数。
+      \item 一般几何与边界条件下没有解析解，工程中常用数值方法求流场。
+      \item 理想流体欧拉方程是 $\nu\to0$ 时的特殊情形。
+    \end{itemize}
+  }
+  \begin{itemize}
+    \item 层流中速度场较有序，某些简单问题可得到解析解。
+    \item 湍流中速度场强烈波动；N-S 方程仍然成立，但直接解析求解通常不可行。
+  \end{itemize}
+  \[
+    \nu>0:\ \text{粘性流体},
+    \qquad
+    \nu\to0:\ \text{理想流体近似}. \tag{D73}
+  \]
+  \TLtakeaway{N-S 方程的困难不是“公式写不出”，而是非线性、多尺度和边界条件共同让求解变难。}
+\end{frame}
+
+% =============================================================================
+% F. 常见误区
+% =============================================================================
+\TLsection{常见误区}
+
+\begin{frame}{常见误区：把方程的适用条件说窄了}
+  \TLwarnblock{误区 1：欧拉方程只适用于不可压缩流体}{
+    错。欧拉方程的核心假设是\TLterm{无粘}，不是不可压缩。可压缩理想流体也可用欧拉方程；不可压缩只是另外加上的密度条件。
+  }
+  \TLwarnblock{误区 2：N-S 方程只适用于层流}{
+    错。N-S 方程在层流和湍流中都成立；区别是湍流速度场多尺度、强非线性，通常不能直接解析求解。
+  }
+  \[
+    \text{无粘} \ne \text{不可压缩},
+    \qquad
+    \text{方程成立} \ne \text{容易求解}. \tag{D74}
+  \]
+  \TLtakeaway{先分清“方程假设”和“求解难度”；许多判断题正是混淆这两层。}
+\end{frame}
+
+\begin{frame}{常见误区：把压强和连续性条件说错}
+  \TLwarnblock{误区 3：动水压强等于某个方向的正应力}{
+    错。动水压强定义为 $p=(p_{xx}+p_{yy}+p_{zz})/3$，它是三个法向正应力的平均值。
+  }
+  \TLwarnblock{误区 4：连续性方程要求流体不可压缩}{
+    错。一般连续性方程 $\partial_t\rho+\nabla\cdot(\rho\vc u)=0$ 对可压缩流体也成立；不可压缩时才化为 $\nabla\cdot\vc u=0$。
+  }
+  \[
+    \frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\vc u)=0
+    \quad\Longrightarrow\quad
+    \nabla\cdot\vc u=0\ \text{需要额外不可压缩假设}. \tag{D75}
+  \]
+  \TLtakeaway{不要把特殊情形反过来当成通用定义。}
+\end{frame}
+
+% =============================================================================
+% G. 练习
+% =============================================================================
+\TLsection{练习}
+
+\begin{frame}{练习1 $\star$：验证不可压缩连续性}
+  \TLinfoblock{题目}{
+    给定速度场 $u_x=2x,\ u_y=-2y,\ u_z=0$。验证它是否满足不可压缩连续性方程。
+  }
+  \[
+    \nabla\cdot\vc u
+    =
+    \frac{\partial u_x}{\partial x}
+    +\frac{\partial u_y}{\partial y}
+    +\frac{\partial u_z}{\partial z}. \tag{D76}
+  \]
+  \begin{itemize}
+    \item 提示 1：不可压缩连续性只要求速度散度为零。
+    \item 提示 2：分别计算三个偏导数，不要把 $x,y,z$ 当常数全部消掉。
+    \item 提示 3：最后把 $2$、$-2$、$0$ 相加。
+  \end{itemize}
+  \TLtakeaway{本题练习最基础的散度判别：三个方向的体积膨胀率相加。}
+\end{frame}
+
+\begin{frame}{练习2 $\star\star$：应力分量计算}
+  \TLinfoblock{题目}{
+    给定 $u_x=x+y,\ u_y=2x+3y,\ u_z=0$，$\mu=0.01\,\mathrm{Pa\cdot s}$，点 $M(1,2,3)$ 处 $p=1000\,\mathrm{Pa}$。求 $\tau_{xy}$、$\sigma_{xx}$、$\sigma_{yy}$。
+  }
+  \[
+    \tau_{xy}=\mu\left(\frac{\partial u_y}{\partial x}
+    +\frac{\partial u_x}{\partial y}\right),\quad
+    \sigma_{xx}=-p+2\mu\frac{\partial u_x}{\partial x},\quad
+    \sigma_{yy}=-p+2\mu\frac{\partial u_y}{\partial y}. \tag{D77}
+  \]
+  \begin{itemize}
+    \item 提示 1：先算 $\partial u_y/\partial x$ 与 $\partial u_x/\partial y$。
+    \item 提示 2：法向应力在应力张量中是 $\sigma_{xx}=-p_{xx}$；题目给出的公式已按 $\sigma$ 的符号写好。
+    \item 提示 3：本速度场梯度为常数，代点 $M$ 不会改变数值。
+  \end{itemize}
+  \TLtakeaway{先求速度梯度，再乘粘度；最后检查压强项数量级远大于粘性正应力修正。}
+\end{frame}
+
+\begin{frame}{练习3 $\star\star$：静止流体的压强分布}
+  \TLinfoblock{题目}{
+    设流体静止，$\vc u=0$，质量力为 $\vc f=-g\hat{\vc e}_z$。由 N-S 方程的静止情形推导 $\partial p/\partial z=-\rho g$，并得到 $p=p_0-\rho gz$。
+  }
+  静止时
+  \[
+    \frac{\partial\vc u}{\partial t}=0,\qquad
+    (\vc u\cdot\nabla)\vc u=0,\qquad
+    \nabla^2\vc u=0. \tag{D78}
+  \]
+  \begin{itemize}
+    \item 提示 1：把这些零项代入 N-S 方程。
+    \item 提示 2：只看 $z$ 分量，且 $f_z=-g$。
+    \item 提示 3：对 $\partial p/\partial z=-\rho g$ 积分，并用 $z=0$ 处 $p=p_0$ 定常数。
+  \end{itemize}
+  \TLtakeaway{静水压强分布是 N-S 方程在静止、无速度梯度时的退化结果。}
+\end{frame}
+
+\begin{frame}{练习4 $\star\star\star$：两平行板间 Couette 流}
+  \TLinfoblock{题目}{
+    下板静止，上板以速度 $U$ 沿 $x$ 方向运动，两板间距为 $h$。设稳态、充分发展、无压强梯度，推导速度剖面 $u(y)=Uy/h$。
+  }
+  假设
+  \[
+    \vc u=(u(y),0,0),\qquad
+    \frac{\partial}{\partial t}=0,\qquad
+    \frac{\partial p}{\partial x}=0. \tag{D79}
+  \]
+  \begin{itemize}
+    \item 提示 1：在 $x$ 方向 N-S 方程中，迁移加速度各项都为零。
+    \item 提示 2：方程化为 $\nu\,\rd^2u/\rd y^2=0$。
+    \item 提示 3：积分两次得 $u=Ay+B$，再用 $u(0)=0,\ u(h)=U$。
+  \end{itemize}
+  \TLtakeaway{Couette 流展示了 N-S 方程在简单边界下如何给出线性速度剖面。}
+\end{frame}
+
+% =============================================================================
+% H. 延伸与文献注记
+% =============================================================================
+\TLsection{延伸与文献注记}
+
+\begin{frame}{源讲义与章节导读}
+  本 deck 对应源讲义第四章的 §4.1--§4.3：连续性方程、理想流体欧拉方程、粘性不可压缩牛顿流体 N-S 方程。
+  \begin{center}
+  \vspace{4pt}
+  \small
+  \begin{tabular}{lll}
+    \toprule
+    源讲义段落 & 本 deck 内容 & 补足方式 \\
+    \midrule
+    §4.1 & 连续性方程 & 写全雷诺输运与高斯定理步骤 \\
+    §4.2 & 欧拉方程 & 从积分动量定理推到三分量式 \\
+    §4.3 & N-S 方程 & 补全应力散度与粘性项合并过程 \\
+    习题 & 判断与计算 & 改写成分级练习并给附录全解 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \[
+    \text{质量守恒}
+    \longrightarrow
+    \text{理想动量}
+    \longrightarrow
+    \text{粘性动量}. \tag{D80}
+  \]
+  \TLtakeaway{源讲义给主线，本 deck 把“课堂上会讲”的中间代数和物理解释写在页内。}
+\end{frame}
+
+\begin{frame}{历史人物：方程背后的四条线索}
+  \begin{center}
+  \vspace{4pt}
+  \footnotesize
+  \begin{tabular}{lll}
+    \toprule
+    人物 & 年代线索 & 贡献 \\
+    \midrule
+    Euler & 1757 & 建立理想流体动量方程，把牛顿第二定律写成场方程 \\
+    Navier & 1821 & 把分子摩擦思想引入粘性流体动量方程 \\
+    Stokes & 1845 & 系统化牛顿粘性流体方程与本构假设 \\
+    Reynolds & 1879 & 发展输运思想，连接系统观点与控制体观点 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \[
+    \text{Euler}
+    \xrightarrow{\ \text{加粘性}\ }
+    \text{Navier--Stokes}
+    \xrightarrow{\ \text{输运观点}\ }
+    \text{现代控制体推导}. \tag{D81}
+  \]
+  \TLtakeaway{历史顺序也提示学习顺序：先懂无粘牛顿第二定律，再懂粘性本构。}
+\end{frame}
+
+\begin{frame}{斯托克斯三假设：为什么会得到牛顿流体本构}
+  斯托克斯三假设给出从一般应力到牛顿流体本构的物理约束：
+  \begin{enumerate}
+    \item 流体各向同性：没有材料内部预设的特殊方向。
+    \item 应力与应变率线性相关：速度梯度翻倍，粘性应力也翻倍。
+    \item 静止时退化为热力学压强：若 $\vc{\varepsilon}=0$，应力只剩 $-p\vc I$。
+  \end{enumerate}
+  在这些限制下，最简单且方向无关的线性张量关系就是
+  \[
+    \vc{\sigma}=-p\vc I+2\mu\vc{\varepsilon}. \tag{D82}
+  \]
+  \TLtakeaway{三假设的作用是排除任意复杂的材料响应，把流体限定为线性、各向同性、静止可回到压强的牛顿流体。}
+\end{frame}
+
+\begin{frame}{N-S 千禧难题与推荐教材}
+  三维不可压缩 N-S 方程的光滑解是否总能存在，是 Clay Mathematics Institute 的千禧难题之一；本讲义只需要知道它说明 N-S 方程的数学结构极深。
+  \begin{center}
+  \vspace{4pt}
+  \footnotesize
+  \begin{tabular}{ll}
+    \toprule
+    教材 & 适合用途 \\
+    \midrule
+    吴望一《流体力学》 & 中文理论主线与方程推导 \\
+    闻德荪《流体力学》 & 水力学课程语境与工程例题 \\
+    White, \emph{Fluid Mechanics} & 工程流体力学、量纲和应用 \\
+    Batchelor, \emph{An Introduction to Fluid Dynamics} & 理论流体力学进阶 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  外部教材只作为深化材料；本 deck 的连续性、欧拉方程和 N-S 方程主线已经自洽。
+  \TLtakeaway{先把本讲义的局部守恒与本构关系读通，再用教材扩展到边界层、湍流和解析解。}
+\end{frame}
+
+% =============================================================================
+% I. 术语速查
+% =============================================================================
+\TLsection{术语速查}
+
+\begin{frame}{术语速查（一）}
+  \begin{center}
+  \vspace{4pt}
+  \footnotesize
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    中文 & English \\
+    \midrule
+    粘性 & viscosity \\
+    应力张量 & stress tensor \\
+    切应力 & shear stress \\
+    法向应力 & normal stress \\
+    动水压强 & hydrodynamic pressure \\
+    本构关系 & constitutive relation \\
+    应变率张量 & strain-rate tensor \\
+    牛顿流体 & Newtonian fluid \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \TLtakeaway{第一组术语围绕“应力如何由速度梯度产生”。}
+\end{frame}
+
+\begin{frame}{术语速查（二）}
+  \begin{center}
+  \vspace{4pt}
+  \footnotesize
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    中文 & English \\
+    \midrule
+    N-S 方程 & Navier--Stokes equations \\
+    运动粘度 & kinematic viscosity \\
+    动力粘度 & dynamic viscosity \\
+    层流 & laminar flow \\
+    湍流 & turbulent flow \\
+    Couette 流 & Couette flow \\
+    Poiseuille 流 & Poiseuille flow \\
+    拉普拉斯算子 & Laplacian \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \TLtakeaway{第二组术语围绕“N-S 方程的参数、流态和典型解析流动”。}
+\end{frame}
+
+\appendix
+
+\begin{frame}{附录 A1：练习1全解}
+  本题要验证不可压缩连续性方程 $\nabla\cdot\vc u=0$。
+  \[
+    u_x=2x,\qquad u_y=-2y,\qquad u_z=0.
+  \]
+  分别求三个偏导：
+  \[
+    \frac{\partial u_x}{\partial x}=2,\qquad
+    \frac{\partial u_y}{\partial y}=-2,\qquad
+    \frac{\partial u_z}{\partial z}=0.
+  \]
+  代入速度散度：
+  \[
+    \frac{\partial u_x}{\partial x}
+    +\frac{\partial u_y}{\partial y}
+    +\frac{\partial u_z}{\partial z}
+    =
+    2+(-2)+0=0.
+  \]
+  \TLresultblock{答案}{
+    \[
+      \boxed{\nabla\cdot\vc u=0,\quad \text{该速度场满足不可压缩连续性方程。}}
+    \]
+  }
+\end{frame}
+
+\begin{frame}{附录 A2：练习2全解}
+  \footnotesize
+  已知 $u_x=x+y,\ u_y=2x+3y,\ u_z=0,\ \mu=0.01\,\mathrm{Pa\cdot s},\ p=1000\,\mathrm{Pa}$。
+  \[
+    \frac{\partial u_y}{\partial x}=2,\qquad
+    \frac{\partial u_x}{\partial y}=1.
+  \]
+  因此
+  \[
+    \tau_{xy}
+    =
+    \mu\left(\frac{\partial u_y}{\partial x}
+    +\frac{\partial u_x}{\partial y}\right)
+    =
+    0.01\times(2+1)
+    =
+    0.03\,\mathrm{Pa}.
+  \]
+  法向应力按题面使用 $\sigma_{ii}=-p+2\mu\,\partial u_i/\partial x_i$：
+  \[
+    \frac{\partial u_x}{\partial x}=1,\qquad
+    \sigma_{xx}=-1000+2(0.01)(1)=-999.98\,\mathrm{Pa}.
+  \]
+  \[
+    \frac{\partial u_y}{\partial y}=3,\qquad
+    \sigma_{yy}=-1000+2(0.01)(3)=-999.94\,\mathrm{Pa}.
+  \]
+  \TLresultblock{答案}{
+    \[
+      \boxed{\tau_{xy}=0.03\,\mathrm{Pa},\quad
+      \sigma_{xx}=-999.98\,\mathrm{Pa},\quad
+      \sigma_{yy}=-999.94\,\mathrm{Pa}.}
+    \]
+  }
+\end{frame}
+
+\begin{frame}{附录 A3：练习3全解}
+  \footnotesize
+  静止流体满足 $\vc u=0$，所以
+  \[
+    \frac{\partial\vc u}{\partial t}=0,\qquad
+    (\vc u\cdot\nabla)\vc u=0,\qquad
+    \nabla^2\vc u=0.
+  \]
+  将这些零项代入 N-S 方程：
+  \[
+    \vc f-\frac1\rho\nabla p+\nu\nabla^2\vc u
+    =
+    \frac{\partial\vc u}{\partial t}+(\vc u\cdot\nabla)\vc u
+    \quad\Longrightarrow\quad
+    \vc f-\frac1\rho\nabla p=0.
+  \]
+  因为 $\vc f=-g\hat{\vc e}_z$，取 $z$ 分量：
+  \[
+    -g-\frac1\rho\frac{\partial p}{\partial z}=0
+    \quad\Longrightarrow\quad
+    \frac{\partial p}{\partial z}=-\rho g.
+  \]
+  对 $z$ 积分：
+  \[
+    p(z)=-\rho gz+C.
+  \]
+  用 $p(0)=p_0$ 得 $C=p_0$。
+  \TLresultblock{答案}{
+    \[
+      \boxed{\frac{\partial p}{\partial z}=-\rho g,\qquad p(z)=p_0-\rho gz.}
+    \]
+  }
+\end{frame}
+
+\begin{frame}{附录 A4：练习4全解}
+  \footnotesize
+  设 $\vc u=(u(y),0,0)$，稳态且无压强梯度。$x$ 方向 N-S 方程为
+  \[
+    f_x-\frac1\rho\frac{\partial p}{\partial x}
+    +\nu\nabla^2u
+    =
+    \frac{\partial u}{\partial t}
+    +u_x\frac{\partial u}{\partial x}
+    +u_y\frac{\partial u}{\partial y}
+    +u_z\frac{\partial u}{\partial z}.
+  \]
+  本题中 $f_x=0$，$\partial p/\partial x=0$，$\partial u/\partial t=0$，且 $u$ 只依赖 $y$，所以右边各迁移项为零：
+  \[
+    \nu\frac{\rd^2u}{\rd y^2}=0
+    \quad\Longrightarrow\quad
+    \frac{\rd^2u}{\rd y^2}=0.
+  \]
+  积分两次：
+  \[
+    \frac{\rd u}{\rd y}=A,\qquad
+    u(y)=Ay+B.
+  \]
+  边界条件为 $u(0)=0$ 与 $u(h)=U$，所以 $B=0$，$Ah=U$，即 $A=U/h$。
+  墙面切应力为 $\tau_{\text{wall}}=\mu\,\rd u/\rd y=\mu U/h$。
+  \TLresultblock{答案}{
+    \[
+      \boxed{u(y)=\frac{U}{h}y,\qquad \tau_{\text{wall}}=\mu\frac{U}{h}.}
+    \]
+  }
+\end{frame}
+
+\end{document}
