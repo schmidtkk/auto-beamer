@@ -43,6 +43,7 @@ import json
 import os
 import re
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -261,10 +262,23 @@ def cmd_search(args, cfg):
         print("  ! " + e)
 
 
+def _open_image(op, url):
+    """Open an image URL; auto-retry Commons thumbnails at a valid size on HTTP 400."""
+    try:
+        return op.open(url, timeout=60)
+    except urllib.error.HTTPError as e:
+        if e.code == 400 and "upload.wikimedia.org" in url and re.search(r"/\d+px-", url):
+            fixed = re.sub(r"/\d+px-", "/1280px-", url)
+            if fixed != url:
+                print(f"  (Commons rejected that thumb size; retrying at 1280px)", file=sys.stderr)
+                return op.open(fixed, timeout=60)
+        raise
+
+
 def cmd_fetch(args, cfg):
     op = _opener(cfg)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)) or ".", exist_ok=True)
-    with op.open(args.url, timeout=60) as r:
+    with _open_image(op, args.url) as r:
         ctype = r.headers.get("Content-Type", "")
         data = r.read()
     if not (ctype.startswith("image/") or args.out.lower().endswith((".png", ".jpg", ".jpeg", ".svg"))):

@@ -322,11 +322,21 @@
 % --- 4.1 discrete plan + win ------------------------------------------------
 \begin{frame}{The plan, and why it can't fail to have an answer}
   A colon scan becomes a \TLterm{triangle mesh}: vertices, edges, triangles. Functions are \TLterm{piecewise-linear} --- a value $f_i$ at each vertex, linear inside each triangle.
-  \begin{itemize}
-    \item We will find each planar coordinate of the flattening as a \textbf{harmonic} function: the smoothest, least-stretched field with the boundary pinned.
-    \item ``Harmonic'' will become a \textbf{linear system} $\Lmat x=b$ whose matrix is symmetric positive-definite once the boundary is fixed.
-    \item An SPD system has \emph{exactly one} solution. So a flattening always exists and is unique --- \textbf{no uniformization theorem required.}
-  \end{itemize}
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      \begin{itemize}
+        \item We find each planar coordinate of the flattening as a \textbf{harmonic} function: the smoothest, least-stretched field with the boundary pinned.
+        \item ``Harmonic'' becomes a \textbf{linear system} $\Lmat x=b$ whose matrix is symmetric positive-definite once the boundary is fixed.
+        \item An SPD system has \emph{exactly one} solution. So a flattening always exists and is unique --- \textbf{no uniformization theorem required.}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \centering
+      \includegraphics[height=3.3cm]{assets/colon-en/delaunay_mesh.png}\\[2pt]
+      {\scriptsize A triangle mesh (Delaunay).\\
+       Figure: Inductiveload, \href{https://commons.wikimedia.org/wiki/File:Delaunay_Triangulation_(50_Points).svg}{Wikimedia Commons}, public domain.}
+    \end{column}
+  \end{columns}
   \TLtakeaway{The whole method reduces to assembling one matrix $\Lmat$ and solving $\Lmat x=b$. The rest of Q4 is: where $\Lmat$ comes from, and solving it by hand on a tiny mesh.}
 \end{frame}
 
@@ -596,7 +606,7 @@
     \bibitem{hat} S.~Haker, S.~Angenent, A.~Tannenbaum, R.~Kikinis. \emph{Nondistorting flattening maps and the 3D visualization of colon CT images}. IEEE TMI, 19(7), 2000. (harmonic colon flattening)
   \end{thebibliography}
   \smallskip
-  {\scriptsize Figure credits (all openly licensed, via Wikimedia Commons): Gaussian-curvature surfaces --- Nicoguaro, CC0; colon anatomy --- Mikael Häggström, public domain; conformal map --- Oleg Alexandrov, public domain. All other figures original (TikZ).}
+  {\scriptsize Figure credits (all openly licensed, via Wikimedia Commons): Gaussian-curvature surfaces --- Nicoguaro, CC0; colon anatomy --- Mikael Häggström, public domain; conformal map --- Oleg Alexandrov, public domain; triangle mesh --- Inductiveload, public domain. All other figures original (TikZ).}
 \end{frame}
 
 \end{document}

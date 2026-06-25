@@ -335,11 +335,21 @@
 % --- 4.1 discrete plan + win ------------------------------------------------
 \begin{frame}{方案，以及它为什么不可能没有解}
   一次结肠扫描化成一张\TLterm{三角网格}：顶点、边、三角形。函数取\TLterm{分片线性（piecewise-linear）}——每个顶点一个值 $f_i$，三角形内部线性。
-  \begin{itemize}
-    \item 我们把摊平的每个平面坐标找成一个\textbf{调和}函数：边界钉住后，最光滑、拉伸最小的场。
-    \item 「调和」会变成一个\textbf{线性系统} $\Lmat x=b$，边界一旦固定，它的矩阵就是对称正定。
-    \item 正定系统\emph{恰有一个}解。所以摊平总存在且唯一——\textbf{无需任何单值化定理}。
-  \end{itemize}
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      \begin{itemize}
+        \item 摊平的每个平面坐标，都求成一个\textbf{调和}函数：边界钉住后，最光滑、拉伸最小的场。
+        \item 「调和」会化成一个\textbf{线性系统} $\Lmat x=b$，边界一旦固定，矩阵就是对称正定。
+        \item 正定系统\emph{恰有一个}解。所以摊平总存在且唯一——\textbf{无需任何单值化定理}。
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \centering
+      \includegraphics[height=3.3cm]{assets/colon-en/delaunay_mesh.png}\\[2pt]
+      {\scriptsize 一张三角网格（Delaunay）。\\
+       图：Inductiveload，\href{https://commons.wikimedia.org/wiki/File:Delaunay_Triangulation_(50_Points).svg}{Wikimedia Commons}，公有领域。}
+    \end{column}
+  \end{columns}
   \TLtakeaway{整个方法归结为：装出一个矩阵 $\Lmat$，再解 $\Lmat x=b$。Q4 余下的事就是：$\Lmat$ 从哪来，以及在一张小网格上手算它。}
 \end{frame}
 
@@ -609,7 +619,7 @@
     \bibitem{hat} S.~Haker, S.~Angenent, A.~Tannenbaum, R.~Kikinis. \emph{Nondistorting flattening maps and the 3D visualization of colon CT images}. IEEE TMI, 19(7), 2000.（调和结肠展开）
   \end{thebibliography}
   \smallskip
-  {\scriptsize 图片出处（均为开放授权，经 Wikimedia Commons）：Gauss 曲率示意 --- Nicoguaro，CC0；结肠解剖 --- Mikael Häggström，公有领域；共形映射 --- Oleg Alexandrov，公有领域。其余插图均为原创（TikZ）。}
+  {\scriptsize 图片出处（均为开放授权，经 Wikimedia Commons）：Gauss 曲率示意 --- Nicoguaro，CC0；结肠解剖 --- Mikael Häggström，公有领域；共形映射 --- Oleg Alexandrov，公有领域；三角网格 --- Inductiveload，公有领域。其余插图均为原创（TikZ）。}
 \end{frame}
 
 \end{document}

@@ -41,6 +41,20 @@
       "slide": "Q3 conformal",
       "status": "adopted",
       "retrieved": "2026-06-25"
+    },
+    {
+      "id": "fig-004",
+      "query": "triangle mesh delaunay",
+      "source": "wikimedia_commons",
+      "title": "Delaunay Triangulation (50 Points)",
+      "author": "Inductiveload",
+      "license": "pd",
+      "license_url": "",
+      "file_page": "https://commons.wikimedia.org/wiki/File:Delaunay_Triangulation_(50_Points).svg",
+      "local_path": "assets/colon-en/delaunay_mesh.png",
+      "slide": "Q4 discretize",
+      "status": "adopted",
+      "retrieved": "2026-06-25"
     }
   ]
 }
