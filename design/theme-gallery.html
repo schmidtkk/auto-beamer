@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoBeamer · Theme Taste Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#11100e;          /* page bg — dark gallery wall so slides pop */
+    --paper2:#1a1916;
+    --ink:#ECE7DD;
+    --ink-soft:#9c9486;
+    --hair:#2c2a25;
+    --radius:14px;
+    --slide-w: 460px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 600px at 80% -10%, #20211d 0%, transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+  }
+  .wrap{max-width:1320px;margin:0 auto;padding:56px 40px 120px}
+  header.top{margin-bottom:8px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:46px;line-height:1.05;margin:.25em 0 .15em;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:#E0A86A}
+  .lede{max-width:760px;color:#c9c2b4;font-size:16.5px}
+  .lede b{color:var(--ink);font-weight:600}
+  nav.jump{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 8px}
+  nav.jump a{font-size:13px;color:var(--ink);text-decoration:none;border:1px solid var(--hair);
+    padding:7px 13px;border-radius:999px;background:var(--paper2);transition:.15s}
+  nav.jump a:hover{border-color:#5a554a;background:#23221d}
+
+  h2.section{font-family:'Fraunces',serif;font-weight:600;font-size:27px;margin:64px 0 4px;letter-spacing:-.01em}
+  .section-sub{color:var(--ink-soft);font-size:14.5px;max-width:780px;margin-bottom:26px}
+  .section-sub code{background:#23221d;border:1px solid var(--hair);padding:1px 6px;border-radius:5px;font-size:12.5px;color:#d8cfbe}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--slide-w),1fr));gap:30px}
+
+  .card{background:var(--paper2);border:1px solid var(--hair);border-radius:var(--radius);overflow:hidden;
+    transition:.18s;display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-3px);border-color:#4a463d;box-shadow:0 18px 40px -20px #000}
+  .card .meta{padding:14px 18px 16px;border-top:1px solid var(--hair)}
+  .card .name{font-family:'Fraunces',serif;font-size:19px;font-weight:600;display:flex;align-items:baseline;gap:9px}
+  .card .tag{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);
+    border:1px solid var(--hair);border-radius:5px;padding:2px 6px}
+  .card .blurb{color:#b7af9f;font-size:13.5px;margin-top:6px}
+  .chips{display:flex;gap:5px;margin-top:12px;flex-wrap:wrap}
+  .chip{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--ink-soft);
+    background:#1f1e1a;border:1px solid var(--hair);border-radius:6px;padding:3px 7px 3px 4px}
+  .chip i{width:13px;height:13px;border-radius:3px;display:inline-block;border:1px solid #0003}
+
+  /* ---------- SLIDE MOCKUP ---------- */
+  .stage{padding:18px 18px 4px;background:
+    repeating-linear-gradient(45deg,#161512 0 2px,transparent 2px 9px)}
+  .slide{
+    --title-fg:#fff;
+    position:relative;aspect-ratio:16/9;border-radius:7px;overflow:hidden;
+    background:var(--canvas);color:var(--ink-c);
+    box-shadow:0 10px 30px -12px #000, 0 0 0 1px #0006;
+    font-size:10px;/* base scale unit for the mini slide */
+    display:flex;flex-direction:column;
+  }
+  /* metropolis / moloch: filled top title bar */
+  .slide .titlebar{background:var(--primary);color:var(--title-fg);
+    padding:7px 12px 6px;font-weight:600;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+  .slide .titlebar .ftnum{opacity:.8;font-weight:500;font-size:9px}
+  .slide .progress{height:3px;background:var(--primary-light)}
+  .slide .progress > i{display:block;height:100%;width:62%;background:var(--accent)}
+  .slide .body{flex:1;padding:11px 13px 8px;display:flex;flex-direction:column;gap:7px}
+
+  .blk{border-left:3px solid var(--primary);background:var(--primary-tint);
+    border-radius:4px;padding:6px 9px}
+  .blk .h{color:var(--primary);font-weight:700;font-size:9.5px;margin-bottom:2px}
+  .blk .t{color:var(--ink-c);font-size:9px;line-height:1.5}
+  .gloss{color:var(--ink-soft-c);font-style:italic}
+
+  .prob{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .prob .q{font-weight:600;color:var(--ink-c);font-size:10px}
+  .stars{color:var(--accent);font-size:11px;letter-spacing:1px;white-space:nowrap}
+  .hint{color:var(--ink-soft-c);font-style:italic;font-size:8.7px}
+  .hint b{color:var(--accent);font-style:normal;font-weight:600}
+
+  .take{margin-top:auto;background:var(--accent-light);border-radius:5px;padding:5px 9px;
+    font-size:8.8px;color:var(--ink-c)}
+  .take b{color:var(--accent)}
+
+  .foot{height:15px;background:var(--primary);display:flex;align-items:center;justify-content:space-between;
+    padding:0 10px;color:var(--title-fg);font-size:7.5px;opacity:.96}
+
+  /* term emphasis + pos/neg inline */
+  .term{color:var(--accent);font-weight:600}
+  .pos{color:var(--pos);font-weight:600}
+  .neg{color:var(--neg);font-weight:600}
+
+  /* ---- base variant: MOLOCH (frametitle = primary text + accent rule, no fill) ---- */
+  .slide.moloch .titlebar{background:var(--canvas);color:var(--primary);border-bottom:2px solid var(--accent);
+    padding-bottom:5px}
+  .slide.moloch .titlebar .ftnum{color:var(--ink-soft-c);opacity:1}
+  .slide.moloch .progress{height:2px;background:transparent}
+  .slide.moloch .progress > i{background:var(--accent);opacity:.55}
+  .slide.moloch .foot{background:var(--canvas);color:var(--ink-soft-c);border-top:1px solid var(--primary-light)}
+
+  /* ---- base variant: TRIGON (corner triangle + left rail + underlined title) ---- */
+  .slide.trigon .titlebar{background:var(--canvas);color:var(--primary);padding-left:22px}
+  .slide.trigon .titlebar:after{content:"";position:absolute;top:0;left:0;border-width:0 0 38px 38px;
+    border-style:solid;border-color:transparent transparent transparent var(--accent);opacity:.92}
+  .slide.trigon .progress{display:none}
+  .slide.trigon .body{padding-left:22px;border-left:6px solid var(--primary)}
+  .slide.trigon .foot{background:var(--canvas);color:var(--ink-soft-c);border-top:1px solid var(--primary-light)}
+  .slide.trigon .titlebar{border-bottom:1px solid var(--primary-light)}
+
+  /* current/legacy mini swatch row */
+  .legacy{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
+  .legacy .lc{display:flex;align-items:center;gap:10px;background:var(--paper2);border:1px solid var(--hair);
+    border-radius:10px;padding:10px 14px}
+  .legacy .lc .sw{display:flex;gap:4px}
+  .legacy .lc .sw i{width:20px;height:20px;border-radius:5px;display:block}
+  .legacy .lc .lab{font-size:13px}
+  .legacy .lc .lab b{display:block}
+  .legacy .lc .lab span{color:var(--ink-soft);font-size:11.5px}
+
+  /* links panel */
+  .links{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:8px}
+  .lk{display:block;text-decoration:none;color:var(--ink);background:var(--paper2);border:1px solid var(--hair);
+    border-radius:11px;padding:15px 16px;transition:.15s}
+  .lk:hover{border-color:#5a554a;background:#23221d}
+  .lk .lkt{font-family:'Fraunces',serif;font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .lk .lkt span{font-size:11px;color:var(--ink-soft);border:1px solid var(--hair);border-radius:5px;padding:1px 6px;font-family:'Inter'}
+  .lk .lkd{color:#b3ab9c;font-size:13px;margin-top:5px}
+  .lk .lku{color:#7e7869;font-size:11px;margin-top:8px;word-break:break-all}
+
+  .note{background:#1d1c18;border:1px solid var(--hair);border-left:3px solid #E0A86A;border-radius:10px;
+    padding:16px 20px;margin:30px 0 0;color:#cdc5b6;font-size:14px;max-width:900px}
+  .note b{color:var(--ink)}
+  .cjk{font-family:'Noto Serif SC','Fraunces',serif}
+  footer.end{margin-top:70px;color:var(--ink-soft);font-size:12.5px;border-top:1px solid var(--hair);padding-top:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">AutoBeamer · template-lib</div>
+    <h1>Pick a <em>taste</em>, not a checkbox.</h1>
+    <p class="lede">The current decks ship in <b>teal-green</b> or <b>navy/gold-blue</b> — safe, but tired.
+    Below are candidate directions rendered as real mini-slides (title bar · concept block · a starred problem with hints · takeaway · footer),
+    exactly the chrome <code style="font-size:13px">template-lib</code> draws. Two axes to react to independently:
+    <b>§1 colour palette</b> (same Metropolis chrome, different colours) and <b>§2 base/structure</b> (same palette, three different theme engines).
+    Tell me which tiles you like — by name — and I'll build them as real <code style="font-size:13px">theme-*.sty</code> files.</p>
+    <nav class="jump">
+      <a href="#palettes">§1 Palettes</a>
+      <a href="#bases">§2 Base / structure</a>
+      <a href="#current">Current (before)</a>
+      <a href="#links">Online templates</a>
+    </nav>
+  </header>
+
+  <h2 class="section" id="palettes">§1 — Colour palettes</h2>
+  <p class="section-sub">All eight on the <b>same</b> Metropolis chrome so you judge colour alone. Hover a tile to lift it; hex tokens are shown so you can react precisely. Mix-and-match is fine ("Plum primary but Claret's gold accent").</p>
+  <div class="grid" id="grid-palettes"></div>
+
+  <h2 class="section" id="bases">§2 — Base / structure</h2>
+  <p class="section-sub">You asked to also evaluate a <b>new base engine</b>. Same palette (Oxford Claret), three engines: <b>Metropolis</b> (today — filled title bar), <b>Moloch</b> (maintained Metropolis fork — lighter title, accent rule, near drop-in), <b>Trigon</b> (distinct — corner triangle, left rail, underlined title). This isolates <i>chrome</i> from <i>colour</i>.</p>
+  <div class="grid" id="grid-bases"></div>
+
+  <h2 class="section" id="current">Current themes — the "before"</h2>
+  <p class="section-sub">For contrast: what decks look like today.</p>
+  <div class="grid" id="grid-current" style="--slide-w:430px"></div>
+
+  <h2 class="section" id="links">Real online templates worth borrowing from</h2>
+  <p class="section-sub">Open these for the genuine article — fonts, spacing, motion. My palettes above are tuned to drop into our 13-token system; these are the inspirations.</p>
+  <div class="links" id="links"></div>
+
+  <div class="note">
+    <b>How to respond:</b> name the tiles you like (e.g. <i>"Editorial Plum + Slate Coral, and the Trigon base"</i>),
+    or tell me what's off ("too warm", "accent too loud", "want a darker primary"). I'll implement only what you pick,
+    verify each compiles via <span class="cjk">./build.sh template-lib-demo</span>, and the new themes become selectable as
+    <code style="font-size:13px">\usepackage[plum]{template-lib}</code>. Meanwhile the problem-sheet skill (theme-agnostic) proceeds in parallel.
+  </div>
+
+  <footer class="end">AutoBeamer theme taste gallery · rendered locally · branch <b>problem-sheet-design</b>. Mockups are CSS approximations of XeLaTeX+Metropolis output, not pixel-exact.</footer>
+</div>
+
+<script>
+const PALETTES = [
+  { name:"Editorial Plum", tag:"light", base:"metropolis",
+    blurb:"Aubergine + warm apricot on cream. Sophisticated, editorial, unmistakably not-blue.",
+    t:{primary:"#6A3D7C",primaryDark:"#46285A",primaryLight:"#E4D6EE",primaryTint:"#F4ECF8",
+       accent:"#E0883C",accentLight:"#FBEEDC",ink:"#241A2B",inkSoft:"#6F6477",surface:"#FBF8FC",
+       canvas:"#FAF6EF",pos:"#3F7D4E",neg:"#C0453E"} },
+  { name:"Oxford Claret", tag:"light", base:"metropolis",
+    blurb:"Deep wine + antique gold on ivory. Reads expensive, old-library gravitas.",
+    t:{primary:"#7B2D3A",primaryDark:"#561E27",primaryLight:"#EBD6D2",primaryTint:"#F7EDEA",
+       accent:"#C39A3F",accentLight:"#F7EFD7",ink:"#211A1B",inkSoft:"#6B5D5F",surface:"#FBF6F2",
+       canvas:"#FBF7F0",pos:"#3F7D4E",neg:"#B23A3A"} },
+  { name:"Terracotta Ink", tag:"light", base:"metropolis",
+    blurb:"Near-black ink primary + copper/terracotta accent on bone. Calm, warm, grown-up.",
+    t:{primary:"#2E2A28",primaryDark:"#171513",primaryLight:"#E6DDD3",primaryTint:"#F4ECE3",
+       accent:"#C2683E",accentLight:"#F6E6DB",ink:"#221F1D",inkSoft:"#6D645F",surface:"#FAF6F1",
+       canvas:"#F7F1E8",pos:"#4A7A45",neg:"#BB4A3A"} },
+  { name:"Slate Coral", tag:"light", base:"metropolis",
+    blurb:"Graphite slate + coral pop on warm white. Modern, techy, friendly.",
+    t:{primary:"#2F3A45",primaryDark:"#1E2730",primaryLight:"#D9E0E6",primaryTint:"#EEF2F5",
+       accent:"#E26D5C",accentLight:"#ECEEF1",ink:"#1C232A",inkSoft:"#5D6A76",surface:"#F7F9FB",
+       canvas:"#FCFBF9",pos:"#2E8B6B",neg:"#D2553F"} },
+  { name:"Forest Brass", tag:"light", base:"metropolis",
+    blurb:"Deep pine-not-mint (very dark) + brass. If you can tolerate ONE green, this is the dignified one.",
+    t:{primary:"#1F3D33",primaryDark:"#122A22",primaryLight:"#D2E0DA",primaryTint:"#EAF1ED",
+       accent:"#C39A3F",accentLight:"#F6EED6",ink:"#1A211E",inkSoft:"#5C6862",surface:"#F6F9F7",
+       canvas:"#FAF7EF",pos:"#3F7D4E",neg:"#B23A3A"} },
+  { name:"Rosé Pine", tag:"dark", base:"metropolis",
+    blurb:"The cult-favourite dark: muted iris + rose + gold on deep plum-charcoal. Easy on the eyes.",
+    t:{primary:"#C4A7E7",primaryDark:"#2A283E",primaryLight:"#393552",primaryTint:"#26233A",
+       accent:"#EBBCBA",accentLight:"#332C3D",ink:"#E0DEF4",inkSoft:"#908CAA",surface:"#1F1D2E",
+       canvas:"#191724",pos:"#9CCFD8",neg:"#EB6F92"}, dark:true },
+  { name:"Catppuccin Mocha", tag:"dark", base:"metropolis",
+    blurb:"Refined version of today's dark theme — blue/mauve + peach on soft charcoal. Cozy, low-contrast.",
+    t:{primary:"#89B4FA",primaryDark:"#2A2B3C",primaryLight:"#45475A",primaryTint:"#313244",
+       accent:"#FAB387",accentLight:"#3A3326",ink:"#CDD6F4",inkSoft:"#9399B2",surface:"#1E1E2E",
+       canvas:"#181825",pos:"#A6E3A1",neg:"#F38BA8"}, dark:true },
+  { name:"Midnight Amber", tag:"dark", base:"metropolis",
+    blurb:"Inky blue-black + warm amber. Dramatic, high-contrast, conference-keynote energy.",
+    t:{primary:"#E8B563",primaryDark:"#1A1E2B",primaryLight:"#2C3346",primaryTint:"#1F2433",
+       accent:"#E8825A",accentLight:"#33271F",ink:"#EAE6DD",inkSoft:"#8A8397",surface:"#161A24",
+       canvas:"#10131B",pos:"#7FB996",neg:"#E06C75"}, dark:true },
+];
+
+const BASES = [
+  { name:"Metropolis", tag:"today", base:"metropolis",
+    blurb:"What we ship now: filled primary title bar, thin progress bar, filled blocks. Clean but everywhere." },
+  { name:"Moloch", tag:"drop-in fork", base:"moloch",
+    blurb:"Maintained fork of Metropolis — fixes its long-standing bugs. Lighter title (primary text + accent rule). Near drop-in." },
+  { name:"Trigon", tag:"distinct", base:"trigon",
+    blurb:"A genuinely different look: corner triangle, left rail, underlined title. More personality, bigger change." },
+];
+const CLARET = PALETTES[1].t;
+
+const CURRENT = [
+  { name:"teal (current default-ish)", tag:"green", base:"metropolis", blurb:"TLprimary #00796b · the green you dislike.",
+    t:{primary:"#00796B",primaryDark:"#004D40",primaryLight:"#B2DFDB",primaryTint:"#E0F2F1",accent:"#E65100",
+       accentLight:"#FBE9E7",ink:"#1B2631",inkSoft:"#34495E",surface:"#F1F8F7",canvas:"#FFFFFF",pos:"#2E7D32",neg:"#C62828"} },
+  { name:"academic", tag:"blue", base:"metropolis", blurb:"TLprimary #1a3a6b + brick. The other safe default.",
+    t:{primary:"#1A3A6B",primaryDark:"#0D1F3E",primaryLight:"#C8D8EE",primaryTint:"#E8EFF8",accent:"#B8321A",
+       accentLight:"#FBE8E3",ink:"#1A1A2E",inkSoft:"#5A5A7E",surface:"#F7F8FB",canvas:"#FFFFFF",pos:"#2E7D32",neg:"#C62828"} },
+];
+
+const LINKS = [
+  {t:"Metropolis (mtheme)",s:"the current base",d:"Matthias Vogelgesang's minimal modern Beamer theme — our whole template-lib sits on it.",u:"https://github.com/matze/mtheme"},
+  {t:"Moloch",s:"maintained fork",d:"Johan Larsson's revival of Metropolis; fixes the abandoned bugs, same aesthetic.",u:"https://github.com/Saghen/moloch"},
+  {t:"Trigon",s:"elegant + distinct",d:"Thomas Lambert — modern, versatile, Metropolis-inspired but its own identity (triangles, rails).",u:"https://ctan.org/pkg/beamertheme-trigon"},
+  {t:"sthlmNord",s:"Nord palette",d:"Arctic blue-grey Nord colours on a clean Beamer deck — a cooler restrained direction.",u:"https://github.com/imdadahad/sthlmnord-beamer"},
+  {t:"Rosé Pine",s:"palette",d:"The soho-vibe muted palette behind the dark tile above. Light + dark variants.",u:"https://rosepinetheme.com/palette/"},
+  {t:"Catppuccin",s:"palette",d:"Soothing pastel palette (Latte/Frappé/Macchiato/Mocha) — already inspired our dark theme.",u:"https://catppuccin.com/palette/"},
+  {t:"Ultimate Beamer Theme List",s:"gallery",d:"Martin Bjeldbak's community catalogue of Beamer themes with screenshots — browse for more.",u:"https://github.com/martinbjeldbak/ultimate-beamer-theme-list"},
+  {t:"Fraunces / Newsreader",s:"serif fonts",d:"If you want a literary serif headline face for title slides instead of Fira sans.",u:"https://fonts.google.com/specimen/Fraunces"},
+];
+
+function cssVars(t){
+  return [
+    ['--primary',t.primary],['--primary-dark',t.primaryDark],['--primary-light',t.primaryLight],
+    ['--primary-tint',t.primaryTint],['--accent',t.accent],['--accent-light',t.accentLight],
+    ['--ink-c',t.ink],['--ink-soft-c',t.inkSoft],['--surface',t.surface],['--canvas',t.canvas],
+    ['--pos',t.pos||'#2E7D32'],['--neg',t.neg||'#C62828'],
+    ['--title-fg', t.dark ? t.canvas : '#ffffff']
+  ].map(([k,v])=>`${k}:${v}`).join(';');
+}
+
+function slideHTML(t, base){
+  // Trigon/Moloch use primary-colored title text; their title-fg should be primary on canvas
+  return `
+  <div class="slide ${base}" style="${cssVars(t)}">
+    <div class="titlebar"><span class="cjk">Rayleigh 商与谱</span><span class="ftnum">3 / 18</span></div>
+    <div class="progress"><i></i></div>
+    <div class="body">
+      <div class="blk">
+        <div class="h cjk">定义 · Rayleigh 商</div>
+        <div class="t cjk">对 <span class="term">对称</span> 矩阵 <b>A</b>，R(x)=x<sup>⊤</sup>Ax / x<sup>⊤</sup>x。
+          <span class="gloss">直觉：方向 x 上被 A 拉伸的“平均倍率”。</span></div>
+      </div>
+      <div class="prob">
+        <div class="q cjk">问题 2 · 证明 R 的最大值 = λ<sub>max</sub></div>
+        <div class="stars">★★☆</div>
+      </div>
+      <div class="hint cjk"><b>提示 1.</b> 用正交对角化把 x 写到特征基下；<b>提示 2.</b> 这是 <span class="pos">凸组合</span> 的上界，别丢 <span class="neg">等号成立</span> 的方向。</div>
+      <div class="take cjk"><b>要点 ▸</b> 考查：谱定理 + 凸组合上界，等号在 λ<sub>max</sub> 的特征向量处取得。</div>
+    </div>
+    <div class="foot"><span class="cjk">自学习题册 · AutoBeamer</span><span>§ Rayleigh</span></div>
+  </div>`;
+}
+
+function chips(t){
+  const keys=[['primary',t.primary],['accent',t.accent],['canvas',t.canvas],['ink',t.ink]];
+  return `<div class="chips">${keys.map(([k,v])=>`<span class="chip"><i style="background:${v}"></i>${k} ${v}</span>`).join('')}</div>`;
+}
+
+function card(p){
+  return `<div class="card">
+    <div class="stage">${slideHTML(p.t,p.base)}</div>
+    <div class="meta">
+      <div class="name">${p.name}<span class="tag">${p.tag}</span></div>
+      <div class="blurb">${p.blurb}</div>
+      ${chips(p.t)}
+    </div>
+  </div>`;
+}
+
+function baseCard(b){
+  return `<div class="card">
+    <div class="stage">${slideHTML(CLARET,b.base)}</div>
+    <div class="meta">
+      <div class="name">${b.name}<span class="tag">${b.tag}</span></div>
+      <div class="blurb">${b.blurb}</div>
+    </div>
+  </div>`;
+}
+
+document.getElementById('grid-palettes').innerHTML = PALETTES.map(card).join('');
+document.getElementById('grid-bases').innerHTML = BASES.map(baseCard).join('');
+document.getElementById('grid-current').innerHTML = CURRENT.map(card).join('');
+document.getElementById('links').innerHTML = LINKS.map(l=>
+  `<a class="lk" href="${l.u}" target="_blank" rel="noopener">
+     <div class="lkt">${l.t}<span>${l.s}</span></div>
+     <div class="lkd">${l.d}</div>
+     <div class="lku">${l.u}</div>
+   </a>`).join('');
+</script>
+</body>
+</html>

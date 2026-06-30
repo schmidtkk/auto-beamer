@@ -1,0 +1,82 @@
+% Theme preview deck — render under any theme:
+%   xelatex "\def\PVopt{slatecoral}\input{design/theme-preview.tex}"
+%   xelatex "\def\PVopt{rosepine}\input{design/theme-preview.tex}"
+% \PVopt defaults to slatecoral. Output: <jobname>.pdf in the output dir.
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\providecommand{\PVopt}{slatecoral}
+\PassOptionsToPackage{\PVopt}{template-lib/template-lib}
+\usepackage{template-lib/template-lib}
+\uselayout{text}
+\uselayout{eq}
+\uselayout{twocol}
+
+\TLsetfoot{AutoBeamer · Theme Preview}
+
+\title{Rayleigh 商与谱}
+\subtitle{Theme Preview · \PVopt}
+\author{AutoBeamer}
+\institute{template-lib}
+\date{2026}
+
+\begin{document}
+
+\TLtitlecenter{Rayleigh 商与谱}{自学习题册 · 主题预览}{AutoBeamer}{2026}
+
+\begin{frame}{概念与判据}
+  \TLconcept{Rayleigh 商}{%
+    对\TLterm{对称}矩阵 $A$，定义 $R(x)=\dfrac{x^\top A x}{x^\top x}$（$x\neq 0$）。}{%
+    方向 $x$ 上被 $A$ 拉伸的“平均倍率”。}
+  \vspace{4pt}
+  \TLmisconception{若忘记 $A$ 对称，特征值可能非实，$R$ 的极值结论\TLneg{不再成立}。}
+  \vspace{4pt}
+  \TLtakeaway{要点 ▸ 谱定理把 $R$ 的极值化为特征值问题；等号在特征向量处取得。}
+\end{frame}
+
+\begin{frame}{\TLprobtitle{2}{谱上界}{2}}
+  证明对任意 $x\neq 0$，有 \TLsubq{a} $R(x)\le \lambda_{\max}(A)$，并 \TLsubq{b} 指出等号成立的方向。
+  \begin{TLhints}
+    \TLhint{用正交对角化 $A=Q\Lambda Q^\top$，令 $y=Q^\top x$。}
+    \TLhint{把 $R$ 写成 $\lambda_i$ 的\TLpos{凸组合}；别丢掉\TLneg{等号}成立的方向。}
+    \TLhint{凸组合的上界即最大的 $\lambda_i$。}
+  \end{TLhints}
+  \TLtakeaway{考查：谱定理 + 凸组合上界，等号在 $\lambda_{\max}$ 的特征向量处取得。}
+  \TLsrcnote{对应《习题集》第 2 题。}
+\end{frame}
+
+\begin{frame}{对照：两种界}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \TLresultblock{上界}{$R(x)\le\lambda_{\max}$，方向 $v_{\max}$ 取等。}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \TLwarnblock{下界}{$R(x)\ge\lambda_{\min}$，方向 $v_{\min}$ 取等。}
+    \end{column}
+  \end{columns}
+  \vspace{6pt}
+  \begin{TLtable}{lcc}
+    \toprule
+    \TLthead 方向 & $R$ & 说明 \\
+    \midrule
+    $v_{\max}$ & $\lambda_{\max}$ & 上确界 \\
+    \TLthl $v_{\min}$ & $\lambda_{\min}$ & 下确界 \\
+    \bottomrule
+  \end{TLtable}
+\end{frame}
+
+% ── Answer key (struggle first, then check) ─────────────────────────────────
+\appendix
+\begin{frame}{附录 · 习题解答 · Exercise Solutions}
+  \TLanswerkeynote
+\end{frame}
+
+\begin{frame}{\TLsoltitle{2}{谱上界}}
+  \TLsubq{a} 正交对角化 $A=Q\Lambda Q^\top$，令 $y=Q^\top x$，则 $x^\top x=y^\top y$ 且
+  $x^\top A x=\sum_i\lambda_i y_i^2$。于是
+  \[ R(x)=\frac{\sum_i\lambda_i y_i^2}{\sum_i y_i^2}\le\lambda_{\max}\frac{\sum_i y_i^2}{\sum_i y_i^2}=\lambda_{\max}, \]
+  其中不等式因每个 $\lambda_i\le\lambda_{\max}$ 且权重 $y_i^2/\sum_j y_j^2\ge0$。\par\smallskip
+  \TLsubq{b} 等号当且仅当 $y$ 只在 $\lambda_i=\lambda_{\max}$ 的分量上非零，即 $x$ 落在
+  $\lambda_{\max}$ 的特征空间中。\TLqed
+\end{frame}
+
+\end{document}

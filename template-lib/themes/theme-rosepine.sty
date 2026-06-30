@@ -1,0 +1,36 @@
+% ============================================================================
+% theme-rosepine.sty — Rosé Pine Theme  (DEFAULT dark)
+% ============================================================================
+% The cult-favourite "soho" dark palette: muted iris primary, rose accent,
+% on a deep plum-charcoal canvas. Easy on the eyes for low-light rooms.
+% Palette: https://rosepinetheme.com/palette/
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-rosepine}[2026/06/30 Rose Pine Beamer Theme]
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{C4A7E7}      % Iris — primary
+\definecolor{TLprimaryDark}{HTML}{2A283E}  % Highlight-low — title canvas
+\definecolor{TLprimaryLight}{HTML}{393552}  % Highlight-med — title bar fill
+\definecolor{TLprimaryTint}{HTML}{26233A}  % Overlay — block title bg
+\definecolor{TLaccent}{HTML}{EBBCBA}       % Rose — accent
+\definecolor{TLaccentLight}{HTML}{2E2A3D}  % Dark rose-tinted — alert/takeaway bg
+\definecolor{TLink}{HTML}{E0DEF4}          % Text — body
+\definecolor{TLinkSoft}{HTML}{908CAA}      % Subtle — secondary text
+\definecolor{TLsurface}{HTML}{1F1D2E}      % Surface — block body
+\definecolor{TLpos}{HTML}{9CCFD8}          % Foam — positive
+\definecolor{TLneg}{HTML}{EB6F92}          % Love — negative
+
+% ── Semantic Aliases (dark theme: canvas = base) ────────────────────────────
+\definecolor{TLcanvas}{HTML}{191724}
+\definecolor{TLblockbody}{named}{TLsurface}
+
+% ── Mark as dark (theme-base wires the dark chrome) ─────────────────────────
+\TLdarktrue
+
+% ── Shared Boilerplate ──────────────────────────────────────────────────────
+\input{template-lib/themes/theme-base.sty}
+
+% ── Theme-specific Footer ───────────────────────────────────────────────────
+\renewcommand{\TLfootleft}{Rosé Pine}

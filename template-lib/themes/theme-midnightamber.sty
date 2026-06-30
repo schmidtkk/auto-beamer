@@ -1,0 +1,33 @@
+% ============================================================================
+% theme-midnightamber.sty — Midnight Amber Theme (dark)
+% ============================================================================
+% Inky blue-black canvas + warm amber primary. Dramatic, high-contrast.
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-midnightamber}[2026/06/30 Midnight Amber Beamer Theme]
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{E8B563}      % Amber — primary
+\definecolor{TLprimaryDark}{HTML}{1A1E2B}  % Inky blue-black — title canvas
+\definecolor{TLprimaryLight}{HTML}{2C3346}  % Slate-navy — title bar fill
+\definecolor{TLprimaryTint}{HTML}{1F2433}  % Deep slate — block title bg
+\definecolor{TLaccent}{HTML}{E8825A}       % Burnt coral — accent
+\definecolor{TLaccentLight}{HTML}{33271F}  % Dark amber-tinted — alert bg
+\definecolor{TLink}{HTML}{EAE6DD}          % Warm off-white — text
+\definecolor{TLinkSoft}{HTML}{8A8397}      % Muted lavender-grey
+\definecolor{TLsurface}{HTML}{161A24}      % Deep slate — block body
+\definecolor{TLpos}{HTML}{7FB996}          % Sage — positive
+\definecolor{TLneg}{HTML}{E06C75}          % Soft red — negative
+
+% ── Semantic Aliases (dark theme: canvas = near-black) ──────────────────────
+\definecolor{TLcanvas}{HTML}{10131B}
+\definecolor{TLblockbody}{named}{TLsurface}
+
+% ── Mark as dark ────────────────────────────────────────────────────────────
+\TLdarktrue
+
+% ── Shared Boilerplate ──────────────────────────────────────────────────────
+\input{template-lib/themes/theme-base.sty}
+
+\renewcommand{\TLfootleft}{Midnight Amber}

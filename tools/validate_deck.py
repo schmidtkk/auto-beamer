@@ -133,6 +133,29 @@ def validate_static(path: Path, mode: str | None) -> list[str]:
     elif mode == "academic-presentation":
         if not backup_indices:
             violations.append("academic-presentation requires backup slides after Thank You.")
+    elif mode == "problem-sheet":
+        # Accept either literal keywords or the comp-exercise macros (raw source).
+        has_problems = (r"\TLprobtitle" in source
+                        or contains_any(frames, ("exercise", "exercises", "problem", "习题")))
+        has_hints = (r"\TLhint" in source or contains_any(frames, ("hint", "提示")))
+        has_solutions = (r"\TLsoltitle" in source
+                         or contains_any(frames, ("solution", "solutions", "解答")))
+        if not has_problems:
+            violations.append("problem-sheet requires problem/exercise frames.")
+        if not has_hints:
+            violations.append("problem-sheet requires weak-to-strong hints.")
+        if r"\appendix" not in source:
+            violations.append(r"problem-sheet requires an \appendix answer key.")
+        if not has_solutions:
+            violations.append("problem-sheet requires worked-solution frames in the answer key.")
+        # Worked solutions must live after \appendix, not interleaved with the problems.
+        appendix_pos = source.find(r"\appendix")
+        sol_pos = source.find(r"\TLsoltitle")
+        if sol_pos == -1:
+            sol_only = [f for f in frames if contains_any([f], ("solution", "解答"))]
+            sol_pos = sol_only[0].start if sol_only else -1
+        if appendix_pos != -1 and sol_pos != -1 and sol_pos < appendix_pos:
+            violations.append(r"Worked solutions must appear after \appendix (struggle-first).")
 
     return violations
 
@@ -157,7 +180,7 @@ def build_parser() -> argparse.ArgumentParser:
     static.add_argument("file", help="Path to deck .tex file")
     static.add_argument(
         "--mode",
-        choices=("passive-study", "active-socratic", "academic-presentation"),
+        choices=("passive-study", "active-socratic", "academic-presentation", "problem-sheet"),
         help="Deck mode for mode-specific section gates",
     )
     static.set_defaults(func=cmd_static)

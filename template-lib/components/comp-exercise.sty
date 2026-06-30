@@ -1,0 +1,74 @@
+% ============================================================================
+% comp-exercise.sty — Problem-Sheet / Exercise Components
+% ============================================================================
+% Standardizes the previously per-deck macros for self-study problem sheets:
+% difficulty stars, sub-questions, weak→strong hints, concept notes,
+% misconceptions, and the \appendix answer-key. Theme-agnostic — all colours
+% come from the active theme's TL tokens.
+%
+% Difficulty semantics (one unified convention):
+%   \TLdiff{1}  ★      calculation  — mechanical, hint-free for a careful reader
+%   \TLdiff{2}  ★★     verification — uses a prior result + one new idea
+%   \TLdiff{3}  ★★★    insight      — synthesis, counterexample, or generalization
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{comp-exercise}[2026/06/30 Problem-Sheet Components]
+
+\RequirePackage{amssymb}   % \bigstar
+\RequirePackage{amsmath}
+
+% ── Difficulty stars (place \hfill\TLdiff{n} in the frame title) ────────────
+\newcommand{\TLdiff}[1]{%
+  \ensuremath{\textcolor{TLaccent}{%
+    \ifcase#1\relax
+      \or \bigstar
+      \or \bigstar\bigstar
+      \or \bigstar\bigstar\bigstar
+      \else \bigstar\bigstar\bigstar
+    \fi}}%
+}
+
+% ── Problem title helper: \TLprobtitle{N}{name}{level} ──────────────────────
+% Use inside a frame title:  \begin{frame}{\TLprobtitle{2}{谱上界}{2}}
+\newcommand{\TLprobtitle}[3]{习题~#1\quad #2\hfill\TLdiff{#3}}
+
+% ── Sub-question label: \TLsubq{a} → (a) ────────────────────────────────────
+\newcommand{\TLsubq}[1]{\textbf{(#1)}~}
+
+% ── Weak→strong hints ───────────────────────────────────────────────────────
+% Auto-numbered 提示 1 / 2 / 3. The FIRST hint must preserve the attempt
+% (point to a tool, never the answer).
+%   \begin{TLhints} \TLhint{...} \TLhint{...} \end{TLhints}
+\newcounter{TLhintc}
+\newenvironment{TLhints}{%
+  \setcounter{TLhintc}{0}%
+  \par\vspace{2pt}{\small\itshape\color{TLinkSoft}提示（由弱到强）：}%
+  \begin{itemize}\small
+}{%
+  \end{itemize}%
+}
+\newcommand{\TLhint}[1]{\stepcounter{TLhintc}\item \emph{提示~\theTLhintc.}~#1}
+
+% ── Concept note: formal statement + intuitive gloss ────────────────────────
+% \TLconcept{term}{formal definition}{plain-language intuition}
+\newcommand{\TLconcept}[3]{%
+  \TLinfoblock{定义 · #1}{#2\par\smallskip\TLmuted{直觉：#3}}%
+}
+
+% ── Misconception callout (the trap beginners fall into) ────────────────────
+\newcommand{\TLmisconception}[1]{\TLwarnblock{常见误区}{#1}}
+\newcommand{\TLmisconceptiont}[2]{\TLwarnblock{#1}{#2}}  % custom title
+
+% ── Answer-key (\appendix) helpers ──────────────────────────────────────────
+% Frame-title helper:  \begin{frame}{\TLsoltitle{2}{谱上界}}
+\newcommand{\TLsoltitle}[2]{解答 · 习题~#1\quad #2}
+% End-of-proof box (gap-free solutions should actually close):
+\newcommand{\TLqed}{\hfill\ensuremath{\square}}
+% "Struggle first" reminder for the answer-key section divider:
+\newcommand{\TLanswerkeynote}{%
+  \TLtakeaway{解答用于\emph{核对}，不是\emph{替代}思考——先独立尝试，再对照。}%
+}
+
+% ── Source traceability note (verify statement matches its solution!) ───────
+\newcommand{\TLsrcnote}[1]{\par\vspace{3pt}{\footnotesize\color{TLinkSoft}#1}}

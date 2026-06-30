@@ -145,6 +145,31 @@ Plus 2 semantic aliases per theme: `TLcanvas` (slide bg), `TLblockbody` (block i
 | `\TLtitlecenter{title}{sub}{author}{date}` | Centered, no image |
 | `\TLsection{Title}` | Section divider slide |
 
+### Problem-Sheet Components (`comp-exercise.sty`)
+
+For self-study problem sheets (see the **autobeamer-problem-sheet** skill). One unified
+difficulty convention; theme-agnostic.
+
+| Command | Purpose |
+|---------|---------|
+| `\TLdiff{1\|2\|3}` | Difficulty stars ⭐ calc / ⭐⭐ verify / ⭐⭐⭐ insight (`\hfill\TLdiff{n}` in title) |
+| `\TLprobtitle{N}{name}{level}` | Problem frame title: `习题 N · name  ★★` |
+| `\TLsubq{a}` | Sub-question label `(a)` |
+| `TLhints` env + `\TLhint{…}` | Auto-numbered weak→strong 提示 1/2/3 |
+| `\TLconcept{term}{formal}{直觉}` | Concept note (formal + intuition gloss) |
+| `\TLmisconception{…}` | 常见误区 warning callout |
+| `\TLsoltitle{N}{name}` · `\TLqed` | `\appendix` answer-key frame title · QED box |
+| `\TLanswerkeynote` · `\TLsrcnote{…}` | Struggle-first reminder · source trace |
+
+### Themes (2026-06 update)
+
+13 palettes via `\usepackage[<theme>]{template-lib}`. **Default light = `slatecoral`**
+(Slate + Coral, auto-selects the **Moloch** chrome); **default dark = `rosepine`**.
+New light: `slatecoral plum claret terracotta forestbrass`. New dark: `rosepine
+catppuccin midnightamber`. Legacy: `academic teal dark navygold minimal`. Chrome is an
+orthogonal option: `moloch` (de-filled title + accent rule) vs `metropolis` (filled bar),
+e.g. `[claret,moloch]`. See `design/theme-gallery.html`.
+
 ---
 
 ## Legacy vs. New Command Mapping

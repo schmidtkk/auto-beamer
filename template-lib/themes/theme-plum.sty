@@ -1,0 +1,30 @@
+% ============================================================================
+% theme-plum.sty — Editorial Plum Theme
+% ============================================================================
+% Aubergine primary + warm apricot accent on cream. Sophisticated, editorial.
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-plum}[2026/06/30 Editorial Plum Beamer Theme]
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{6A3D7C}
+\definecolor{TLprimaryDark}{HTML}{46285A}
+\definecolor{TLprimaryLight}{HTML}{E4D6EE}
+\definecolor{TLprimaryTint}{HTML}{F4ECF8}
+\definecolor{TLaccent}{HTML}{E0883C}
+\definecolor{TLaccentLight}{HTML}{FBEEDC}
+\definecolor{TLink}{HTML}{241A2B}
+\definecolor{TLinkSoft}{HTML}{6F6477}
+\definecolor{TLsurface}{HTML}{FBF8FC}
+\definecolor{TLpos}{HTML}{3F7D4E}
+\definecolor{TLneg}{HTML}{C0453E}
+
+% ── Semantic Aliases (light theme: canvas = cream) ──────────────────────────
+\definecolor{TLcanvas}{HTML}{FAF6EF}
+\definecolor{TLblockbody}{named}{white}
+
+% ── Shared Boilerplate ──────────────────────────────────────────────────────
+\input{template-lib/themes/theme-base.sty}
+
+\renewcommand{\TLfootleft}{Editorial Plum}

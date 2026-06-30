@@ -39,13 +39,39 @@
 \newcommand{\TLlibpath}{template-lib/}
 
 % ── Theme Selection (via package option) ────────────────────────────────────
-\newcommand{\TLthemepath}{theme-academic}
+% Default = Slate Coral (graphite + coral) on the Moloch chrome. The legacy
+% palettes (academic, teal, …) remain available; existing decks that pass an
+% explicit theme are unaffected.
+\newcommand{\TLthemepath}{theme-slatecoral}
 
+% Chrome (title-bar style) is ORTHOGONAL to the colour palette.
+%   auto       — global default (Metropolis filled bar) unless a theme opts in
+%   moloch     — de-filled title: primary text + accent rule (Metropolis fork look)
+%   metropolis — force the classic filled bar
+% A theme file may upgrade `auto` → its preferred chrome; an explicit
+% [moloch]/[metropolis] option always wins.
+\newcommand{\TLchrome}{auto}
+\newif\ifTLdark   % dark themes set \TLdarktrue before \input'ing theme-base
+
+% Legacy palettes
 \DeclareOption{academic}{\renewcommand{\TLthemepath}{theme-academic}}
 \DeclareOption{teal}{\renewcommand{\TLthemepath}{theme-teal}}
 \DeclareOption{dark}{\renewcommand{\TLthemepath}{theme-dark}}
 \DeclareOption{navygold}{\renewcommand{\TLthemepath}{theme-navygold}}
 \DeclareOption{minimal}{\renewcommand{\TLthemepath}{theme-minimal}}
+% New light palettes
+\DeclareOption{slatecoral}{\renewcommand{\TLthemepath}{theme-slatecoral}}
+\DeclareOption{plum}{\renewcommand{\TLthemepath}{theme-plum}}
+\DeclareOption{claret}{\renewcommand{\TLthemepath}{theme-claret}}
+\DeclareOption{terracotta}{\renewcommand{\TLthemepath}{theme-terracotta}}
+\DeclareOption{forestbrass}{\renewcommand{\TLthemepath}{theme-forestbrass}}
+% New dark palettes
+\DeclareOption{rosepine}{\renewcommand{\TLthemepath}{theme-rosepine}}
+\DeclareOption{catppuccin}{\renewcommand{\TLthemepath}{theme-catppuccin}}
+\DeclareOption{midnightamber}{\renewcommand{\TLthemepath}{theme-midnightamber}}
+% Chrome switches
+\DeclareOption{moloch}{\renewcommand{\TLchrome}{moloch}}
+\DeclareOption{metropolis}{\renewcommand{\TLchrome}{metropolis}}
 
 \ProcessOptions\relax
 
@@ -56,6 +82,7 @@
 \input{\TLlibpath components/comp-title.sty}
 \input{\TLlibpath components/comp-block.sty}
 \input{\TLlibpath components/comp-fig.sty}
+\input{\TLlibpath components/comp-exercise.sty}
 
 % ── Layout Registration System ─────────────────────────────────────────────-
 \newcommand{\uselayout}[1]{%

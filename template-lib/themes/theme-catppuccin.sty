@@ -1,0 +1,34 @@
+% ============================================================================
+% theme-catppuccin.sty — Catppuccin Mocha Theme (dark)
+% ============================================================================
+% Soothing pastel dark: blue/mauve primary + peach accent on soft charcoal.
+% Palette: https://catppuccin.com/palette/  (Mocha)
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-catppuccin}[2026/06/30 Catppuccin Mocha Beamer Theme]
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{89B4FA}      % Blue — primary
+\definecolor{TLprimaryDark}{HTML}{2A2B3C}  % Mantle-ish — title canvas
+\definecolor{TLprimaryLight}{HTML}{45475A}  % Surface1 — title bar fill
+\definecolor{TLprimaryTint}{HTML}{313244}  % Surface0 — block title bg
+\definecolor{TLaccent}{HTML}{FAB387}       % Peach — accent
+\definecolor{TLaccentLight}{HTML}{3A3326}  % Dark peach-tinted — alert bg
+\definecolor{TLink}{HTML}{CDD6F4}          % Text
+\definecolor{TLinkSoft}{HTML}{9399B2}      % Overlay2 — secondary text
+\definecolor{TLsurface}{HTML}{1E1E2E}      % Base — block body
+\definecolor{TLpos}{HTML}{A6E3A1}          % Green
+\definecolor{TLneg}{HTML}{F38BA8}          % Red
+
+% ── Semantic Aliases (dark theme: canvas = crust) ───────────────────────────
+\definecolor{TLcanvas}{HTML}{181825}
+\definecolor{TLblockbody}{named}{TLsurface}
+
+% ── Mark as dark ────────────────────────────────────────────────────────────
+\TLdarktrue
+
+% ── Shared Boilerplate ──────────────────────────────────────────────────────
+\input{template-lib/themes/theme-base.sty}
+
+\renewcommand{\TLfootleft}{Catppuccin}

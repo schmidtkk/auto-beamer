@@ -1,0 +1,30 @@
+% ============================================================================
+% theme-terracotta.sty — Terracotta Ink Theme
+% ============================================================================
+% Near-black ink primary + copper/terracotta accent on bone. Calm, warm.
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-terracotta}[2026/06/30 Terracotta Ink Beamer Theme]
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{2E2A28}
+\definecolor{TLprimaryDark}{HTML}{171513}
+\definecolor{TLprimaryLight}{HTML}{E6DDD3}
+\definecolor{TLprimaryTint}{HTML}{F4ECE3}
+\definecolor{TLaccent}{HTML}{C2683E}
+\definecolor{TLaccentLight}{HTML}{F6E6DB}
+\definecolor{TLink}{HTML}{221F1D}
+\definecolor{TLinkSoft}{HTML}{6D645F}
+\definecolor{TLsurface}{HTML}{FAF6F1}
+\definecolor{TLpos}{HTML}{4A7A45}
+\definecolor{TLneg}{HTML}{BB4A3A}
+
+% ── Semantic Aliases (light theme: canvas = bone) ───────────────────────────
+\definecolor{TLcanvas}{HTML}{F7F1E8}
+\definecolor{TLblockbody}{named}{white}
+
+% ── Shared Boilerplate ──────────────────────────────────────────────────────
+\input{template-lib/themes/theme-base.sty}
+
+\renewcommand{\TLfootleft}{Terracotta Ink}

@@ -33,3 +33,17 @@ Use this reference during creation planning and validation. These gates are enfo
 - Backup slides appear after Thank You and after `\appendix`.
 - Claims have evidence, citations, or backup support.
 - Closing has a concrete takeaway, not only future work.
+
+## `problem-sheet`
+
+Owned by the **autobeamer-problem-sheet** skill. Enforced by
+`tools/validate_deck.py static --mode problem-sheet` (accepts the `comp-exercise`
+macros `\TLprobtitle`/`\TLhint`/`\TLsoltitle` or the literal keywords 习题/提示/解答).
+
+- Problem/exercise frames are present (`\TLprobtitle` or `习题`/`exercise`).
+- Weak→strong hints are present (`\TLhint`/`TLhints` or `提示`/`hint`).
+- An `\appendix` answer key exists; worked solutions appear **after** `\appendix`,
+  never interleaved with the problems (struggle-first).
+- Each problem carries a difficulty `\TLdiff{1|2|3}` (⭐ calc / ⭐⭐ verify / ⭐⭐⭐ insight).
+- Manual/`naive-reader P2`: every answer-key solution is **gap-free (P0)**; multi-frame
+  solutions carry a map/recall line. Difficulty rises monotonically (calibrate `gradient-audit`).

@@ -14,7 +14,7 @@
 % ── Info Block (primary color) ──────────────────────────────────────────────
 \providecommand{\TLinfoblock}[2]{%
   \begin{tikzpicture}
-    \node[draw=TLprimary, fill=TLprimaryTint, rounded corners=3pt, 
+    \node[draw=TLprimary, fill=TLprimaryTint, text=TLink, rounded corners=3pt,
           inner sep=8pt, text width=\linewidth-16pt, align=justify] {%
       \small\textbf{\color{TLprimary}#1}\\[0.3em]
       #2%
@@ -25,7 +25,7 @@
 % ── Alert Block (accent color) ──────────────────────────────────────────────
 \providecommand{\TLalertblock}[2][]{%
   \begin{tikzpicture}
-    \node[draw=TLaccent, fill=TLaccentLight, rounded corners=3pt,
+    \node[draw=TLaccent, fill=TLaccentLight, text=TLink, rounded corners=3pt,
           inner sep=8pt, text width=\linewidth-16pt, align=justify] {%
       \small\textbf{\color{TLaccent}#1}\\[0.3em]
       #2%
@@ -36,7 +36,7 @@
 % ── Result Block (green) ────────────────────────────────────────────────────
 \providecommand{\TLresultblock}[2]{%
   \begin{tikzpicture}
-    \node[draw=TLpos, fill=TLpos!10, rounded corners=3pt,
+    \node[draw=TLpos, fill=TLposfill, text=TLink, rounded corners=3pt,
           inner sep=8pt, text width=\linewidth-16pt, align=justify] {%
       \small\textbf{\color{TLpos}#1}\\[0.3em]
       #2%
@@ -47,7 +47,7 @@
 % ── Warning Block (red) ─────────────────────────────────────────────────────
 \providecommand{\TLwarnblock}[2]{%
   \begin{tikzpicture}
-    \node[draw=TLneg, fill=TLneg!8, rounded corners=3pt,
+    \node[draw=TLneg, fill=TLnegfill, text=TLink, rounded corners=3pt,
           inner sep=8pt, text width=\linewidth-16pt, align=justify] {%
       \small\textbf{\color{TLneg}#1}\\[0.3em]
       #2%
@@ -59,7 +59,7 @@
 \providecommand{\TLtakeaway}[1]{%
   \vspace{0.4em}%
   \begin{tikzpicture}
-    \node[fill=TLaccentLight, rounded corners=3pt, inner sep=8pt,
+    \node[fill=TLaccentLight, text=TLink, rounded corners=3pt, inner sep=8pt,
           text width=\linewidth-16pt, align=justify] {%
       \small\textcolor{TLaccent}{\textbf{Key Takeaway.}} #1%
     };

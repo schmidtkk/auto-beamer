@@ -1,0 +1,38 @@
+% ============================================================================
+% theme-slatecoral.sty — Slate + Coral Theme  (DEFAULT light)
+% ============================================================================
+% Graphite slate primary with a coral pop. Modern, calm, friendly — not blue,
+% not green. Defaults to the Moloch chrome (de-filled title + accent rule);
+% override with the [metropolis] option for the classic filled bar.
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-slatecoral}[2026/06/30 Slate+Coral Beamer Theme]
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{2F3A45}      % Graphite slate — primary
+\definecolor{TLprimaryDark}{HTML}{1E2730}  % Deep slate — title bg
+\definecolor{TLprimaryLight}{HTML}{D9E0E6}  % Pale slate — progress track
+\definecolor{TLprimaryTint}{HTML}{EEF2F5}  % Very light slate — block bg
+\definecolor{TLaccent}{HTML}{E26D5C}       % Coral — accent
+\definecolor{TLaccentLight}{HTML}{ECEEF1}  % Cool neutral tint — takeaway/alert bg
+\definecolor{TLink}{HTML}{1C232A}          % Near-black slate — body text
+\definecolor{TLinkSoft}{HTML}{5D6A76}      % Mid slate — secondary text
+\definecolor{TLsurface}{HTML}{F7F9FB}      % Off-white — block body
+\definecolor{TLpos}{HTML}{2E8B6B}          % Teal-green — positive
+\definecolor{TLneg}{HTML}{D2553F}          % Warm red — negative
+
+% ── Semantic Aliases (light theme: canvas = warm white) ─────────────────────
+\definecolor{TLcanvas}{HTML}{FCFBF9}
+\definecolor{TLblockbody}{named}{white}
+
+% ── Preferred Chrome ────────────────────────────────────────────────────────
+% Opt this theme into Moloch chrome when the user did not specify one.
+\def\TLchrome@auto{auto}
+\ifx\TLchrome\TLchrome@auto\renewcommand{\TLchrome}{moloch}\fi
+
+% ── Shared Boilerplate ──────────────────────────────────────────────────────
+\input{template-lib/themes/theme-base.sty}
+
+% ── Theme-specific Footer ───────────────────────────────────────────────────
+\renewcommand{\TLfootleft}{Slate Coral}

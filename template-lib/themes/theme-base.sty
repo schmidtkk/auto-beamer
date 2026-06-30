@@ -38,6 +38,59 @@
 \setbeamercolor{enumerate item}{fg=TLprimary}
 \setbeamercolor{enumerate subitem}{fg=TLprimary}
 
+% ── Chrome Resolution (title-bar style × light/dark) ────────────────────────
+% \TLchrome (auto|moloch|metropolis) and \ifTLdark are set in template-lib.sty
+% and (for dark) by the theme file before this \input. The wiring above is the
+% LIGHT + METROPOLIS default (filled primary title bar); the branches below
+% adjust it for the moloch chrome and/or dark palettes.
+\providecommand{\TLchrome}{auto}
+\def\TLchrome@moloch{moloch}
+% Title-page secondary text + table-header text. Defaults suit LIGHT themes
+% (where TLprimary is dark / the title canvas is dark); the dark branch flips
+% them so they stay legible when TLprimary is a LIGHT colour.
+\colorlet{TLtitlesub}{TLprimaryLight}   % subtitle / author / date on title slide
+\colorlet{TLtheadfg}{white}             % \TLthead text on a TLprimary header row
+% Result/Warn block fills. Light default mixes the status colour into white;
+% the dark branch mixes it into the dark surface so the (light) body text stays
+% readable instead of sitting on a near-white box.
+\colorlet{TLposfill}{TLpos!10}
+\colorlet{TLnegfill}{TLneg!8}
+\ifTLdark
+  % ---- DARK chrome ----
+  \ifx\TLchrome\TLchrome@moloch
+    \setbeamercolor{frametitle}{bg=TLsurface,fg=TLprimary}
+    \setbeamercolor{frametitle right}{bg=TLsurface}
+    \setbeamercolor{palette primary}{fg=TLinkSoft,bg=TLsurface}
+  \else
+    \setbeamercolor{frametitle}{bg=TLprimaryLight,fg=TLprimary}
+    \setbeamercolor{frametitle right}{bg=TLprimaryTint}
+    \setbeamercolor{palette primary}{fg=TLink,bg=TLprimaryLight}
+  \fi
+  \setbeamercolor{block body alerted}{bg=TLsurface}
+  \setbeamercolor{block body example}{bg=TLsurface}
+  % Dark: primary is light, title canvas is dark → flip the helper text colours.
+  \colorlet{TLtitlesub}{TLinkSoft}   % legible secondary text on the dark title canvas
+  \colorlet{TLtheadfg}{TLsurface}    % dark text on the light-primary header row
+  \colorlet{TLposfill}{TLpos!22!TLsurface}  % subtle status tint over the dark surface
+  \colorlet{TLnegfill}{TLneg!18!TLsurface}
+  % Example block: light fg so it stays legible on the dark title band.
+  \setbeamercolor{block title example}{bg=TLprimaryLight,fg=TLpos}
+  % \def (not \renewcommand): these macros are \providecommand'd later in this
+  % file, so defining them here makes that later \providecommand a no-op.
+  \def\TLtitlebg{\setbeamercolor{background canvas}{bg=TLprimaryTint}}
+  \def\TLresetbg{\setbeamercolor{background canvas}{bg=TLsurface}}
+\else
+  % ---- LIGHT chrome ----
+  \ifx\TLchrome\TLchrome@moloch
+    % Moloch: de-fill the title bar (primary text on canvas + accent progress rule),
+    % lighten the footer to a subtle tinted band.
+    \setbeamercolor{frametitle}{bg=TLcanvas,fg=TLprimary}
+    \setbeamercolor{frametitle right}{bg=TLcanvas}
+    \setbeamercolor{palette primary}{fg=TLinkSoft,bg=TLprimaryTint}
+  \fi
+  % (metropolis/auto light keeps the filled bar already wired above)
+\fi
+
 % ── Fonts ───────────────────────────────────────────────────────────────────
 \setbeamerfont{frametitle}{size=\Large,series=\bfseries}
 \setbeamerfont{framesubtitle}{size=\normalsize}

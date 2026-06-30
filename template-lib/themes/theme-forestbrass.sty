@@ -1,0 +1,30 @@
+% ============================================================================
+% theme-forestbrass.sty — Forest Brass Theme
+% ============================================================================
+% Very dark pine (not mint) primary + brass accent. The dignified green.
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-forestbrass}[2026/06/30 Forest Brass Beamer Theme]
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{1F3D33}
+\definecolor{TLprimaryDark}{HTML}{122A22}
+\definecolor{TLprimaryLight}{HTML}{D2E0DA}
+\definecolor{TLprimaryTint}{HTML}{EAF1ED}
+\definecolor{TLaccent}{HTML}{C39A3F}
+\definecolor{TLaccentLight}{HTML}{F6EED6}
+\definecolor{TLink}{HTML}{1A211E}
+\definecolor{TLinkSoft}{HTML}{5C6862}
+\definecolor{TLsurface}{HTML}{F6F9F7}
+\definecolor{TLpos}{HTML}{3F7D4E}
+\definecolor{TLneg}{HTML}{B23A3A}
+
+% ── Semantic Aliases (light theme: canvas = warm paper) ─────────────────────
+\definecolor{TLcanvas}{HTML}{FAF7EF}
+\definecolor{TLblockbody}{named}{white}
+
+% ── Shared Boilerplate ──────────────────────────────────────────────────────
+\input{template-lib/themes/theme-base.sty}
+
+\renewcommand{\TLfootleft}{Forest Brass}

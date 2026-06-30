@@ -1,0 +1,30 @@
+% ============================================================================
+% theme-claret.sty — Oxford Claret Theme
+% ============================================================================
+% Deep wine primary + antique gold accent on ivory. Old-library gravitas.
+% ============================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{theme-claret}[2026/06/30 Oxford Claret Beamer Theme]
+
+% ── Color Palette ───────────────────────────────────────────────────────────
+\definecolor{TLprimary}{HTML}{7B2D3A}
+\definecolor{TLprimaryDark}{HTML}{561E27}
+\definecolor{TLprimaryLight}{HTML}{EBD6D2}
+\definecolor{TLprimaryTint}{HTML}{F7EDEA}
+\definecolor{TLaccent}{HTML}{C39A3F}
+\definecolor{TLaccentLight}{HTML}{F7EFD7}
+\definecolor{TLink}{HTML}{211A1B}
+\definecolor{TLinkSoft}{HTML}{6B5D5F}
+\definecolor{TLsurface}{HTML}{FBF6F2}
+\definecolor{TLpos}{HTML}{3F7D4E}
+\definecolor{TLneg}{HTML}{B23A3A}
+
+% ── Semantic Aliases (light theme: canvas = ivory) ──────────────────────────
+\definecolor{TLcanvas}{HTML}{FBF7F0}
+\definecolor{TLblockbody}{named}{white}
+
+% ── Shared Boilerplate ──────────────────────────────────────────────────────
+\input{template-lib/themes/theme-base.sty}
+
+\renewcommand{\TLfootleft}{Oxford Claret}
