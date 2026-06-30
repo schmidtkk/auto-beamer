@@ -45,3 +45,34 @@ Thumbs.db
 # AutoBeamer environment state (per-environment, not shared)
 .autobeamer/
 .fonts/
+
+# Produced decks — this repo is the template library + tooling, not deck output
+/aero-*.tex
+/ai-fundamentals-*
+/bme-blood-*.tex
+/english-review-socratic.tex
+/ot-qualitative-zh.flat.tex
+/ovoxel-native-3d-zh.tex
+
+# Source material & produced working dirs
+books/
+english-review/
+ovoxel-assets/
+
+# manim demo render outputs (keep the .py/.sh/.md pipeline scripts as a demo)
+manim-demos/media/
+manim-demos/out/
+manim-demos/voiceover_audio/
+manim-demos/.claude/
+
+# Generated audio/video guard
+*.wav
+*.mp3
+*.mp4
+*.m4a
+*.webm
+*.mov
+
+# Per-session / runtime state (not shared)
+.claude/runtime/
+.codex/

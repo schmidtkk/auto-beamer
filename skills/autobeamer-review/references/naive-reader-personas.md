@@ -48,6 +48,10 @@ Signature confusions.** Pick the subset relevant to the deck's intended audience
 graduate math deck claiming cross-disciplinary accessibility, run at least the
 **undergraduate** (the primary gap-free-proof judge), the **AI engineer**, and one
 "floor" reader (**high-school** or **humanities**) to test the zero-prereq on-ramp.
+For a long, proof-bearing self-study deck that claims **context-management / in-place
+recall** (every cross-frame reference restated, every recalled equation deck-numbered),
+ALSO run **P-WM** — it is the only persona that catches a reference reaching across more
+than 2–3 frames without restatement.
 
 ### P1 — AI/ML engineer (码农)
 - **Knows:** Python, training loops, gradient descent / backprop, tensors & matrix
@@ -125,6 +129,28 @@ graduate math deck claiming cross-disciplinary accessibility, run at least the
   conventions** and **notation collisions**, not for missing background.
 - **Signature confusions:** a symbol reused with two meanings; "as usual" / "the standard"
   with no pointer; a convention assumed from a sibling course.
+
+### P-WM — working-memory-limited reader (上下文窗口受限) *(the recall / context-management test)*
+- **Knows:** competent at the deck's math level — treat its background as P1 or P2 (pick to
+  match the deck). This is **NOT** a knowledge-ceiling persona; its ceiling is **MEMORY**.
+- **The ceiling (the whole trick):** holds only the **last 2–3 frames** in working memory.
+  Any definition, displayed equation, named result, or constant introduced earlier is
+  **forgotten** unless it is *restated in place* on the current frame (a one-line `\recall`,
+  a re-shown formula, a re-stated lemma). Mirrors the user's law: a human's context window
+  is ~2–3 slides, especially under heavy cognitive load.
+- **Anti-cheat:** if the persona catches itself following a step *only* because it remembers
+  a definition/equation from >3 frames back that the current frame did **not** restate, it
+  must STOP and flag that reference as a wall — its real-world counterpart forgot it and
+  would have to flip back (breaking focus, which the deck must not demand).
+- **Reads proofs how:** strictly linearly, **never flips back.** Treats every "由式 X.Y",
+  "回忆 …", "由定理 N", "如前所述", or a bare symbol introduced earlier as a *lookup demand*;
+  if the target is not on-screen or restated here, that is a hard stop.
+- **Target zone:** the whole deck (it understands the math — it just cannot remember across
+  distance). So every cross-frame reference is in-zone: a dangling reference is always a defect.
+- **Signature confusions:** "由式 5.17" when (5.17) is many frames back and not re-shown;
+  "回忆 (6.5)" pointing at an equation that carries **no visible deck-local number** to
+  locate; a proof step using a constant/object defined 8 frames earlier with no recall; a
+  symbol whose definition scrolled off; a named lemma cited but last stated long ago.
 
 ---
 

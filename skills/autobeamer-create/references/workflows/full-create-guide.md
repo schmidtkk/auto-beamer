@@ -546,6 +546,13 @@ Check: errors, overfull hbox, undefined references.
 - [ ] No section has >4 consecutive formal slides without example or visual break
 - [ ] Transition sentences between major sections
 - [ ] **passive-study**: Glossary slide present, exercise slides present, bibliographical notes section present
+- [ ] **passive-study**: understanding-first — every definition/theorem/construction states its question in plain language BEFORE formalism; multi-frame proofs open with a map frame + per-frame progress/recall; nothing referenced from >2–3 frames back without in-place restatement; no concept used before in-deck definition (see passive-study rubric + `POPULIST-REWRITE-CONTRACT`)
+
+**Language & expression (语言四性 — judge in the deck's own language):**
+- [ ] 流畅性: natural target-language prose, no translation-ese; **zero foreign-language prose leakage** (no English sentence in a Chinese deck; terms & `$...$` exempt)
+- [ ] 准确度: precise wording, no mistranslation; terminology/notation consistent
+- [ ] 优雅性: economical, non-redundant, varied sentence structure
+- [ ] 科学性: **every displayed relation verified** for sign, direction, indices, quantifiers, dimensions (read each — do not skim); no `\resizebox`/`\tiny` shrinking body prose below `\scriptsize`
 
 **Content density:**
 - [ ] No slide has only ≤3 short bullets with no math/diagram
@@ -596,9 +603,16 @@ Start at 100, deduct per issue:
 | Missing motivation before definition | −3 each |
 | Missing backup slides | −3 |
 | No references slide | −5 |
-| **passive-study only**: Proof sketch instead of full proof | −10 each |
+| **passive-study / proof-bearing active-socratic**: Proof gap — goal not stated, a step unjustified ("thus/hence/clearly/可验证/易证/one verifies/类似地"), a term used before defined, the easy half of a bound/equivalence dropped, or multiple logical moves compressed into one line | **−15 each (CRITICAL — P0)** |
+| **passive-study only**: Proof shown as a sketch / "omitted" / "similarly" instead of in full | **−15 per proof (CRITICAL — P0)** |
+| **passive-study only**: Named result (Farkas/KKT/IFT/Rockafellar/…) invoked without its one-line statement + applicability on-frame | −5 each |
 | **passive-study only**: Missing glossary or exercise section | −5 each |
 | **passive-study only**: Missing bibliographical notes section | −5 |
+| **Foreign-language prose leakage** (e.g. an English sentence/clause in a Chinese deck; brief/spec text pasted verbatim). English *terms* & `$...$` content are fine | **−10 each (CRITICAL)** |
+| **Scientific error in a displayed relation** — wrong sign, flipped inequality direction, off-by-one index, wrong quantifier, dimensional mismatch (verify EVERY relation, do not skim) | **−15 each (CRITICAL — P0)** |
+| Language quality (语言四性): translation-ese / mistranslation / clunky redundant prose (流畅性·准确度·优雅性) | −3 each |
+| `\resizebox` (or `\tiny`) used to shrink body prose below `\scriptsize` to force fit (split the frame instead) | −3 each |
+| **passive-study / proof-bearing**: "Understanding-first" breach — a gap-free but *purpose-unclear* (目的不明) definition/proof; result stated with no question/idea/why; multi-frame proof with no map/recall (see passive-study rubric + `POPULIST-REWRITE-CONTRACT`) | **−15 each (CRITICAL — P0)** |
 
 **academic-presentation thresholds:**
 - **Score ≥ 90**: Ready to deliver
@@ -636,7 +650,12 @@ Fix all critical and major issues. Re-compile. Max 3 rounds.
 **passive-study (additional / override):**
 ```
 [ ] Score ≥ 95
-[ ] Every proof shown in full (no "sketch" or "omitted")
+[ ] PROOF-RIGOR GATE (P0 — run `naive-reader` with persona P2, the gap-free-proof arbiter):
+    [ ] Every proof states its goal up front
+    [ ] Every step shown, incl. the easy bound; no "thus/hence/clearly/可验证/易证/one verifies/类似地"
+    [ ] Every term defined on/before first use (no bare "链/c-次微分/normal cone")
+    [ ] One logical move per displayed line; proofs >5 steps split across frames
+    [ ] Every named result (Farkas/KKT/IFT/Rockafellar) stated + applicability on-frame
 [ ] Glossary slide present (术语速查)
 [ ] Exercise slides present (≥3 per chapter)
 [ ] Bibliographical notes section present (4–5+ frames)

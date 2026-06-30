@@ -39,6 +39,12 @@ Before any content or pedagogy judgment, identify the deck mode and load the mat
 
 If the deck still uses the old labels, map "Mentor/self-study" to `passive-study` and "Presentation/live talk" to `academic-presentation`. Do not score an `active-socratic` deck as failed merely because it withholds exposition; score whether it asks the right questions and gives adequate attempt gates.
 
+### Proof-rigor is a P0 gate for proof-bearing decks (do not skip)
+
+For any `passive-study` deck (or proof-bearing `active-socratic`), **gap-free proofs are a P0 acceptance gate, not a nicety — a single gap fails the review.** A proof is *gapped* if it: omits its goal; uses "thus / hence / clearly / 可验证 / 易证 / one verifies / 类似地" in place of a shown step; uses a term before it is defined (e.g. "链/chain", "c-次微分", "normal cone"); invokes a named result (Farkas/KKT/IFT/Rockafellar/…) without its one-line statement + why-it-applies on-frame; compresses several logical moves into one displayed line; silently drops the *easy* half of a bound/equivalence; or sketches what the source proves in full.
+
+Because the lead model is usually too expert to *feel* these gaps, **`naive-reader` is MANDATORY (not optional) for these decks** — run it with persona **P2 (the gap-free-proof arbiter)** alongside a floor reader, and treat any in-target-zone "jump I couldn't follow" or "undefined-for-me term" as **P0** (must-fix before sign-off). The `excellence` pass and the create-loop quality score apply the matching −15 (CRITICAL) proof-gap deductions; do not sign off while any remain. Fix by **splitting into more frames** and adding the missing micro-steps — never by deleting the proof.
+
 ---
 
 ## Action: `proofread`
@@ -47,12 +53,14 @@ Structured proofreading with categorized report.
 
 ### Categories
 
-**1. Grammar & Language**
-- Subject-verb agreement
-- Article usage (a/an/the)
-- Tense consistency (present for facts, past for experiments)
-- Parallel structure in lists
-- Academic register (no colloquialisms)
+**1. Language & Expression quality (语言与表达：流畅性 · 准确度 · 优雅性 · 科学性)**
+
+Judge prose in the deck's OWN language (a Chinese deck is judged by Chinese standards, not English grammar rules). Four axes:
+- **流畅性 (fluency).** Reads naturally in the target language; no translation-ese (翻译腔) or machine-translated phrasing; sentences cohere and flow. **HARD GATE: zero foreign-language leakage** — not one English (or other non-target) sentence/clause in a Chinese deck (a single English line is a defect; brief/spec English pasted verbatim is the classic offender). English *terms*/proper nouns (Wasserstein, Prokhorov) and anything inside `$...$` are fine; English *prose* is not.
+- **准确度 (accuracy).** Faithful to source meaning; the precise word (用词精确 — no near-miss / mistranslation); terminology & notation consistent (see also Consistency); units and symbols correct.
+- **优雅性 (elegance).** Economical and non-redundant (删可删之词); one idea per clause; varied sentence structure, not clause-piling; "辞达" first, then polish. Flag bloated, clunky, or repetitive phrasing.
+- **科学性 (scientific correctness).** The math/science in BOTH prose and displays is correct: verify each equation/inequality's **direction, sign, indices, and quantifiers**; check dimensional/notational consistency; claims are supportable. Read every relation — do NOT skim — this is where a copied sign slip or a flipped inequality is caught.
+- English-grammar checks (only when the deck IS English): subject-verb agreement, article usage (a/an/the), tense consistency, parallel structure, academic register (no colloquialisms).
 
 **2. Typos & Orthography**
 - Spelling errors
@@ -272,6 +280,8 @@ the user explicitly asks for a multi-agent review. Report all three regardless.
 ### Perspective 1: Content Expert
 
 - Are all claims accurate and supported?
+- **Scientific correctness, per relation.** Read every displayed equation/inequality and verify its direction, sign, indices, and quantifiers — do not skim. A flipped inequality, a sign slip, or an off-by-one index is a CRITICAL content defect even if it compiles. (Machine-generated or copied derivations are the usual source.)
+- **Language purity & expression.** No foreign-language prose leakage (e.g. English sentences in a Chinese deck); faithful, precise wording (no mistranslation); economical, non-translation-ese phrasing. See `proofread` category 1 (流畅性·准确度·优雅性·科学性).
 - Is the methodology clearly described?
 - Are results presented with appropriate context?
 - Are limitations acknowledged?

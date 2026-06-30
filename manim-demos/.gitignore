@@ -1,0 +1,5 @@
+media/
+out/
+audio_cache/
+*.log
+__pycache__/

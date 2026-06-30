@@ -1,0 +1,8 @@
+interface:
+  display_name: "AutoBeamer Video"
+  short_description: "Math-demo GIFs & narrated Chinese short videos (Manim + local TTS)"
+  brand_color: "#00796b"
+  default_prompt: "Use $autobeamer-video to turn my deck's math into a narrated Chinese short video with Manim and the local TTS lab."
+
+policy:
+  allow_implicit_invocation: true

@@ -373,6 +373,10 @@ Start at **100**. Deduct for issues:
 | **Critical** | Equation overflow (slide or box-interior) | −20 |
 | **Critical** | TikZ diagram overflows slide boundary | −15 per diagram |
 | **Critical** | Undefined control sequence / citation | −15 |
+| **Critical** | Proof gap (mentor/passive-study): unstated goal, unjustified step ("thus/可验证/易证/one verifies"), term used before defined, easy half of a bound dropped, or sketch-not-full | −15 per proof |
+| **Critical** | 科学性: scientific error in a displayed relation — wrong sign, flipped inequality, off-by-one index, wrong quantifier, dimensional mismatch (verify EVERY relation, don't skim) | −15 each |
+| **Critical** | 流畅性: foreign-language prose leakage (e.g. an English sentence in a Chinese deck; spec text pasted verbatim). English terms & `$...$` exempt | −10 each |
+| **Critical** | 目的不明 (mentor/passive-study): a gap-free but purpose-unclear definition/proof; result with no question/idea/why; multi-frame proof lacking map+recall | −15 each |
 | **Critical** | Overfull hbox > 10pt | −10 |
 | **Major** | Content overflow inside colored box | −10 per box |
 | **Major** | Sparse slide (≤3 items, no math/diagram) | −5 per slide |
@@ -381,6 +385,8 @@ Start at **100**. Deduct for issues:
 | **Major** | Table not centered | −3 per table |
 | **Major** | Table `\toprule` merges with title bar | −5 per slide |
 | **Major** | Notation inconsistency | −3 |
+| **Major** | 准确度/优雅性: mistranslation, translation-ese, or clunky/redundant prose | −3 each |
+| **Major** | `\resizebox`/`\tiny` shrinking body prose below `\scriptsize` to force fit (split instead) | −3 each |
 | **Minor** | `\vspace` overuse (>3 per slide) | −1 |
 | **Minor** | Font size reduction (`\footnotesize`) | −1 per slide |
 
