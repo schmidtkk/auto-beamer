@@ -53,10 +53,7 @@ reviewing the handoff between waves.
 | `active-socratic` | The learner wants guided discovery through questions, thought experiments, derivations, and attempt gates | [references/modes/active-socratic.md](references/modes/active-socratic.md) |
 | `academic-presentation` | The deck is for a live talk, seminar, defense, journal club, or academic sharing | [references/modes/academic-presentation.md](references/modes/academic-presentation.md) |
 
-Compatibility aliases:
-- "Mentor", "self-study", "study deck", or textbook/chapter requests map to `passive-study` unless the user asks for Socratic discovery.
-- "Socratic", "active study", "reinvent", "derive with me", or "mentor me with questions" map to `active-socratic`.
-- "Presentation", "talk", "seminar", "conference", "defense", or "academic sharing" map to `academic-presentation`.
+Compatibility aliases: "Mentor"/"self-study"/textbook/chapter → `passive-study` (unless Socratic asked); "Socratic"/"derive with me"/"mentor me" → `active-socratic`; "talk"/"seminar"/"defense"/"academic sharing" → `academic-presentation`.
 
 Every structure plan must state the selected mode, loaded references, and mode-specific acceptance gates.
 
@@ -64,18 +61,10 @@ Every structure plan must state the selected mode, loaded references, and mode-s
 
 When the user requests a Chinese deck ("中文", "Chinese version"):
 
-1. **Fonts are auto-detected.** font-config (Priority 1.5) checks for `.fonts/SourceHanSerifSC-Medium.otf`. If present, the deck uses Source Han Serif SC Medium+Bold — no preamble override needed. If absent, it falls back to the system Noto Sans CJK (which is thinner, acceptable but not optimal for slides).
-
-2. **Chinese math-glyph pairing.** KpMath (the template default) pairs well with Source Han Serif SC because both are serif fonts with similar weight. No special math font override is needed for Chinese decks.
-
-3. **Figure labels.** Translate TikZ node labels, axis annotations, and caption text. Keep math expressions in LaTeX math mode (unchanged).
-
-4. **Label localization.** The only hardcoded English UI string is `\TLtakeaway`'s "Key Takeaway." — override it:
-   ```latex
-   \renewcommand{\TLtakeaway}[1]{...\textbf{要点。} #1...}
-   ```
-
-5. **Validator keywords.** The `validate_deck.py` Socratic gates match English keywords ("question", "attempt", "hint", "reflection"). Add bilingual glosses to the "how to use this deck" frame so the automated check passes with Chinese content.
+- **Fonts auto-detect** (font-config Priority 1.5): Source Han Serif SC if `.fonts/SourceHanSerifSC-Medium.otf` is present, else system Noto Sans CJK; KpMath pairs fine, no math override needed. Font details: [autobeamer-build](../autobeamer-build/SKILL.md) (CJK Fonts).
+- **Localize** TikZ node/axis/caption text (keep math mode unchanged); override `\TLtakeaway`'s "Key Takeaway." → `要点。`.
+- **Validator keywords.** `validate_deck.py` Socratic gates match English keywords ("question/attempt/hint/reflection") — add bilingual glosses to the "how to use this deck" frame so the check passes with Chinese content.
+- **Language gate.** Write Chinese throughout — `lang_lint.py` fails on any English-prose leakage (terms & `$...$` exempt) plus AI-flavor fillers and proof-hedges. See [language-quality-gate.md](../autobeamer-review/references/language-quality-gate.md).
 
 ## Pipeline
 
@@ -191,8 +180,12 @@ After each draft batch:
 ```bash
 ./build.sh deck-name
 python tools/validate_deck.py static deck.tex --mode MODE
+python tools/lang_lint.py     lint   deck.tex --mode MODE   # language gate (mechanical)
 python tools/check_layout.py deck.tex build/deck.log --advise
 ```
+The language gate (foreign-prose leakage, AI-flavor fillers, proof-hedges) is
+defined in [language-quality-gate.md](../autobeamer-review/references/language-quality-gate.md);
+fix CRITICAL/MAJOR findings before moving on.
 
 **Between Wave 2 and Wave 3** the leader runs the [alignment check](references/validation/alignment-check.md): does the draft still match the plan and the original demands (sections, objectives, planned figures, every image request resolved, mode fidelity)? On drift, return to the Drafter before polishing.
 

@@ -233,7 +233,7 @@ class SkillPluginHardeningTest(unittest.TestCase):
     """Regression coverage for the 2026-06 hardening pass."""
 
     def test_all_skills_share_consistent_frontmatter(self) -> None:
-        self.assertEqual(len(SKILL_PATHS), 7)
+        self.assertGreaterEqual(len(SKILL_PATHS), 10)
         required = ("name", "description", "when_to_use", "argument-hint", "allowed-tools")
         for path in SKILL_PATHS:
             fm = frontmatter(path)
@@ -290,6 +290,40 @@ class SkillPluginHardeningTest(unittest.TestCase):
         for path in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json", ".codex-plugin/plugin.json"):
             with self.subTest(path=path):
                 self.assertNotIn('"email": ""', read(path))
+
+
+class LanguageGateTest(unittest.TestCase):
+    """The executable language-quality gate (lang_lint.py) and its wiring."""
+
+    def test_lang_lint_tool_exists(self) -> None:
+        self.assertTrue((ROOT / "tools" / "lang_lint.py").exists())
+
+    def test_canonical_gate_and_rubric_references_exist(self) -> None:
+        for path in (
+            "skills/autobeamer-review/references/language-quality-gate.md",
+            "skills/autobeamer-review/references/quality-rubric.md",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue((ROOT / path).exists())
+
+    def test_gate_is_wired_into_validate_create_review(self) -> None:
+        for path in (
+            "skills/autobeamer-validate/SKILL.md",
+            "skills/autobeamer-create/SKILL.md",
+            "skills/autobeamer-review/SKILL.md",
+        ):
+            with self.subTest(path=path):
+                self.assertIn("lang_lint.py", read(path))
+        self.assertIn("language-quality-gate.md", read("skills/autobeamer-review/SKILL.md"))
+
+    def test_finisher_agent_runs_language_gate(self) -> None:
+        self.assertIn("lang_lint.py", read("agents/autobeamer-finisher.md"))
+
+    def test_canonical_gate_owns_the_four_axes(self) -> None:
+        gate = read("skills/autobeamer-review/references/language-quality-gate.md")
+        for axis in ("流畅性", "准确度", "优雅性", "科学性"):
+            with self.subTest(axis=axis):
+                self.assertIn(axis, gate)
 
 
 class ThreeWaveCreatePipelineTest(unittest.TestCase):

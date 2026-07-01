@@ -1,0 +1,8 @@
+interface:
+  display_name: "AutoBeamer Problem Sheet"
+  short_description: "Self-study problem sheet: guided problems + weak-to-strong hints + gap-free answer key"
+  brand_color: "#00796b"
+  default_prompt: "Use $autobeamer-problem-sheet to turn a topic or source into a guided problem sheet with hints in the body and worked solutions in an appendix answer key."
+
+policy:
+  allow_implicit_invocation: true

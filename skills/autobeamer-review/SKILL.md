@@ -55,12 +55,23 @@ Structured proofreading with categorized report.
 
 **1. Language & Expression quality (语言与表达：流畅性 · 准确度 · 优雅性 · 科学性)**
 
-Judge prose in the deck's OWN language (a Chinese deck is judged by Chinese standards, not English grammar rules). Four axes:
-- **流畅性 (fluency).** Reads naturally in the target language; no translation-ese (翻译腔) or machine-translated phrasing; sentences cohere and flow. **HARD GATE: zero foreign-language leakage** — not one English (or other non-target) sentence/clause in a Chinese deck (a single English line is a defect; brief/spec English pasted verbatim is the classic offender). English *terms*/proper nouns (Wasserstein, Prokhorov) and anything inside `$...$` are fine; English *prose* is not.
-- **准确度 (accuracy).** Faithful to source meaning; the precise word (用词精确 — no near-miss / mistranslation); terminology & notation consistent (see also Consistency); units and symbols correct.
-- **优雅性 (elegance).** Economical and non-redundant (删可删之词); one idea per clause; varied sentence structure, not clause-piling; "辞达" first, then polish. Flag bloated, clunky, or repetitive phrasing.
-- **科学性 (scientific correctness).** The math/science in BOTH prose and displays is correct: verify each equation/inequality's **direction, sign, indices, and quantifiers**; check dimensional/notational consistency; claims are supportable. Read every relation — do NOT skim — this is where a copied sign slip or a flipped inequality is caught.
-- English-grammar checks (only when the deck IS English): subject-verb agreement, article usage (a/an/the), tense consistency, parallel structure, academic register (no colloquialisms).
+This category is owned by the canonical
+[language-quality-gate.md](references/language-quality-gate.md) — read it; do not
+re-derive the axes here. **Run the mechanical half first**, then judge the rest:
+
+```bash
+python tools/lang_lint.py lint <deck>.tex --mode <mode>
+```
+
+`lang_lint.py` deterministically catches the **HARD GATE — foreign-language prose
+leakage** (zero English sentences in a Chinese deck; terms & `$...$` exempt),
+tier-1 AI-flavor fillers, proof-hedges (`显然/易证/不难/类似地` — CRITICAL in
+passive-study), and connector clusters. Then **you** judge the axes the script
+cannot: **准确度** (mistranslation / imprecise wording), **优雅性** (clunky,
+redundant, translation-ese prose), and **科学性** (read EVERY displayed relation —
+sign, direction, indices, quantifiers, dimensions — do not skim; a copied sign
+slip or flipped inequality is CRITICAL). For English decks, also apply
+subject-verb agreement, articles, tense, parallel structure, academic register.
 
 **2. Typos & Orthography**
 - Spelling errors
@@ -281,7 +292,7 @@ the user explicitly asks for a multi-agent review. Report all three regardless.
 
 - Are all claims accurate and supported?
 - **Scientific correctness, per relation.** Read every displayed equation/inequality and verify its direction, sign, indices, and quantifiers — do not skim. A flipped inequality, a sign slip, or an off-by-one index is a CRITICAL content defect even if it compiles. (Machine-generated or copied derivations are the usual source.)
-- **Language purity & expression.** No foreign-language prose leakage (e.g. English sentences in a Chinese deck); faithful, precise wording (no mistranslation); economical, non-translation-ese phrasing. See `proofread` category 1 (流畅性·准确度·优雅性·科学性).
+- **Language purity & expression.** Run `python tools/lang_lint.py lint <deck>.tex --mode <mode>` for the mechanical pass (foreign-prose leakage, fillers, proof-hedges), then judge 准确度/优雅性/科学性. Full definitions: [language-quality-gate.md](references/language-quality-gate.md).
 - Is the methodology clearly described?
 - Are results presented with appropriate context?
 - Are limitations acknowledged?

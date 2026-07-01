@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoBeamer Skill Ecosystem — Architecture Graph</title>
+<script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+<style>
+  :root{--bg:#0f1320;--panel:#171c2e;--ink:#e7ecf5;--muted:#9aa4bf;--line:#283050;}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 -apple-system,Segoe UI,Roboto,"Source Han Sans SC",sans-serif;background:var(--bg);color:var(--ink)}
+  header{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;gap:18px;align-items:baseline;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0;font-weight:650}
+  header .sub{color:var(--muted);font-size:13px}
+  #wrap{display:flex;height:calc(100vh - 56px)}
+  #net{flex:1;min-width:0}
+  aside{width:328px;border-left:1px solid var(--line);background:var(--panel);padding:16px 18px;overflow:auto}
+  aside h2{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+  aside h2:first-child{margin-top:0}
+  .leg{display:flex;align-items:center;gap:8px;margin:6px 0;cursor:pointer;user-select:none}
+  .leg .sw{width:26px;height:0;border-top-width:3px;border-top-style:solid;flex:none}
+  .leg.off{opacity:.32}
+  .dot{width:12px;height:12px;border-radius:50%;flex:none;display:inline-block}
+  .sq{width:13px;height:13px;border-radius:3px;flex:none;display:inline-block}
+  .row{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}
+  .note{font-size:12.5px;color:var(--muted);margin:6px 0}
+  .note b{color:var(--ink)}
+  .switch{display:flex;align-items:center;gap:8px;margin:10px 0;cursor:pointer}
+  .switch input{width:34px;height:18px}
+  code{background:#0c1020;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:#d7c2ff;font-size:12px}
+  ul{margin:6px 0 6px 16px;padding:0}li{margin:3px 0;font-size:12.5px;color:var(--muted)}
+  .pill{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>AutoBeamer — Skill Ecosystem</h1>
+  <span class="sub">11 skills · 3 wave agents · 1 command · 9 tools · shared refs — verified edge map (2026-06)</span>
+  <span class="pill">drag to explore · toggle layers →</span>
+</header>
+<div id="wrap">
+  <div id="net"></div>
+  <aside>
+    <h2>Node types</h2>
+    <div class="row"><span class="dot" style="background:#7c5cff"></span> Orchestrator skill (workflow)</div>
+    <div class="row"><span class="dot" style="background:#2dd4bf"></span> QA skill (review hub)</div>
+    <div class="row"><span class="dot" style="background:#5b9dff"></span> Infra skill (build/layout/tikz/doctor)</div>
+    <div class="row"><span class="dot" style="background:#94a3b8"></span> Standalone skill (video)</div>
+    <div class="row"><span class="sq" style="background:#c97a2e"></span> Wave subagent</div>
+    <div class="row"><span class="sq" style="background:#46506e"></span> Tool / script</div>
+    <div class="row"><span class="sq" style="background:#7a3d70"></span> Shared reference</div>
+    <div class="row"><span class="sq" style="background:#b5942a"></span> Slash command</div>
+
+    <h2>Edge types — click to toggle</h2>
+    <div class="leg" data-e="delegate"><span class="sw" style="border-top-color:#7c5cff"></span> delegates-step</div>
+    <div class="leg" data-e="tool"><span class="sw" style="border-top-color:#2dd4bf"></span> runs-tool</div>
+    <div class="leg" data-e="agent"><span class="sw" style="border-top-color:#f4a261"></span> spawns-agent</div>
+    <div class="leg" data-e="shareref"><span class="sw" style="border-top-color:#d98cce;border-top-style:dashed"></span> shares-ref (cross-skill)</div>
+    <div class="leg off" data-e="crosslink"><span class="sw" style="border-top-color:#46506e;border-top-style:dotted"></span> cross-link (see-also)</div>
+    <div class="leg" data-e="cmd"><span class="sw" style="border-top-color:#e2c044"></span> command→skill</div>
+
+    <h2>Language-gate upgrade</h2>
+    <label class="switch"><input type="checkbox" id="planned"> <span>Overlay planned <code>lang_lint.py</code> + canonical gate</span></label>
+    <div class="note">Today the gate (流畅性·准确度·优雅性·科学性) is <b>triplicated</b>: <code>review</code>, create's <code>full-create-guide.md</code>, <code>CLAUDE.md</code> — model-judgment only. The overlay shows the single executable gate wired into create/validate/review.</div>
+
+    <h2>Findings</h2>
+    <ul>
+      <li><b>video</b> &amp; <b>problem-sheet</b> have no inbound skill edges (entry-points).</li>
+      <li><b>tikz</b>/<b>doctor</b> are leaves; <b>build</b> near-standalone.</li>
+      <li>review/references = de-facto shared hub (personas, profiles, rubrics).</li>
+      <li>Orphan tools: <code>check_privacy.py</code>, <code>test_themes.py</code>.</li>
+      <li><code>.codex-plugin</code> manifest: v1.2.0, omits <code>commands</code>; says "7 skills" (now 11).</li>
+      <li>Dangling ref <code>[proof-rigor-p0]</code> in problem-sheet (never defined).</li>
+    </ul>
+  </aside>
+</div>
+<script>
+const G="#46506e";
+const nodes=[
+ // orchestrators
+ {id:"create",label:"create",group:"orch"},
+ {id:"problem-sheet",label:"problem-sheet",group:"orch"},
+ // qa
+ {id:"review",label:"review",group:"qa"},
+ {id:"validate",label:"validate",group:"qa"},
+ {id:"naive-reader",label:"naive-reader",group:"qa"},
+ {id:"calibrate",label:"calibrate",group:"qa"},
+ // infra
+ {id:"build",label:"build",group:"infra"},
+ {id:"layout",label:"layout",group:"infra"},
+ {id:"tikz",label:"tikz",group:"infra"},
+ {id:"doctor",label:"doctor",group:"infra"},
+ // standalone
+ {id:"video",label:"video",group:"alone"},
+ // wave agents
+ {id:"planner",label:"planner",group:"agent"},
+ {id:"drafter",label:"drafter",group:"agent"},
+ {id:"finisher",label:"finisher",group:"agent"},
+ {id:"gp",label:"general-purpose ×N",group:"agent"},
+ // command
+ {id:"cmd-ps",label:"/problem-sheet",group:"cmd"},
+ // tools
+ {id:"t-doctor",label:"doctor.py",group:"tool"},
+ {id:"t-parser",label:"paper_parser.py",group:"tool"},
+ {id:"t-index",label:"image_index.py",group:"tool"},
+ {id:"t-lopt",label:"layout_optimizer.py",group:"tool"},
+ {id:"t-clay",label:"check_layout.py",group:"tool"},
+ {id:"t-vdeck",label:"validate_deck.py",group:"tool"},
+ {id:"t-cload",label:"concept_load.py",group:"tool"},
+ {id:"t-crop",label:"auto_crop.py",group:"tool"},
+ {id:"t-build",label:"build.sh / .ps1",group:"tool"},
+ // shared refs
+ {id:"r-pers",label:"naive-reader-personas.md",group:"ref"},
+ {id:"r-prof",label:"reader-profiles-prescriptive.md",group:"ref"},
+ {id:"r-gates",label:"mode-gates.md",group:"ref"},
+ {id:"r-env",label:"env-doctor.md",group:"ref"},
+ {id:"r-rubr",label:"rubrics/*-review.md",group:"ref"},
+];
+const E=(f,t,e,label)=>({from:f,to:t,etype:e,label:label||undefined});
+let edges=[
+ // create delegation backbone
+ E("create","planner","agent"),E("create","drafter","agent"),E("create","finisher","agent"),
+ E("create","calibrate","delegate"),E("create","layout","delegate"),E("create","tikz","delegate"),
+ E("create","validate","delegate"),E("create","review","delegate"),
+ // problem-sheet thin workflow (delegates to 9 siblings)
+ E("problem-sheet","create","delegate"),E("problem-sheet","calibrate","delegate"),
+ E("problem-sheet","tikz","delegate"),E("problem-sheet","build","delegate"),
+ E("problem-sheet","validate","delegate"),E("problem-sheet","layout","delegate"),
+ E("problem-sheet","review","delegate"),E("problem-sheet","naive-reader","delegate"),
+ E("problem-sheet","doctor","delegate"),
+ // review / calibrate / naive-reader delegation
+ E("review","naive-reader","delegate"),E("review","validate","delegate"),
+ E("calibrate","naive-reader","delegate"),
+ // command
+ E("cmd-ps","problem-sheet","cmd"),
+ // spawns general-purpose
+ E("review","gp","agent"),E("naive-reader","gp","agent"),
+ // runs-tool
+ E("create","t-doctor","tool"),E("create","t-parser","tool"),E("create","t-index","tool"),
+ E("create","t-lopt","tool"),E("create","t-vdeck","tool"),E("create","t-clay","tool"),E("create","t-build","tool"),
+ E("build","t-doctor","tool"),E("build","t-build","tool"),
+ E("doctor","t-doctor","tool"),
+ E("layout","t-lopt","tool"),E("layout","t-clay","tool"),E("layout","t-crop","tool"),E("layout","t-build","tool"),
+ E("validate","t-vdeck","tool"),E("validate","t-clay","tool"),E("validate","t-build","tool"),
+ E("review","t-clay","tool"),E("review","t-build","tool"),
+ E("calibrate","t-cload","tool"),
+ E("problem-sheet","t-parser","tool"),E("problem-sheet","t-index","tool"),E("problem-sheet","t-vdeck","tool"),
+ E("problem-sheet","t-clay","tool"),E("problem-sheet","t-doctor","tool"),E("problem-sheet","t-build","tool"),
+ E("planner","t-doctor","tool"),E("planner","t-parser","tool"),E("planner","t-index","tool"),
+ E("drafter","t-index","tool"),
+ E("finisher","t-vdeck","tool"),E("finisher","t-clay","tool"),E("finisher","t-build","tool"),
+ // shares-ref (cross-skill)
+ E("naive-reader","r-pers","shareref"),E("calibrate","r-pers","shareref"),E("calibrate","r-prof","shareref"),
+ E("validate","r-gates","shareref"),E("doctor","r-env","shareref"),E("finisher","r-rubr","shareref"),
+ // cross-links (off by default)
+ E("build","doctor","crosslink"),E("doctor","build","crosslink"),E("doctor","create","crosslink"),
+ E("video","build","crosslink"),E("video","create","crosslink"),
+ E("validate","review","crosslink"),E("tikz","review","crosslink"),E("calibrate","review","crosslink"),
+];
+// planned language-gate overlay nodes/edges (toggled)
+const plannedNodes=[
+ {id:"p-lint",label:"tools/lang_lint.py  (NEW)",group:"planned"},
+ {id:"p-gate",label:"language-quality-gate.md  (NEW, canonical)",group:"planned"},
+];
+const plannedEdges=[
+ E("review","p-gate","plan","owns"),
+ E("p-gate","p-lint","plan","script subset"),
+ E("validate","p-lint","plan","lint step"),
+ E("create","p-lint","plan","quality gate"),
+ E("review","p-lint","plan","proofread pass"),
+ E("create","p-gate","plan"),E("problem-sheet","p-gate","plan"),
+];
+const ecolor={delegate:"#7c5cff",tool:"#2dd4bf",agent:"#f4a261",shareref:"#d98cce",crosslink:G,cmd:"#e2c044",plan:"#22c55e"};
+function styleEdge(e){
+  const c=ecolor[e.etype]||G;
+  return Object.assign({},e,{
+    color:{color:c,opacity:e.etype==="crosslink"?.5:.85,highlight:c},
+    dashes:e.etype==="shareref"?[6,4]:(e.etype==="crosslink"?[2,4]:(e.etype==="plan"?[8,5]:false)),
+    width:e.etype==="delegate"?2.4:(e.etype==="plan"?2.2:1.4),
+    arrows:{to:{enabled:true,scaleFactor:.6}},
+    font:{color:"#aeb6d0",size:10,strokeWidth:0,align:"middle"},
+    smooth:{type:"dynamic"}
+  });
+}
+const groupStyle={
+  orch:{color:{background:"#7c5cff",border:"#a48bff"},shape:"hexagon",size:24},
+  qa:{color:{background:"#159e8e",border:"#2dd4bf"}},
+  infra:{color:{background:"#3667b5",border:"#5b9dff"}},
+  alone:{color:{background:"#5b647e",border:"#94a3b8"}},
+  agent:{color:{background:"#c97a2e",border:"#f4a261"},shape:"box"},
+  cmd:{color:{background:"#b5942a",border:"#e2c044"},shape:"box"},
+  tool:{color:{background:"#262d44",border:"#46506e"},shape:"box",font:{color:"#cfd6ea"}},
+  ref:{color:{background:"#7a3d70",border:"#d98cce"},shape:"box",font:{color:"#f0d8ec"}},
+  planned:{color:{background:"#15803d",border:"#22c55e"},shape:"box",font:{color:"#dcffe6"},borderWidth:2},
+};
+const nodeSet=new vis.DataSet(nodes.map(n=>Object.assign({shape:"dot",size:18,font:{color:"#e7ecf5",size:13}},groupStyle[n.group],n)));
+const edgeSet=new vis.DataSet(edges.map(styleEdge));
+const net=new vis.Network(document.getElementById("net"),{nodes:nodeSet,edges:edgeSet},{
+  physics:{barnesHut:{gravitationalConstant:-9000,springLength:135,springConstant:.03,avoidOverlap:.25},stabilization:{iterations:320}},
+  interaction:{hover:true,tooltipDelay:120},
+  layout:{improvedLayout:true},
+});
+// edge-type toggles
+const active={delegate:1,tool:1,agent:1,shareref:1,crosslink:0,cmd:1,plan:0};
+function refresh(){
+  const showPlanned=document.getElementById("planned").checked;
+  plannedNodes.forEach(n=>{
+    if(showPlanned){ if(!nodeSet.get(n.id)) nodeSet.add(Object.assign({shape:"box",size:18},groupStyle.planned,n)); }
+    else { if(nodeSet.get(n.id)) nodeSet.remove(n.id); }
+  });
+  edgeSet.clear();
+  const all=edges.concat(showPlanned?plannedEdges:[]);
+  edgeSet.add(all.filter(e=>active[e.etype]).map(styleEdge));
+}
+document.querySelectorAll(".leg").forEach(el=>el.onclick=()=>{
+  const k=el.dataset.e; active[k]=active[k]?0:1; el.classList.toggle("off",!active[k]); refresh();
+});
+document.getElementById("planned").onchange=()=>{active.plan=document.getElementById("planned").checked?1:0;refresh();};
+</script>
+</body>
+</html>

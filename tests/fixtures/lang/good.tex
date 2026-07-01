@@ -1,0 +1,21 @@
+% Clean Chinese teaching prose: math + macros present, no AI-flavor, no leakage.
+\documentclass[aspectratio=169]{beamer}
+\begin{document}
+
+\begin{frame}{最优耦合的存在性}
+  设 $\mu,\nu$ 为 Polish 空间上的概率测度，成本函数 $c$ 下半连续。
+  我们要证明：使 $I[\pi]=\int c\,\dd\pi$ 取下确界的耦合 $\pi^\star$ 存在。
+  \[
+    I[\pi^\star] = \inf_{\pi\in\Pi(\mu,\nu)} I[\pi].
+  \]
+  \textbf{思路。} 取下确界列，用紧性抽收敛子列，再用下半连续性说明极限仍最优。
+  \TLtakeaway{下确界列 $\to$ 紧性取极限 $\to$ 下半连续，三步装配出存在性。}
+\end{frame}
+
+\begin{frame}{Kantorovich 对偶}
+  对偶问题把约束优化换成无约束的上确界。由 Prokhorov 定理与 Lemma 4.4，
+  可行集在弱拓扑下紧。下面逐步推导对偶间隙为零。
+  设 $\varphi,\psi$ 满足 $\varphi(x)+\psi(y)\le c(x,y)$，则原问题不小于对偶问题。
+\end{frame}
+
+\end{document}

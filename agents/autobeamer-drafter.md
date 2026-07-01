@@ -25,6 +25,11 @@ before writing anything.
 - ≤ 3 colored boxes per slide; motivation before formalism; worked example
   within 2 slides of a definition; every slide has ≥1 substantive element.
 - New decks use template-lib commands (`\TLinfoblock`, `\TLtakeaway`, …).
+- **Language gate:** write in the deck's own language — no English prose in a
+  Chinese deck (terms & `$...$` exempt), no AI-flavor fillers (`值得注意的是`,
+  `综上所述`…), no proof-hedges (`显然/易证/不难/类似地`). The Finisher runs
+  `tools/lang_lint.py`; don't make it find what you can avoid. See
+  [language-quality-gate.md](../skills/autobeamer-review/references/language-quality-gate.md).
 
 ## Draft + figures loop (per 5–10 slide batch)
 1. Write the batch following the plan and the mode's writing style.

@@ -30,7 +30,7 @@
   "interface": {
     "displayName": "AutoBeamer",
     "shortDescription": "Three-mode Beamer deck system with layout and review skills",
-    "longDescription": "AutoBeamer replaces guesswork with a systematic pipeline for building Beamer decks. It supports passive-study, active-socratic, and academic-presentation modes, source-document-first image extraction, a three-tier template library, a four-layer layout optimizer, a design grammar checker, and 7 AI agent skills for creation, layout, build, review, TikZ, validation, and environment doctoring.",
+    "longDescription": "AutoBeamer replaces guesswork with a systematic pipeline for building Beamer decks. It supports passive-study, active-socratic, and academic-presentation modes, source-document-first image extraction, a three-tier template library, a four-layer layout optimizer, a design grammar checker, an executable language-quality gate, and 11 AI agent skills for creation, layout, build, review, TikZ, validation, environment doctoring, calibration, problem sheets, and naive-reader simulation.",
     "developerName": "schmidtkk",
     "category": "productivity",
     "capabilities": [

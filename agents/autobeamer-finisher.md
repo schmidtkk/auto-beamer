@@ -23,13 +23,16 @@ You start cold. Read the handoff (deck path, mode, image_index.json) first.
 1. **Compile** (XeLaTeX ×2): `./build.sh <deck>` or
    `xelatex -interaction=nonstopmode -output-directory=build <deck>.tex` twice.
 2. **Static gates**: `python tools/validate_deck.py static <deck>.tex --mode <MODE>`.
-3. **Layout audit**: `python tools/check_layout.py <deck>.tex build/<deck>.log --advise`.
-4. **Visual-check (MANDATORY)**: render with `pdftoppm` and inspect every slide —
+3. **Language gate**: `python tools/lang_lint.py lint <deck>.tex --mode <MODE>` — fix
+   foreign-prose leakage, AI-flavor fillers, and proof-hedges
+   ([language-quality-gate.md](../skills/autobeamer-review/references/language-quality-gate.md)).
+4. **Layout audit**: `python tools/check_layout.py <deck>.tex build/<deck>.log --advise`.
+5. **Visual-check (MANDATORY)**: render with `pdftoppm` and inspect every slide —
    block-interior overflow and TikZ overflow are invisible in the log. Also
    confirm `Overfull \vbox` count is 0 (`grep "Overfull \vbox" build/<deck>.log`).
-5. **Review**: apply the mode rubric; score; fix CRITICAL/MAJOR issues.
-6. Repeat until: 0 compile errors, 0 `\vbox` overflow, static gates PASS, layout
-   audit clean (DGV 0, no false-sparse), rubric ≥ 90. Then stop.
+6. **Review**: apply the mode rubric; score; fix CRITICAL/MAJOR issues.
+7. Repeat until: 0 compile errors, 0 `\vbox` overflow, static + language gates PASS,
+   layout audit clean (DGV 0, no false-sparse), rubric ≥ 90. Then stop.
 
 ## Hand off (Wave 3 → leader)
 Return: the final compiled PDF path, the validation report (gates + layout +

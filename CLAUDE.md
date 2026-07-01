@@ -257,6 +257,11 @@ Run **twice** when using `equal height group` (first pass writes .aux, second pa
 
 ### Two Modes: Presentation Deck vs. Mentor Deck
 
+> **Canonical mode names** are `academic-presentation`, `passive-study`, and
+> `active-socratic` (defined in `skills/autobeamer-create/references/modes/`). The
+> "Presentation Deck" column below maps to `academic-presentation`; "Mentor Deck"
+> maps to `passive-study` (Socratic-discovery variant → `active-socratic`).
+
 | Aspect | Presentation Deck | Mentor Deck (self-study) |
 |--------|------------------|--------------------------|
 | **Audience** | Live listeners | Solo reader |
@@ -390,6 +395,12 @@ After each batch of 5-10 slides:
 
 ## Quality Rubric
 
+> **Canonical source:** `skills/autobeamer-review/references/quality-rubric.md`
+> (mode-parameterized) and `…/language-quality-gate.md` (language rows). This
+> table is an at-a-glance summary; the language rows are enforced mechanically by
+> `python tools/lang_lint.py lint <deck>.tex --mode <mode>` (foreign-prose leakage,
+> AI-flavor fillers, proof-hedges) before the judgment pass.
+
 Start at **100**. Deduct for issues:
 
 | Severity | Issue | Deduction |
@@ -400,7 +411,8 @@ Start at **100**. Deduct for issues:
 | **Critical** | Undefined control sequence / citation | −15 |
 | **Critical** | Proof gap (mentor/passive-study): unstated goal, unjustified step ("thus/可验证/易证/one verifies"), term used before defined, easy half of a bound dropped, or sketch-not-full | −15 per proof |
 | **Critical** | 科学性: scientific error in a displayed relation — wrong sign, flipped inequality, off-by-one index, wrong quantifier, dimensional mismatch (verify EVERY relation, don't skim) | −15 each |
-| **Critical** | 流畅性: foreign-language prose leakage (e.g. an English sentence in a Chinese deck; spec text pasted verbatim). English terms & `$...$` exempt | −10 each |
+| **Critical** | 流畅性: foreign-language prose leakage (e.g. an English sentence in a Chinese deck; spec text pasted verbatim). English terms & `$...$` exempt — caught by `lang_lint.py` | −10 each |
+| **Major** | AI-flavor filler / empty summary (tier-1: 值得注意的是 / 综上所述 / 众所周知 / 赋能 …) — caught by `lang_lint.py` | −3 each |
 | **Critical** | 目的不明 (mentor/passive-study): a gap-free but purpose-unclear definition/proof; result with no question/idea/why; multi-frame proof lacking map+recall | −15 each |
 | **Critical** | Overfull hbox > 10pt | −10 |
 | **Major** | Content overflow inside colored box | −10 per box |

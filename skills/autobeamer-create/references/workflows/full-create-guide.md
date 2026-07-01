@@ -127,20 +127,21 @@ Use [references/modes/active-socratic.md](../modes/active-socratic.md) for the f
 - 3–6 questions total; don't over-ask, don't under-ask.
 - If something is obvious from context, infer rather than ask.
 
-### Slide Count Heuristic
+### Slide Count & Allocation
 
-~1 slide per 1.5–2 minutes.
+For **total slide count vs. duration**, use the canonical table in
+[autobeamer-validate](../../../autobeamer-validate/SKILL.md) §2a — single source of
+truth. Do not use a per-minute formula here; it drifts from that table. Then
+allocate those slides across sections:
 
-### Timing Allocation Table
-
-| Duration | Total slides | Intro/Motivation | Methods/Background | Core content | Summary |
-|----------|-------------|------------------|-------------------|-------------|---------|
-| 5min (lightning) | 5–7 | 1–2 | 0–1 | 2–3 | 1 |
-| 10min (short) | 8–12 | 2 | 1–2 | 4–5 | 1 |
-| 15min (conference) | 10–15 | 2–3 | 2–3 | 5–7 | 1–2 |
-| 20min (seminar) | 13–18 | 3 | 2–3 | 6–9 | 2 |
-| 45min (keynote) | 22–30 | 4–5 | 5–7 | 10–14 | 2–3 |
-| 90min (lecture) | 45–60 | 5–6 | 8–12 | 25–35 | 3–4 |
+| Duration | Intro/Motivation | Methods/Background | Core content | Summary |
+|----------|------------------|-------------------|-------------|---------|
+| 5 min  | 1–2 | 0–1 | 2–3 | 1 |
+| 10 min | 2   | 1–2 | 4–5 | 1 |
+| 15 min | 2–3 | 2–3 | 5–7 | 1–2 |
+| 20 min | 3   | 2–3 | 6–9 | 2 |
+| 45 min | 4–5 | 5–7 | 10–14 | 2–3 |
+| 90 min | 5–6 | 8–12 | 25–35 | 3–4 |
 
 ### Talk-Type Tips
 
@@ -548,10 +549,13 @@ Check: errors, overfull hbox, undefined references.
 - [ ] **passive-study**: Glossary slide present, exercise slides present, bibliographical notes section present
 - [ ] **passive-study**: understanding-first — every definition/theorem/construction states its question in plain language BEFORE formalism; multi-frame proofs open with a map frame + per-frame progress/recall; nothing referenced from >2–3 frames back without in-place restatement; no concept used before in-deck definition (see passive-study rubric + `POPULIST-REWRITE-CONTRACT`)
 
-**Language & expression (语言四性 — judge in the deck's own language):**
-- [ ] 流畅性: natural target-language prose, no translation-ese; **zero foreign-language prose leakage** (no English sentence in a Chinese deck; terms & `$...$` exempt)
-- [ ] 准确度: precise wording, no mistranslation; terminology/notation consistent
-- [ ] 优雅性: economical, non-redundant, varied sentence structure
+**Language & expression (语言四性):** run the mechanical gate, then judge the rest —
+canonical definitions in [language-quality-gate.md](../../../autobeamer-review/references/language-quality-gate.md).
+```bash
+python tools/lang_lint.py lint deck.tex --mode MODE
+```
+- [ ] `lang_lint.py` reports 0 CRITICAL/MAJOR (foreign-prose leakage, fillers, proof-hedges)
+- [ ] 准确度/优雅性: precise wording, no mistranslation; economical, non-translation-ese (judgment)
 - [ ] 科学性: **every displayed relation verified** for sign, direction, indices, quantifiers, dimensions (read each — do not skim); no `\resizebox`/`\tiny` shrinking body prose below `\scriptsize`
 
 **Content density:**
@@ -587,42 +591,16 @@ See [autobeamer-layout](../../../autobeamer-layout/SKILL.md) for full acceptance
 
 ### 5c. Quality Score Rubric
 
-Start at 100, deduct per issue:
+Score with the canonical, mode-parameterized
+[quality-rubric.md](../../../autobeamer-review/references/quality-rubric.md) (start at
+100, deduct per issue). It owns the full deduction table — including the
+`passive-study` P0 rows (proof-gap / understanding-first −15 each), the language
+rows (foreign-prose leakage −10, 准确度·优雅性 −3, owned by the
+[language gate](../../../autobeamer-review/references/language-quality-gate.md)),
+and the scientific-error row (−15 per bad relation). Do not restate the table here.
 
-| Issue type | Deduction |
-|-----------|-----------|
-| Compilation error | −10 each |
-| Overfull hbox > 10pt | −5 each |
-| Undefined reference | −3 each |
-| Box overflow (visual) | −5 each |
-| Sparse slide (≤3 text-only bullets, or U < 0.60) | −5 each |
-| Text-only slide ratio > 30% (`academic-presentation`) or > 20% (`passive-study`) | −5 (total) |
-| >4 consecutive formal slides | −3 per run |
-| TikZ label overlap | −5 each |
-| Notation inconsistency | −3 each |
-| Missing motivation before definition | −3 each |
-| Missing backup slides | −3 |
-| No references slide | −5 |
-| **passive-study / proof-bearing active-socratic**: Proof gap — goal not stated, a step unjustified ("thus/hence/clearly/可验证/易证/one verifies/类似地"), a term used before defined, the easy half of a bound/equivalence dropped, or multiple logical moves compressed into one line | **−15 each (CRITICAL — P0)** |
-| **passive-study only**: Proof shown as a sketch / "omitted" / "similarly" instead of in full | **−15 per proof (CRITICAL — P0)** |
-| **passive-study only**: Named result (Farkas/KKT/IFT/Rockafellar/…) invoked without its one-line statement + applicability on-frame | −5 each |
-| **passive-study only**: Missing glossary or exercise section | −5 each |
-| **passive-study only**: Missing bibliographical notes section | −5 |
-| **Foreign-language prose leakage** (e.g. an English sentence/clause in a Chinese deck; brief/spec text pasted verbatim). English *terms* & `$...$` content are fine | **−10 each (CRITICAL)** |
-| **Scientific error in a displayed relation** — wrong sign, flipped inequality direction, off-by-one index, wrong quantifier, dimensional mismatch (verify EVERY relation, do not skim) | **−15 each (CRITICAL — P0)** |
-| Language quality (语言四性): translation-ese / mistranslation / clunky redundant prose (流畅性·准确度·优雅性) | −3 each |
-| `\resizebox` (or `\tiny`) used to shrink body prose below `\scriptsize` to force fit (split the frame instead) | −3 each |
-| **passive-study / proof-bearing**: "Understanding-first" breach — a gap-free but *purpose-unclear* (目的不明) definition/proof; result stated with no question/idea/why; multi-frame proof with no map/recall (see passive-study rubric + `POPULIST-REWRITE-CONTRACT`) | **−15 each (CRITICAL — P0)** |
-
-**academic-presentation thresholds:**
-- **Score ≥ 90**: Ready to deliver
-- **Score 80–89**: Acceptable with caveats
-- **Score < 80**: Must fix before delivery
-
-**passive-study thresholds:**
-- **Score ≥ 95**: Ready to deliver
-- **Score 90–94**: Minor refinements needed
-- **Score < 90**: Must fix before delivery
+**Thresholds:** `academic-presentation` ≥ 90 ready / 80–89 caveats / < 80 must-fix;
+`passive-study` & `problem-sheet` ≥ 95 ready / 90–94 refine / < 90 must-fix.
 
 ### 5d. Fix
 

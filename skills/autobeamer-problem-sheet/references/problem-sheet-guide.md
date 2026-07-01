@@ -98,7 +98,8 @@ plus a 直觉 line. Place it **immediately after** the sentence that first uses 
 ## 6. The gap-free answer key (`\appendix`)
 
 This sheet ships full solutions — and **every solution is a gap-free proof (P0)**; a single
-breach fails the deck. See [proof-rigor-p0] and the passive-study rubric. A solution is
+breach fails the deck. See the [proof-rigor gate](../../autobeamer-review/SKILL.md) and the
+[passive-study rubric](../../autobeamer-review/references/rubrics/passive-study-review.md). A solution is
 **gapped** if it: omits its goal; uses *thus / hence / clearly / 可验证 / 易证 / one
 verifies / 类似地* for a real step; uses a term before it is defined; invokes a named
 result (Farkas/KKT/IFT/Rockafellar) without a one-line statement + why its hypothesis

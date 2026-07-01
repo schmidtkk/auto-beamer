@@ -14,7 +14,7 @@
         "repo": "schmidtkk/auto-beamer",
         "ref": "main"
       },
-      "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, source-document-first image policy, and 7 agent skills for passive-study, active-socratic, and academic-presentation decks.",
+      "description": "AutoBeamer — AI-powered XeLaTeX Beamer slide system with layout optimizer, design grammar checker, source-document-first image policy, an executable language-quality gate, and 11 agent skills for passive-study, active-socratic, academic-presentation, and problem-sheet decks.",
       "version": "1.3.0",
       "author": {
         "name": "schmidtkk",

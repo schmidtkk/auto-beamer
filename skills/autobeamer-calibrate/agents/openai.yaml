@@ -2,7 +2,7 @@ interface:
   display_name: "AutoBeamer Calibrate"
   short_description: "Calibrate scaffolding depth + per-slide cognitive load to a target reader profile"
   brand_color: "#00796b"
-  default_prompt: "Use /autobeamer-calibrate to set per-profile per-slide load budgets, smooth the difficulty gradient, or proofread a deck for a specific reader background."
+  default_prompt: "Use $autobeamer-calibrate to set per-profile per-slide load budgets, smooth the difficulty gradient, or proofread a deck for a specific reader background."
 
 policy:
   allow_implicit_invocation: true

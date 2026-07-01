@@ -1,6 +1,6 @@
 ---
 name: autobeamer-problem-sheet
-description: Create an intensive-math self-study problem sheet as a XeLaTeX Beamer PDF — guided problems with weak→strong hints in the body and gap-free worked solutions in an \appendix answer key.
+description: "Create an intensive-math self-study problem sheet as a XeLaTeX Beamer PDF — guided problems with weak→strong hints in the body and gap-free worked solutions in an appendix answer key."
 when_to_use: |
   Triggers on: "problem sheet", "exercise set", "习题册", "习题精解", "worksheet",
   "guided problems", "练习题", "self-study problems", "make a problem set for <topic>",
@@ -20,7 +20,8 @@ Build a **self-study problem sheet** for an intensive-math (or technical) topic 
 XeLaTeX Beamer **PDF**. The reader *learns by deriving*: a carefully ordered chain of
 problems makes each concept feel inevitable. Every problem carries weak→strong **hints**;
 every full **worked solution** lives in an `\appendix` **answer key** and must be
-**gap-free** (P0 — see [proof-rigor-p0]). This skill **reuses the AutoBeamer ecosystem**
+**gap-free** (P0 — see the [proof-rigor gate](../autobeamer-review/SKILL.md) and
+[quality-rubric.md](../autobeamer-review/references/quality-rubric.md)). This skill **reuses the AutoBeamer ecosystem**
 — it is a problem-sheet *mode*, not a parallel pipeline.
 
 This SKILL.md is a thin router. The authoring law is in

@@ -90,15 +90,15 @@ grep -c "multiply defined" build/FILE.log
 
 `Overfull \vbox` means content runs off the bottom of a slide — always CRITICAL. This is the headline layout error the build script flags (`build.sh`); never report PASS while any remain.
 
-#### 2e. Source Static Gates (mandatory — run tool)
+#### 2e. Source Static & Language Gates (mandatory — run tools)
 
 ```bash
 python tools/validate_deck.py static FILE.tex --mode passive-study
-python tools/validate_deck.py static FILE.tex --mode active-socratic
-python tools/validate_deck.py static FILE.tex --mode academic-presentation
+python tools/lang_lint.py     lint   FILE.tex --mode passive-study
 ```
 
-Run exactly one command with the deck's selected mode.
+Run both with the deck's selected mode (`passive-study` shown; substitute
+`active-socratic` / `academic-presentation` / `problem-sheet`).
 
 | Gate | Pass Condition |
 |------|----------------|
@@ -108,6 +108,15 @@ Run exactly one command with the deck's selected mode.
 | References slide | Present and second-to-last before Thank You |
 | Backup slides | `\appendix` appears before backup slides |
 | mode-specific required sections | Passes [mode-gates](../autobeamer-create/references/validation/mode-gates.md) |
+| **Foreign-language prose leakage** (English sentence in a Chinese deck) | 0 CRITICAL from `lang_lint.py` |
+| **AI-flavor fillers / proof-hedges** | 0 MAJOR/CRITICAL from `lang_lint.py` |
+
+`lang_lint.py` is LaTeX-aware (protects math/macros/verbatim) and enforces the
+mechanical subset of the language gate. It is the one prose check that belongs in
+*validate* (measurable, deterministic); the judgment axes (mistranslation,
+elegance, scientific correctness) stay in [autobeamer-review](../autobeamer-review/SKILL.md)
+`proofread`. Both halves are defined in
+[language-quality-gate.md](../autobeamer-review/references/language-quality-gate.md).
 
 #### 2f. Layout Audit (mandatory — run tool)
 
